@@ -323,6 +323,15 @@ const drawChampDiv = function (uid) {
         delete myChamps[uid];
         update();
     }, false);
+    
+    finalDOM.getElementsByClassName("advOpt")[0].addEventListener("click", function () {
+        let element = finalDOM.getElementsByClassName("dropPanel")[0];
+        if (element.style.display === "block") {
+            element.style.display = "none";
+        } else {
+            element.style.display = "block";
+        }
+    }, false);
 
     //Add Item Categories
     let catsDOM = finalDOM.getElementsByClassName("itemCats")[0],

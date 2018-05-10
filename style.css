@@ -145,6 +145,7 @@ h2 {
     clear: left;
     overflow: hidden;
     font-size: 0.9em;
+    padding-top: 0.2em;
 }
 
 .champStats input {
@@ -259,6 +260,7 @@ h3 {
 
 .dropPanel {
     width: 100%;
+    display: none;
     float: left;
     clear: both;
 }
@@ -287,6 +289,7 @@ h3 {
 
 .dropContent {
     width: 100%;
+    display: none;
     height: 6rem;
     text-align: center;
 }
