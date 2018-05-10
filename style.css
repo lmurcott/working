@@ -1,0 +1,333 @@
+img {
+  user-drag: none; 
+  user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none; /* Safari 3.1+ */
+  -moz-user-select: none; /* Firefox 2+ */
+  -ms-user-select: none; /* IE 10+ */
+  user-select: none; /* Standard syntax */
+}
+
+body, div, h1, h2, h3, img, p, ul, li{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Georgia, Serif;
+}
+
+body, input, select, option {
+    /*font-family: Cambria, serif;*/
+    font-family: Georgia;
+}
+
+ul {
+    list-style-type: none;
+}
+
+/* Header */
+
+h1 {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-family: calibri, arial, sans-serif;
+    font-size: 1.25em;
+    padding: 0.5em;
+    display: flex;
+    float: left;
+}
+ 
+#header {
+    width: 100%;
+    position: absolute;
+    height: 3em;
+}
+#logo2 {
+    color: blue;
+}
+
+#importBx {
+    float: left;
+    height: 100%;
+    background-color: purple;
+}
+
+/* Champ Panels */
+
+.sideHead {
+    position: absolute;
+    width: 100%;
+    top: 3em;
+    height: 2em;
+    background-color: green;
+}
+
+.sidePanel {
+    width: 50%;
+    float: left;
+}
+
+
+#content {
+    width: 100%;
+    height: 100%;
+    padding: 5em 0 1.5em 0;
+}
+
+.champSide {
+    float: left;
+    width: 50%;
+    overflow: auto;
+    height: 100%;
+}
+
+#side0 {
+    border-top: solid 0.5rem blue;
+}
+
+#side1 {
+    border-top: solid 0.5rem red;
+}
+
+.champMain {
+    width: 100%;
+}
+
+.champBox{
+    width: 100%;
+    font-size: 0.85em;
+    margin-top: 0.25em;
+}
+
+.champHead {
+    background-position: 1% 0;
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 60%;
+    font-weight: bold;
+    font-size: 1em;
+    float: left;
+    clear: left;
+    height: 1.5rem;
+    padding-left: 2.25em;
+}
+
+h2 {
+    font-family: calibri, arial, sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 1.35em;
+    width: 100%;
+    text-align: center;
+}
+
+.headBtn {
+    float: right;
+    height: 100%;
+    padding: 0 1em;
+    border: solid 1px black;
+    margin-left: 0.25em;
+    cursor: pointer;
+}
+
+.killBtn {
+    float: right;
+    height: 100%;
+    padding: 0 1em;
+    border: solid 1px black;
+    margin-left: 0.25em;
+    cursor: pointer;
+}
+
+.champStats{
+    width: 60%;
+    height: 7rem;
+    float: left;
+    clear: left;
+    overflow: hidden;
+    font-size: 0.9em;
+}
+
+.champStats input {
+    width: 4em;
+    padding: 0;
+    text-align: center;
+    font-size: 0.9em;
+}
+
+.champStats ul{
+    column-count: 2;
+    text-align: center;
+}
+
+.advBox {
+    width: 60%;
+    height: 4rem;
+    background-color: yellow;
+    float: left;
+    clear: left;
+}
+
+.advOpt{
+    float: right;
+    clear: right;
+    height: 2.5rem;
+    width: 2.5rem;
+    text-align: center;
+    font-size: 2em;
+    border: solid 1px black;
+    color: black;
+    cursor: pointer;
+}
+
+.items {
+    float: left;
+}
+
+
+.skillBox{
+    width: 40%;
+    text-align: center;
+    float: right;
+    clear: right;
+    overflow: hidden;
+    border: solid 1px white;
+    background-color: #EEE;
+}
+
+.skillBox p{
+    width: 100%;
+    text-align: left;
+}
+
+.skillImg {
+    width: 15%;
+    margin: 0 0.5%;
+    text-align: center;
+    float: left;
+}
+
+.skillImg img {
+    width: 90%;
+    cursor: pointer;
+    border-radius: 0.3em;
+}
+
+.skillImg input {
+    width: 100%;
+    font-size: 0.8em;
+    text-align: center;
+    margin-top: 0.1em;
+}
+
+.skillTBar {
+    height: 4rem;
+    background-color: black;
+    overflow: hidden;
+    padding: 0.5% 0 0 2%;
+}
+
+h3 {
+    text-align: left;
+}
+
+.skillDesc {
+    width: 100%;
+    height: 8.5rem;
+    padding-left: 1%;
+    overflow: auto;
+    clear: both;
+    display: none;
+}
+
+.itemIcon {
+    width: 2.5em;
+    float: left;
+    cursor: pointer;
+    text-align: center;
+    margin: 0 0.1em;
+}
+
+.itemIcon img {
+    width: 100%;
+    border-radius: 0.3em;
+}
+
+.itemIcon input {
+    width: 100%;
+    margin: 0.1em 0;
+}
+
+.dropPanel {
+    width: 100%;
+    float: left;
+    clear: both;
+}
+
+.dropTBar {
+    width: 100%;
+    column-count: 3;
+    column-gap: 0;
+}
+
+.dropTBar li {
+    text-align: center;
+    width: 100%;
+    font-size: 0.85em;
+    font-weight: bold;
+    font-family: calibri, arial, sans-serif;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.15em;
+    cursor: pointer;
+}
+
+.dropTBar li:hover {
+    color: green;
+}
+
+.dropContent {
+    width: 100%;
+    height: 6rem;
+    text-align: center;
+}
+
+.dropContent img {
+    width: 2rem;
+    cursor: pointer;
+    border-radius: 0.3em;
+}
+
+.itemOpt {
+    width: 25%;
+    clear: left;
+    float: left;
+}
+
+.itemOpt input, .itemOpt select {
+    width: 90%;
+    height: 1.5em;
+    margin: 1.5%;
+    font-size: 0.9em;
+}
+
+.items {
+    width: 75%;
+    height: 100%;
+    overflow: auto;
+    float: right;
+    clear: right;
+}
+
+/* Footer */
+
+#footer {
+    width: 100%;
+    z-index: 100;
+    font-size: 0.75em;
+    height: 1.5rem;
+    padding: 0;
+    position: absolute;
+    bottom: 0;
+    background-color: white;
+    text-align: center;
+}

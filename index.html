@@ -1,0 +1,189 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="League of Legends Combat Calculator Tool, calculate the best damage, defense, healing, and shield build">
+    <meta name="keywords" content="League of Legends,Calculator,Parse,DPS,defence,theorycraft,runes,items,combat">
+    <meta name="author" content="Logan Murcott">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>&#128295; Theory Crunch - League of Legends Combat Calculator</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="champobj.js"></script>
+    <script src="myjs.js"></script>
+    <!--<script src="champjs.js"></script> -->
+</head>
+<body>
+    <div id="header">
+        <h1>
+            Theory<span id="logo2">Crunch</span> |
+        </h1>
+        <div id="importBx">
+        <form onsubmit="return getIGN()">
+            <select id="region">
+                <option value="BR1">BR</option>
+                <option value="EUW1">EUW</option>
+                <option value="EUN1">EUNE</option>
+                <option value="JP1">JP</option>
+                <option value="KR">KR</option>
+                <option value="LA1">LAN</option>
+                <option value="LA2">LAS</option>
+                <option value="NA1" SELECTED>NA</option>
+                <option value="OC1">OCE</option>
+                <option value="RU">RU</option>
+                <option value="TR1">TR</option>
+            </select>
+            <input type="text" id="ign">
+            <input type="submit" value="Import" id="submitBtn">
+        </form>
+        </div>
+    </div>
+
+    <div class="sideHead">
+        <div class="sidePanel">
+            <select id="enemy0">
+
+            </select>
+        </div>
+        <div class="sidePanel">
+            <select id="enemy1">
+
+            </select>
+        </div>
+    </div>
+
+    <div id="content">
+        <div class="champSide" id="side0">
+            <div>
+                <div id="champs0">
+                    <template>
+                            <div class="champHead">
+                                <div class="killBtn">x</div>
+                                <div class="headBtn">c</div>
+                                <h2>
+                                    header
+                                </h2>
+                            </div>
+                            <div class="skillBox">
+                                <div class="skillTBar">
+                                    <div class="skillImg" >
+                                        <img src="http://ddragon.leagueoflegends.com/cdn/8.9.1/img/item/1036.png">
+                                    </div>
+                                    <div class="skillImg" >
+                                        <img>
+                                    </div>
+                                    <div class="skillImg" >
+                                        <img>
+                                        <input type="number" max="5" min="0" value="0" onchange="update()">
+                                    </div>
+                                    <div class="skillImg" >
+                                        <img>
+                                        <input type="number" max="5" min="0" value="0" onchange="update()">
+                                    </div>
+                                    <div class="skillImg" >
+                                        <img>
+                                        <input type="number" max="5" min="0" value="0" onchange="update()">
+                                    </div>
+                                    <div class="skillImg" >
+                                        <img>
+                                        <input type="number" max="3" min="0" value="0" onchange="update()">
+                                    </div>
+                                </div>
+                                <div class="skillDesc" style="display: block;">
+                                    <h3>
+                                    </h3>
+                                    <p>
+                                        Stuff
+                                    </p>
+                                </div>
+                                <div class="skillDesc">
+                                    <h3>
+                                    </h3>
+                                    <p>
+                                        Stuff
+                                    </p>
+                                </div>
+                                <div class="skillDesc">
+                                    <h3>
+                                    </h3>
+                                    <p>
+                                        Stuff
+                                    </p>
+                                </div>
+                                <div class="skillDesc">
+                                    <h3>
+                                    </h3>
+                                    <p>
+                                        Stuff
+                                    </p>
+                                </div>
+                                <div class="skillDesc">
+                                    <h3>
+                                    </h3>
+                                    <p>
+                                        Stuff
+                                    </p>
+                                </div>
+                                <div class="skillDesc">
+                                    <h3>
+                                    </h3>
+                                    <p>
+                                        Stuff
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="champStats">
+                                <ul class="statList">
+                                    <li>
+                                        <span class="levelTxt"></span>:
+                                        <input type="number" class="champLevel" min=1 max=18 value=1 onchange="update()">
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="advBox">
+                                <div class="champItems"></div>
+                                <div class="advOpt">&#11206;</div> <!-- &#11205; -->
+                            </div>
+                            <div class="dropPanel">
+                                <ul class="dropTBar">
+                                    <li>Items</li>
+                                    <li>Runes</li>
+                                    <li>Special</li>
+                                </ul>
+                                <div class="dropContent">
+                                    <div class="itemOpt">
+                                        <input type="text" class="itemSearch">
+                                        <select class="itemCats">
+                                        </select>
+                                        <select class="itemMaps">
+                                        </select>
+                                    </div>
+                                    <div class="items">
+                                    </div>
+                                </div>
+                                
+                            </div>
+                    </template>
+                <!-- Blue side champs go here -->
+                </div>
+                <div class="champSlct">
+                    <select id="chmpSlct0"></select>
+                    <input type="button" onclick="addChamp(0)" value="+">
+                </div>
+            </div>
+        </div>
+        <div class="champSide" id="side1">
+            <div>
+                <div id="champs1">
+                <!-- Red side champs go here -->
+                </div>
+                <div class="champSlct">
+                    <select id="chmpSlct1"></select>
+                    <input type="button" onclick="addChamp(1)" value="+">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="footer">
+        This site is not endorsed by Riot Games. League of Legends is the trademark of Riot Games.
+    </div>
+</body>
+</html>
