@@ -183,10 +183,10 @@ const champObj = function (obj, side) {// create champion object
             attackspeed[1] = Number(round(calcBaseStats(0, stats.attackspeedperlevel, level)) + "e-2");
             hp[0] = round(calcBaseStats(stats.hp, stats.hpperlevel, level));
             hpregen[0] = round(calcBaseStats(stats.hpregen, stats.hpregenperlevel, level), 1);
-            if(stats.mpperlevel !== 0){
+            if (stats.mpperlevel !== 0) {
                 mp[0] = round(calcBaseStats(stats.mp, stats.mpperlevel, level));
             }
-            if(stats.mpregenperlevel !== 0){
+            if (stats.mpregenperlevel !== 0) {
                 mpregen[0] = round(calcBaseStats(stats.mpregen, stats.mpregenperlevel, level), 1);
             }
             spellblock[0] = round(calcBaseStats(stats.spellblock, stats.spellblockperlevel, level));
@@ -195,6 +195,28 @@ const champObj = function (obj, side) {// create champion object
         },
         setLevel = function (uid) {
             level = document.getElementById(uid).getElementsByClassName("champLevel")[0].value;
+        },
+        setItemStats = function () {
+            let statObj = {};
+            if (items.length > 0) {
+                items.forEach(function (itemNo) {
+                    Object.keys(theItems[itemNo].stats).forEach(function (key) {
+                        if (statObj.hasOwnProperty(key)) {
+                            statObj[key] = calc(theItems[itemNo].stats[key], statObj[key], 0);
+                        } else {
+                            statObj[key] = theItems[itemNo].stats[key];
+                        }
+                    });
+                });
+            }
+            hp[1] = statObj.hasOwnProperty("FlatHPPoolMod")
+                ? statObj.FlatHPPoolMod
+                : 0;
+            if (partype === theLang.Mana) {
+                mp[1] = statObj.hasOwnProperty("FlatMPPoolMod")
+                    ? statObj.FlatMPPoolMod
+                    : 0;
+            }
         };
 
     return {
@@ -237,7 +259,8 @@ const champObj = function (obj, side) {// create champion object
         spells,
         stats,
         setBaseStats,
-        setLevel
+        setLevel,
+        setItemStats
     };
 };
 
@@ -323,7 +346,7 @@ const drawChampDiv = function (uid) {
         delete myChamps[uid];
         update();
     }, false);
-    
+
     finalDOM.getElementsByClassName("advOpt")[0].addEventListener("click", function () {
         let element = finalDOM.getElementsByClassName("dropPanel")[0];
         if (element.style.display === "block") {
@@ -435,6 +458,12 @@ const drawChampDiv = function (uid) {
 
 //** ADD ITEM SCRIPTS **
 
+const checkBoots = function (items){
+    return items.some( function (itemNo) {
+        return theItems[itemNo].tags.includes("Boots");
+    });
+}
+
 const addItem = function (uid, itemNo) {
     const toogleItems = [3800,2065,3001,3379,3285,3145,3303,3098,3092,2301,1402,1410,1414,3100,3384,3025,3078,3057,2015,3087,3094,3134,3147,3742,2031,2032,2033,2003,3194,3174],
     stackItems = [3124,3091,1082,3041,3027,3151,3136,3907];
@@ -442,13 +471,13 @@ const addItem = function (uid, itemNo) {
     let itemDOM = document.getElementById(uid).getElementsByClassName("champItems")[0],
         itemObj = myChamps[uid].items;
 
-    if (itemObj.length < 6) {
+    if (itemObj.length < 6 && !(theItems[itemNo].tags.includes("Boots") && checkBoots(itemObj))) {
         let theDiv = document.createElement("div"),
             theImg = document.createElement("img");
-        
+
         theImg.src = "http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/item/" + itemNo + ".png";
         theDiv.appendChild(theImg);
-        
+
         if (toogleItems.includes(itemNo) && !itemObj.includes(itemNo)) {
             let theInput = document.createElement("input");
             theInput.id = "cb" + uid + itemNo;
@@ -488,14 +517,13 @@ const addItem = function (uid, itemNo) {
             theInput.addEventListener("change", update);
             theDiv.appendChild(theInput);
         }
-        
+
         theDiv.classList.add("itemIcon");
         itemDOM.appendChild(theDiv);
-        
+
         itemObj.push(itemNo);
     }
-    
-    
+    update();
 };
 
 // ** UPDATE SCRIPTS **
@@ -550,10 +578,12 @@ const drawStats = function () {
     });
 }
 
+
 const update = function () {
     Object.keys(myChamps).forEach(function (uid) {
         myChamps[uid].setLevel(uid);
         myChamps[uid].setBaseStats();
+        myChamps[uid].setItemStats();
     });
     drawStats();
 }
