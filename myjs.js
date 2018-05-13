@@ -60,6 +60,27 @@ const round = function (num, places = 0) {// Round number
     return Number(Math.round(Number(num + "e" + places)) + "e-" + places);
 };
 
+const calcBaseStats = function (b, g, n) {
+    "use strict";
+    return calc(b, calc(calc(g, (n - 1)), calc(0.7025, calc(0.0175, (n - 1)), 0)), 0);
+};
+
+const calcBaseAspd = function (delay) {
+    "use strict";
+    return round(calc(0.625, calc(1, delay, 0), 3),3);
+};
+
+const calcMoveSpeed = function (base, flat, percent = 0) {//add slow ratio and Multiplicative MS bonus
+    //(Base MS + Flat MS bonuses) × (1 + Sum of all Additive Percent MS bonuses) × (1 - Highest Slow ratio) × Product of (1 + any Multiplicative MS bonus)
+    speed = calc((base + flat), calc(1, percent, 0));
+
+    if (speed > 490) {
+        speed = calc(calc(calc(speed, 490, 1), 0.5), 475, 0);
+    }
+
+    return speed;
+};
+
 // ** PRE LOADER **
 
 const setLocale = function () {
@@ -128,19 +149,9 @@ const setItems = function (json) {
 
 // ** ADD NEW CHAMP **
 
-const calcBaseStats = function (b, g, n) {
+const champObj = function (obj, side, uid) {// create champion object
     "use strict";
-    return calc(b, calc(calc(g, (n - 1)), calc(0.7025, calc(0.0175, (n - 1)), 0)), 0);
-};
-
-const calcBaseAspd = function (delay) {
-    "use strict";
-    return round(calc(0.625, calc(1, delay, 0), 3),3);
-};
-
-const champObj = function (obj, side) {// create champion object
-    "use strict";
-    let {aSpdBonus} = champVars[obj.id],
+    var {aSpdBonus} = champVars[obj.id],
         {buffs} = champVars[obj.id],
         {debuffs} = champVars[obj.id],
         {id} = obj,
@@ -173,11 +184,13 @@ const champObj = function (obj, side) {// create champion object
         mp = [stats.mp, 0],
         mPen = [],
         mpregen = [stats.mpregen, 0, 0],
+        uid = uid,
         spellblock = [],
         rPaths = [],
         rSlots = [],
         runes = [],
         setBaseStats = function () {
+            level = document.getElementById(uid).getElementsByClassName("champLevel")[0].value;
             attackdamage[0] = round(calcBaseStats(stats.attackdamage, stats.attackdamageperlevel, level));
             armor[0] = round(calcBaseStats(stats.armor, stats.armorperlevel, level));
             attackspeed[1] = Number(round(calcBaseStats(0, stats.attackspeedperlevel, level)) + "e-2");
@@ -193,11 +206,9 @@ const champObj = function (obj, side) {// create champion object
             cdr[0] = 0;
             move[0] = stats.movespeed;
         },
-        setLevel = function (uid) {
-            level = document.getElementById(uid).getElementsByClassName("champLevel")[0].value;
-        },
         setItemStats = function () {
             let statObj = {};
+
             if (items.length > 0) {
                 items.forEach(function (itemNo) {
                     Object.keys(theItems[itemNo].stats).forEach(function (key) {
@@ -209,14 +220,329 @@ const champObj = function (obj, side) {// create champion object
                     });
                 });
             }
-            hp[1] = statObj.hasOwnProperty("FlatHPPoolMod")
-                ? statObj.FlatHPPoolMod
+
+            const setStat = function (modStr) {
+                return statObj.hasOwnProperty(modStr)
+                ? statObj[modStr]
                 : 0;
-            if (partype === theLang.Mana) {
-                mp[1] = statObj.hasOwnProperty("FlatMPPoolMod")
-                    ? statObj.FlatMPPoolMod
-                    : 0;
             }
+
+            //add unique item additive stats
+
+
+            hp[1] = setStat("FlatHPPoolMod");
+            armor[1] = setStat("FlatArmorMod");
+            spellblock[1] = setStat("FlatSpellBlockMod");
+            ap = setStat("FlatMagicDamageMod");
+            attackdamage[1] = setStat("FlatPhysicalDamageMod");
+            hpregen[1] = setStat("FlatHPRegenMod");
+            crit = setStat("FlatCritChanceMod");
+            move[1] = setStat("FlatMovementSpeedMod");
+            move[2] = setStat("PercentMovementSpeedMod");
+            lifeSteal = setStat("PercentLifeStealMod");
+            if (statObj.hasOwnProperty("PercentAttackSpeedMod")) {// Attack Speed
+                attackspeed[1] = calc(statObj.PercentAttackSpeedMod, attackspeed[1], 0);
+            }
+            if (partype === theLang.Mana) {
+                mp[1] = setStat("FlatMPPoolMod");
+            }
+        },
+        drawChampDiv = function () {
+            "use strict";
+            const
+                home = document.getElementById("champs" + side),
+                champDOM = document.getElementsByTagName("template")[0].content.cloneNode(true);
+
+            var champDiv = document.createElement("div");
+            champDiv.id = uid;
+            champDiv.classList.add("champBox");
+            champDiv.appendChild(champDOM);
+            home.appendChild(champDiv);
+
+            let finalDOM = document.getElementById(uid);
+            finalDOM.getElementsByTagName("h2")[0].innerText = name;
+            finalDOM.getElementsByClassName("champHead")[0].style.backgroundImage = "url('http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/champion/" + image.full + "')";
+
+            let skillDesc = finalDOM.getElementsByClassName("skillDesc");
+
+            Array.from(skillDesc).forEach(function (theNode, index) {
+                switch (index) {
+                case 0:
+                    theNode.getElementsByTagName("h3")[0].innerText = theLang.Attack;
+                    break;
+                case 1:
+                    theNode.getElementsByTagName("h3")[0].innerText = passive.name;
+                    break;
+                default:
+                    theNode.getElementsByTagName("h3")[0].innerText = spells[index - 2].name;
+                }
+            });
+
+            let skillImg = finalDOM.getElementsByClassName("skillImg");
+
+            Array.from(skillImg).forEach(function (theNode, index) {
+                switch (index) {
+                case 0:
+                    break;
+                case 1:
+                    theNode.getElementsByTagName("img")[0].src = "http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/passive/" + passive.image.full;
+                    break;
+                default:
+                    theNode.getElementsByTagName("img")[0].src = "http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/spell/" + spells[index - 2].image.full;
+                    if (index === 5 && spells[3].maxrank !== 3) {
+                        theNode.getElementsByTagName("input")[0].max = spells[3].maxrank;
+                        theNode.getElementsByTagName("input")[0].min = 1;
+                        theNode.getElementsByTagName("input")[0].value = 1;
+                    }
+                }
+                theNode.getElementsByTagName("img")[0].addEventListener("click", function () {
+                    Array.from(skillDesc).forEach(function (box, count) {
+                        box.style.display = "none";
+                        if (count === index) {
+                            box.style.display = "block";
+                        }
+                    });
+                }, false);
+            });
+
+            finalDOM.getElementsByClassName("killBtn")[0].addEventListener("click", function () {
+                finalDOM.remove();
+                delete myChamps[uid];
+                update();
+            }, false);
+
+            finalDOM.getElementsByClassName("advOpt")[0].addEventListener("click", function () {
+                let element = finalDOM.getElementsByClassName("dropPanel")[0];
+                if (element.style.display === "block") {
+                    element.style.display = "none";
+                } else {
+                    element.style.display = "block";
+                }
+            }, false);
+
+            //Add Item Categories
+            let catsDOM = finalDOM.getElementsByClassName("itemCats")[0],
+                catsFrag = document.createDocumentFragment();
+            const theCats = [
+                "AllItems",
+                "SpellDamage",
+                "Armor",
+                "ArmorPenetration",
+                "AttackSpeed",
+                "Boots",
+                "CooldownReduction",
+                "Consumable",
+                "CriticalStrike",
+                "Damage",
+                "Health",
+                "HealthRegen",
+                "LifeSteal",
+                "MagicPenetration",
+                "SpellBlock",
+                "Mana",
+                "ManaRegen",
+                "NonbootsMovement"
+            ];
+            theCats.forEach(function (cat) {
+                let theOption = document.createElement("option");
+                theOption.value = cat;
+                theOption.innerText = theLang[cat];
+                catsFrag.appendChild(theOption);
+            });
+            catsDOM.appendChild(catsFrag);
+
+            //Add item map options
+            const itemMap = [[theLang.Map1, 11], [theLang.Map10, 10], [theLang.Map12, 12]];
+            let mapDOM = finalDOM.getElementsByClassName("itemMaps")[0],
+                mapFrag = document.createDocumentFragment();
+
+            itemMap.forEach(function (map) {
+                let theOption = document.createElement("option");
+                theOption.value = map[1];
+                theOption.innerText = map[0];
+                mapFrag.appendChild(theOption);
+            });
+            mapDOM.appendChild(mapFrag);
+
+            const searchDOM = finalDOM.getElementsByClassName("itemSearch")[0];
+
+            //Add event handlers to image filtering
+            let itemFilters = [
+                searchDOM,
+                catsDOM,
+                mapDOM
+            ];
+            itemFilters.forEach(function (theNode) {
+                theNode.addEventListener("input", function () {
+                    const theCat = catsDOM.value,
+                        query = new RegExp(searchDOM.value, "i"),
+                        map = mapDOM.value;
+                    let itemBox = finalDOM.getElementsByClassName("items")[0],
+                        docFrag = document.createDocumentFragment();
+
+                    sortedItems.forEach(function (itemNo) {
+                        if (
+                            theItems[itemNo].name.search(query) > -1 &&
+                            theItems[itemNo].tags.indexOf("Trinket") === -1 &&
+                            theItems[itemNo].hideFromAll === undefined &&
+                            theItems[itemNo].consumed === undefined &&
+                            (theCat === "AllItems" || theItems[itemNo].tags.includes(theCat)) &&
+                            (theItems[itemNo].inStore === undefined || theItems[itemNo].specialRecipe) &&
+                            theItems[itemNo].maps[map] &&
+                            (theItems[itemNo].requiredChampion === undefined || theItems[itemNo].requiredChampion === name)
+                        ) {
+                            let theImg = document.createElement("img");
+                            theImg.src = "http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/item/" + itemNo + ".png";
+                            theImg.addEventListener("click", function () {
+                                addItem(uid, parseInt(itemNo));
+                            });
+                            docFrag.appendChild(theImg);
+                        }
+                    });
+
+                    while (itemBox.hasChildNodes()) {
+                        itemBox.removeChild(itemBox.lastChild);
+                    }
+                    itemBox.appendChild(docFrag);
+                }, false);
+            });
+
+            //trigger event to build items for the first time
+            let drawItems = new CustomEvent(
+                "input",
+                {
+                    detail: "Build Items"
+                }
+            );
+            catsDOM.dispatchEvent(drawItems);
+
+            finalDOM.getElementsByClassName("levelTxt")[0].innerText = theLang.Level;
+        },
+        drawStats = function () {
+            "use strict";
+            let statBox = document.getElementById(uid).getElementsByClassName("statList")[0],
+                frag = document.createDocumentFragment();
+            while (statBox.childElementCount > 1) {
+                statBox.removeChild(statBox.lastChild);
+            }
+            let statList = [];
+            statList.push(
+                [theLang.Health, hp[0] + hp[1]],
+                [theLang.HealthRegen, hpregen[0] + hpregen[1]],
+                [theLang.Armor, armor[0] + armor[1]],
+                [theLang.SpellBlock, spellblock[0] + spellblock[1]],
+                [theLang.AttackDamage, attackdamage[0] + attackdamage[1]],
+                [theLang.AttackSpeed, round(calc(attackspeed[0], calc(1, attackspeed[1], 0)), 3)],
+                [theLang.CriticalStrike, Number(crit + "e2") + "%"],
+                [theLang.LifeSteal, Number(lifeSteal + "e2") + "%"],
+                [theLang.SpellDamage, ap],
+                [theLang.CooldownReduction, cdr + "%"],
+                [theLang.Movement, calcMoveSpeed(move[0], move[1], move[2])]
+            );
+
+            if (partype === theLang.Mana) {
+                statList.push(
+                    [partype, mp[0] + mp[1]],
+                    [theLang.ManaRegen, mpregen[0]]
+                );
+            } else if (mpregen[0] > 0) {
+                statList.push(
+                    [partype, mp[0]],
+                    [partype + theLang.Regen, mpregen[0]]
+                );
+            } else if (mp[0] > 0) {
+                statList.push(
+                    [partype, mp[0]]
+                );
+            }
+
+            statList.forEach(function (stat) {
+                let theLi = document.createElement("li");
+                theLi.innerText = stat[0] + ": " + stat[1];
+                frag.appendChild(theLi);
+            });
+            statBox.appendChild(frag);
+        },
+        drawSkillTxt = function () {
+            var skillDivs = document.getElementById(uid).getElementsByClassName("skillTxt");
+
+            const refineTtip = function (spellNo) {
+                const riotObj = spells[spellNo],
+                    myObj = ["sInfo" + spellNo],
+                    regEx = /{{[^}]*}}/g;
+
+                let tooltip = spells[spellNo].tooltip,
+                    spellLvl = document.getElementById(uid).getElementsByClassName("spellLvl")[spellNo].value;
+
+                spellLvl = (spellLvl < 1)
+                    ? 0 :
+                    spellLvl - 1;
+
+                if(myObj && myObj.txt) {
+                    tooltip += myObj.txt;
+                }
+                tooltip = tooltip.replace(/<span.class="\w*\d*.?color......">/g, "");
+                tooltip = tooltip.replace(/<[/]span>/g, "");
+                tooltip = tooltip.replace(/[*][\d.]*/g, "");
+
+                const keys = tooltip.match(regEx);
+
+                const getValue = function (theKey) {
+                    let value = "";
+
+                    //put exemption for pre calculated buffs
+
+                    if(theKey.charAt(0) === "e" && (theKey.length === 2 || (theKey.length === 3 && theKey.charAt(2) === "a"))) {
+                        value = (theKey.charAt(1) === 0) ? riotObj.effect[10][spellLvl] : riotObj.effect[theKey.charAt(1)][spellLvl];
+                    }
+                    if(myObj && myObj[theKey]) {
+                        if(myObj[theKey].empty) {
+                          return "";
+                        }
+                        value = (value === "") ? 0 : value;
+                        if (myObj[theKey].effectNo) {
+                            value = calc(value, riotObj.effect[myObj[theKey].effectNo][spellLvl], 0);
+                        }
+                        if(myObj[theKey].value) {
+                            value  = calc(value, myObj[theKey].value, 0);
+                        }
+                        if(myObj[theKey].valuePerLvl) {
+                            console.log(myObj[theKey].valuePerLvl);
+                            console.log(value);
+                            value  = calc(value, myObj[theKey].valuePerLvl[level - 1], 0);
+                            console.log(value);
+                        }
+                        if (myObj[theKey].multiplier) {
+                            value = calc(value, Number(myObj[theKey].multiplier + "e-2"));
+                        }
+
+                    }
+                    return value;
+                }
+                keys.forEach(function (key) {
+                    let rawKey = key.replace(/{{./, "");
+                    rawKey = rawKey.replace(/.}}/, "");
+                    const keyValue = getValue(rawKey),
+                        replaceRegEx = new RegExp(key);
+
+                    tooltip = tooltip.replace(replaceRegEx, keyValue);
+                });
+                return tooltip;
+            };
+
+            Array.from(skillDivs).forEach(function (div, count) {
+                switch (count) {
+                case 0:
+                    div.innerText = count;
+                    break;
+                case 1:
+                    div.innerHTML = passive.description;
+                    break;
+                default:
+                    div.innerHTML = refineTtip(count - 2);
+                    break;
+                }
+            });
         };
 
     return {
@@ -258,202 +584,27 @@ const champObj = function (obj, side) {// create champion object
         spellblock,
         spells,
         stats,
+        uid,
         setBaseStats,
-        setLevel,
-        setItemStats
+        setItemStats,
+        drawChampDiv,
+        drawStats,
+        drawSkillTxt
     };
 };
 
 const newChamp = function (json, side) {
     "use strict";
     const myUid = newUID();
-    myChamps[myUid] = champObj(json[Object.keys(json)], side);
-    myChamps[myUid].setBaseStats();
-    drawChampDiv(myUid);
+    myChamps[myUid] = champObj(json[Object.keys(json)], side, myUid);
+    myChamps[myUid].drawChampDiv();
+    update();
 };
 
 const addChamp = function (side) {
     "use strict";
     const champId = document.getElementById("chmpSlct" + side).value;
     loadJSON("champion/" + champId, newChamp, side);
-};
-
-const changeSkills = function (uid, index) {
-    console.log(uid);
-}
-
-const drawChampDiv = function (uid) {
-    "use strict";
-    const
-        champ = myChamps[uid],
-        home = document.getElementById("champs" + champ.side),
-        champDOM = document.getElementsByTagName("template")[0].content.cloneNode(true);
-
-    let champDiv = document.createElement("div");
-    champDiv.id = uid;
-    champDiv.classList.add("champBox");
-    champDiv.appendChild(champDOM);
-    home.appendChild(champDiv);
-
-    let finalDOM = document.getElementById(uid);
-    finalDOM.getElementsByTagName("h2")[0].innerText = champ.name;
-    finalDOM.getElementsByClassName("champHead")[0].style.backgroundImage = "url('http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/champion/" + champ.image.full + "')";
-
-    let skillDesc = finalDOM.getElementsByClassName("skillDesc");
-
-    Array.from(skillDesc).forEach(function (theNode, index) {
-        switch (index) {
-        case 0:
-            theNode.getElementsByTagName("h3")[0].innerText = theLang.Attack;
-            break;
-        case 1:
-            theNode.getElementsByTagName("h3")[0].innerText = champ.passive.name;
-            break;
-        default:
-            theNode.getElementsByTagName("h3")[0].innerText = champ.spells[index - 2].name;
-        }
-    });
-
-    let skillImg = finalDOM.getElementsByClassName("skillImg");
-
-    Array.from(skillImg).forEach(function (theNode, index) {
-        switch (index) {
-        case 0:
-            break;
-        case 1:
-            theNode.getElementsByTagName("img")[0].src = "http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/passive/" + champ.passive.image.full;
-            break;
-        default:
-            theNode.getElementsByTagName("img")[0].src = "http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/spell/" + champ.spells[index - 2].image.full;
-            if (index === 5 && champ.spells[3].maxrank !== 3) {
-                theNode.getElementsByTagName("input")[0].max = champ.spells[3].maxrank;
-                theNode.getElementsByTagName("input")[0].min = 1;
-                theNode.getElementsByTagName("input")[0].value = 1;
-            }
-        }
-        theNode.getElementsByTagName("img")[0].addEventListener("click", function () {
-            Array.from(skillDesc).forEach(function (box, count) {
-                box.style.display = "none";
-                if (count === index) {
-                    box.style.display = "block";
-                }
-            });
-        }, false);
-    });
-
-    finalDOM.getElementsByClassName("killBtn")[0].addEventListener("click", function () {
-        finalDOM.remove();
-        delete myChamps[uid];
-        update();
-    }, false);
-
-    finalDOM.getElementsByClassName("advOpt")[0].addEventListener("click", function () {
-        let element = finalDOM.getElementsByClassName("dropPanel")[0];
-        if (element.style.display === "block") {
-            element.style.display = "none";
-        } else {
-            element.style.display = "block";
-        }
-    }, false);
-
-    //Add Item Categories
-    let catsDOM = finalDOM.getElementsByClassName("itemCats")[0],
-        catsFrag = document.createDocumentFragment();
-    const theCats = [
-        "AllItems",
-        "SpellDamage",
-        "Armor",
-        "ArmorPenetration",
-        "AttackSpeed",
-        "Boots",
-        "CooldownReduction",
-        "Consumable",
-        "CriticalStrike",
-        "Damage",
-        "Health",
-        "HealthRegen",
-        "LifeSteal",
-        "MagicPenetration",
-        "SpellBlock",
-        "Mana",
-        "ManaRegen",
-        "NonbootsMovement"
-    ];
-    theCats.forEach(function (cat) {
-        let theOption = document.createElement("option");
-        theOption.value = cat;
-        theOption.innerText = theLang[cat];
-        catsFrag.appendChild(theOption);
-    });
-    catsDOM.appendChild(catsFrag);
-
-    //Add item map options
-    const ItemMap = [[theLang.Map1, 11], [theLang.Map10, 10], [theLang.Map12, 12]];
-    let mapDOM = finalDOM.getElementsByClassName("itemMaps")[0],
-        mapFrag = document.createDocumentFragment();
-
-    ItemMap.forEach(function (map) {
-        let theOption = document.createElement("option");
-        theOption.value = map[1];
-        theOption.innerText = map[0];
-        mapFrag.appendChild(theOption);
-    });
-    mapDOM.appendChild(mapFrag);
-
-    const searchDOM = finalDOM.getElementsByClassName("itemSearch")[0];
-
-    //Add event handlers to image filtering
-    let itemFilters = [
-        searchDOM,
-        catsDOM,
-        mapDOM
-    ];
-    itemFilters.forEach(function (theNode) {
-        theNode.addEventListener("input", function () {
-            const theCat = catsDOM.value,
-                query = new RegExp(searchDOM.value, "i"),
-                map = mapDOM.value;
-            let itemBox = finalDOM.getElementsByClassName("items")[0],
-                docFrag = document.createDocumentFragment();
-
-            sortedItems.forEach(function (itemNo) {
-                if (
-                    theItems[itemNo].name.search(query) > -1 &&
-                    theItems[itemNo].tags.indexOf("Trinket") === -1 &&
-                    theItems[itemNo].hideFromAll === undefined &&
-                    theItems[itemNo].consumed === undefined &&
-                    (theCat === "AllItems" || theItems[itemNo].tags.includes(theCat)) &&
-                    (theItems[itemNo].inStore === undefined || theItems[itemNo].specialRecipe) &&
-                    theItems[itemNo].maps[map] &&
-                    (theItems[itemNo].requiredChampion === undefined || theItems[itemNo].requiredChampion === champ.name)
-                ) {
-                    let theImg = document.createElement("img");
-                    theImg.src = "http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/item/" + itemNo + ".png";
-                    theImg.addEventListener("click", function () {
-                        addItem(uid, parseInt(itemNo));
-                    });
-                    docFrag.appendChild(theImg);
-                }
-            });
-
-            while (itemBox.hasChildNodes()) {
-                itemBox.removeChild(itemBox.lastChild);
-            }
-            itemBox.appendChild(docFrag);
-        }, false);
-    });
-
-    //trigger event to build items for the first time
-    let drawItems = new CustomEvent(
-        "input",
-        {
-            detail: "Build Items"
-        }
-    );
-    catsDOM.dispatchEvent(drawItems);
-
-    finalDOM.getElementsByClassName("levelTxt")[0].innerText = theLang.Level;
-    update();
 };
 
 //** ADD ITEM SCRIPTS **
@@ -465,7 +616,7 @@ const checkBoots = function (items){
 }
 
 const addItem = function (uid, itemNo) {
-    const toogleItems = [3800,2065,3001,3379,3285,3145,3303,3098,3092,2301,1402,1410,1414,3100,3384,3025,3078,3057,2015,3087,3094,3134,3147,3742,2031,2032,2033,2003,3194,3174],
+    const toogleItems = [3800,2065,3001,3379,3285,3145,3303,3098,3092,2301,1402,1410,1414,3100,3384,3025,3078,3057,2015,3087,3094,3134,3147,3742,2031,2032,2033,2003,3194,3174,3252],
     stackItems = [3124,3091,1082,3041,3027,3151,3136,3907];
 
     let itemDOM = document.getElementById(uid).getElementsByClassName("champItems")[0],
@@ -528,64 +679,13 @@ const addItem = function (uid, itemNo) {
 
 // ** UPDATE SCRIPTS **
 
-const drawStats = function () {
-    Object.keys(myChamps).forEach(function (uid) {
-        const champ = myChamps[uid];
-        let statBox = document.getElementById(uid).getElementsByClassName("statList")[0],
-        frag = document.createDocumentFragment();
-        while (statBox.childElementCount > 1) {
-            statBox.removeChild(statBox.lastChild);
-        }
-        let statList = [];
-        statList.push(
-            [theLang.Health, champ.hp[0]],
-            [theLang.HealthRegen, champ.hpregen[0]],
-            [theLang.Armor, champ.armor[0]],
-            [theLang.SpellBlock, champ.spellblock[0]],
-            [theLang.AttackDamage, champ.attackdamage[0]],
-            [theLang.AttackSpeed, round(calc(champ.attackspeed[0], calc(1, champ.attackspeed[1], 0)), 3)],
-            [theLang.CriticalStrike, champ.crit],
-            [theLang.LifeSteal, champ.lifeSteal + "%"],
-            [theLang.SpellDamage, champ.ap],
-            [theLang.CooldownReduction, champ.cdr + "%"],
-            [theLang.Movement, champ.move[0]]
-        );
-
-        if (champ.partype === theLang.Mana) {
-            statList.push(
-            [champ.partype, champ.mp[0]],
-            [theLang.ManaRegen, champ.mpregen[0]]
-            )
-        } else if (champ.mpregen[0] > 0) {
-            statList.push(
-                [champ.partype, champ.mp[0]],
-                [champ.partype + theLang.Regen, champ.mpregen[0]]
-            )
-        } else if (champ.mp[0] > 0) {
-            statList.push(
-                [champ.partype, champ.mp[0]]
-            )
-        }
-
-        //[champ.partype, champ.mp[0]]
-
-        statList.forEach(function (stat) {
-            let theLi= document.createElement("li");
-            theLi.innerText = stat[0] + ": " + stat[1];
-            frag.appendChild(theLi);
-        });
-        statBox.appendChild(frag);
-    });
-}
-
-
 const update = function () {
     Object.keys(myChamps).forEach(function (uid) {
-        myChamps[uid].setLevel(uid);
         myChamps[uid].setBaseStats();
         myChamps[uid].setItemStats();
+        myChamps[uid].drawStats();
+        myChamps[uid].drawSkillTxt();
     });
-    drawStats();
 }
 
 // ** FIRST LOAD SCRIPTS **

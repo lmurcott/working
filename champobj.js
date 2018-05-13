@@ -47,7 +47,7 @@ var champVars = {
     },
     sInfo1:{
       e1: {type: "mag", spell: true, child: ["a1"]},
-      f1: {valueEffect: 3, type: "mag", spell: true, child: ["f1Var"]},
+      f1: {effectNo: 1, type: "mag", spell: true, child: ["a1"], multiplier: 160},
       f1Var: {link: "spelldamage", coeff: 0.48}
 
     },
@@ -101,7 +101,7 @@ var champVars = {
       e2: {type: "mag", spell: true, child: ["a1"]}
     },
     sInfo2:{
-      f1: {valueEffect: 1, type: "mag", spell: true, child: ["f2Var"], ticks: 5, duration: 5, multiplier: 20},
+      f1: {effectNo: 1, type: "mag", spell: true, child: ["f2Var"], ticks: 5, duration: 5, multiplier: 20},
       f2Var: {link: "spelldamage", coeff: 0.4},
       f3: {value: 40, type: "mag", spell: true, child: ["f3Var"]},
       f3Var: {link: "champLevel", coeff: 15}
@@ -213,7 +213,7 @@ var champVars = {
     },
     sInfo1:{
       e2: {type: "mag"},
-      f1: {valueEffect: 2, valuePerLvl: [20,24,28,32,36,39,44,49,54,60,66,72,78,84,93,102,111,130], type: "mag", child: ["f2Var"], multiplier: 150},
+      f1: {effectNo: 2, valuePerLvl: [20,24,28,32,36,39,44,49,54,60,66,72,78,84,93,102,111,130], type: "mag", child: ["f2Var"], multiplier: 150},
       f2Var: {link: "spelldamage", coeff: [0.18,0.19,0.20,0.21,0.22,0.23,0.24,0.25,0.26,0.27,0.28,0.29,0.30,0.31,0.32,0.33,0.34,0.35]},
       f3: {value: [0,5,10,15,20,25]}//e2 for passive
     },
@@ -293,9 +293,9 @@ var champVars = {
   },
   Brand:{
     pInfo:{
-      p1: {value: 4, type: "mag", spell: true, info: "magicDamage", myInfo: " [x1]", maxHp: true, ticks: 4, duration: 4, multiplier: 25},
-            p2: {value: 12, type: "mag", spell: true, info: "magicDamage", myInfo: " [x3]", maxHp: true, ticks: 4, duration: 4, multiplier: 25},
-            p3: {valuePerLvl: [12,12.5,13,13.5,14,14.5,15,15.5,16,16,16,16,16,16,16,16,16,16] , type: "mag", spell: true, info: "magicDamage", maxHp: true}
+        p1: {value: 4, type: "mag", spell: true, info: "magicDamage", myInfo: " [x1]", maxHp: true, ticks: 4, duration: 4, multiplier: 25},
+        p2: {value: 12, type: "mag", spell: true, info: "magicDamage", myInfo: " [x3]", maxHp: true, ticks: 4, duration: 4, multiplier: 25},
+        p3: {valuePerLvl: [12,12.5,13,13.5,14,14.5,15,15.5,16,16,16,16,16,16,16,16,16,16] , type: "mag", spell: true, info: "magicDamage", maxHp: true}
     },
     sInfo0:{
       e1: {type: "mag", spell: true, child: ["a1"]}
@@ -327,9 +327,9 @@ var champVars = {
     },
     sInfo1:{
       active: true,
-      f3: {valueEffect: 4, type: "armor", child: ["f3Var"]},
+      f3: {effectNo: 4, type: "armor", child: ["f3Var"]},
       f3Var: {link: "armor", coeff: [0.1,0.115,0.13,0.145,0.16]},
-      f4: {valueEffect: 4, type: "mr", child: ["f4Var"]},
+      f4: {effectNo: 4, type: "mr", child: ["f4Var"]},
       f4Var: {link: "mr", coeff: [0.1,0.115,0.13,0.145,0.16]}
     },
     sInfo2:{
@@ -471,7 +471,7 @@ var champVars = {
       e1: {type: "mag", spell: true, child: ["a1","f1Var"]},
       f1Var: {link: "attackdamage", coeff: [0.15,0.45,0.75]},
       f2: {value: 100},
-      f3: {valueEffect: 1, type: "mag", spell: true, child: ["a1","f1Var"], multiplier: 200}
+      f3: {effectNo: 1, type: "mag", spell: true, child: ["a1","f1Var"], multiplier: 200}
     }
   },
   Darius:{
@@ -499,7 +499,7 @@ var champVars = {
     },
     sInfo3:{
       e1: {type: "tru", spell: true, child: ["f1"]},
-      f3: {valueEffect: 1, type: "tru", spell: true, child: ["f1"], multiplier: 200}
+      f3: {effectNo: 1, type: "tru", spell: true, child: ["f1"], multiplier: 200}
     }
   },
   Diana:{
@@ -535,7 +535,7 @@ var champVars = {
       {spell: 1, key: "e2", type: "percentmoveSpeed", active: true}
     ],
     sInfo0:{
-      f1: {valueEffect: 5, type: "phys", child: ["f1Var"], basicAttack: true},
+      f1: {effectNo: 5, type: "phys", child: ["f1Var"], basicAttack: true},
       f1Var: {link: "bonusattackdamage", coeff: [0.65,0.75,0.85,0.95,1.05]}
     },
     sInfo1:{
@@ -563,8 +563,8 @@ var champVars = {
     sInfo0:{
       e2: {type: "mag", spell: true, currHp: true},
       e1: {type: "mag", spell: true},
-      f1: {valueEffect: 3, type: "heal", selfHeal: true, multiplier: 50},
-      f2: {valueEffect: 3, selfHeal: true, type: "heal"}
+      f1: {effectNo: 3, type: "heal", selfHeal: true, multiplier: 50},
+      f2: {effectNo: 3, selfHeal: true, type: "heal"}
     },
     sInfo1:{
       e1: {type: "mag", spell: true, child: ["a1"]}
@@ -572,7 +572,7 @@ var champVars = {
     sInfo2:{
       active: true,
       //input: {type: "number", max: 3},
-      f3: {valueEffect: 8, multiplier: 300},
+      f3: {effectNo: 8, multiplier: 300},
       f1: {type: "phys", child: ["f1Var"]},
       f1Var: {link: "maxHp", coeff: [0.03,0.035,0.04,0.045,0.05]},
       f2: {value: [0.3,0.5,0.7,0.9,1.1]},
@@ -669,9 +669,9 @@ var champVars = {
     },
     sInfo2:{
       active: true,
-      f1: {type: "mag", valueEffect: 1, spell: true, onHit: 1},
+      f1: {type: "mag", effectNo: 1, spell: true, onHit: 1},
       e5: {type: "mag", child: ["a1"], maxHp: true},
-      f2: {type: "mag", valueEffect: 2, spell: true, onHit: 1},
+      f2: {type: "mag", effectNo: 2, spell: true, onHit: 1},
       e6: {type: "mag", child: ["a2"], maxHp: true}
     },
     sInfo3:{
@@ -718,7 +718,7 @@ var champVars = {
     },
     sInfo3:{
       e1: {type: "mag", spell: true, child: ["a1"]},
-      f1: {valueEffect: 1, type: "mag", spell: true, child: ["a1"], duration: 5, ticks: 5}
+      f1: {effectNo: 1, type: "mag", spell: true, child: ["a1"], duration: 5, ticks: 5}
     }
   },
   Fiora:{
@@ -749,7 +749,7 @@ var champVars = {
       f1Var: {link: "spelldamage", coeff: 1}
     },
     sInfo2:{
-      f4: {valueEffect: 6, child: ["f4Var"]},
+      f4: {effectNo: 6, child: ["f4Var"]},
       f4Var: {link: "bonusCritDamage", coeff: 1},
       f3: {type: "phys", crit: [[140,155,170,185,200],[190,205,220,235,250],true], child: ["f3Var"], basicAttack: true},
       f3Var: {link: "attackdamage", coeff: 1}
@@ -805,9 +805,9 @@ var champVars = {
     },
     sInfo1:{
     active: true,
-    f3: {valueEffect: 5, type: "shield", percentMax: true},
+    f3: {effectNo: 5, type: "shield", percentMax: true},
     e1: {child: ["f2Var","f4Var"]},
-    e1Buff2: {valueEffect: 1, child: ["f2Var","f4Var"], multiplier: 50},
+    e1Buff2: {effectNo: 1, child: ["f2Var","f4Var"], multiplier: 50},
     f2Var: {link: "spelldamage", coeff: 0.05},
     f4Var: {link: "bonusmr", coeff: 0.08},
     f5: {value: 50},
@@ -885,7 +885,7 @@ var champVars = {
     },
     sInfo2:{
       f2: {valuePerLvl: [5,5,5,6,6,6,7,7,7,8,8,8,9,9,9,10,10,10]},
-      f3: {valueEffect: 1, type: "phys", spell: true, child: ["f3Var"], crit: [50,100]},
+      f3: {effectNo: 1, type: "phys", spell: true, child: ["f3Var"], crit: [50,100]},
       f3Var: {link: "attackdamage", coeff: [0.36,0.37,0.38,0.39,0.4]}
     },
     sInfo3:{
@@ -1006,7 +1006,7 @@ var champVars = {
   },
   Hecarim:{
     buffs: [
-            {spell: 2, key: "f1Buff", type: "percentmoveSpeed"},
+            {spell: 2, key: "f1Buff", type: "percentmoveSpeed"},//Multiplicative speed boosts [not additive]
       {spell: "P", key: "p1", type: "attackdamage"}
     ],
         pInfo:{
@@ -1242,9 +1242,9 @@ var champVars = {
     sInfo3:{
       active: true,
       e1: {type: "mag", child: ["a1"], basicAttack: true},
-      f2: {valueEffect: 3 ,type: "armor", child: ["f2Var"]},
+      f2: {effectNo: 3 ,type: "armor", child: ["f2Var"]},
       f2Var: {link: "bonusattackdamage", coeff: 0.5},
-      f1: {valueEffect: 3, type: "mr", child: ["f1Var"]},
+      f1: {effectNo: 3, type: "mr", child: ["f1Var"]},
       f1Var: {link: "spelldamage", coeff: 0.2}
     }
   },
@@ -1320,7 +1320,7 @@ var champVars = {
     },
     sInfo3:{
       e1: {type: "phys", spell: true, child: ["a1"]},
-      f2: {valueEffect: 1, type: "phys", spell: true, child: ["a1"], multiplier: 350},
+      f2: {effectNo: 1, type: "phys", spell: true, child: ["a1"], multiplier: 350},
       f1: {value: 100, child: ["f1Var"]},
       f1Var: {link: "bonusCritDamage", coeff: 1},
     }
@@ -1381,11 +1381,11 @@ var champVars = {
         e1: {type: "phys", child: ["f1Var","f7Var"], spell: true},
         f1Var: {link: "bonusattackdamage", coeff: 0.35},
         f7Var: {link: "spelldamage", coeff: 0.4},
-        f3: {valueEffect: 1, type: "phys", child: ["f1Var","f7Var"], ticks: 6, tickMulti: 30, spell: true},
+        f3: {effectNo: 1, type: "phys", child: ["f1Var","f7Var"], ticks: 6, tickMulti: 30, spell: true},
         f5: {child: ["f5Var"]},
         f5Var: {link: "bonusattackdamage", coeff: 1},
         txt: "<br><br>x12: {{ f9 }}",
-        f9: {valueEffect: 1, type: "phys", child: ["f1Var","f7Var"], ticks: 10, tickMulti: 30, spell: true}
+        f9: {effectNo: 1, type: "phys", child: ["f1Var","f7Var"], ticks: 10, tickMulti: 30, spell: true}
     },
     sInfo1:{
         e1: {type: "mag", value: 14, child: ["f0Var","f1Var","f2Var"], spell:true},
@@ -1436,7 +1436,7 @@ var champVars = {
       f2: {valuePair: [3,"f2Q"], type: "mag", spell: true, child: ["a1"]}
     },
     sInfo1:{
-      effect1amount: {valueEffect: 1, type: "mag", spell: true, child: ["f4Var"], multiplier: 50},
+      effect1amount: {effectNo: 1, type: "mag", spell: true, child: ["f4Var"], multiplier: 50},
       f4Var: {link: "spelldamage", coeff: 0.45},
       f1: {value: 20, type: "heal", selfHeal: true, missHp: true, child: ["f3Var"]},
       f3Var: {link: "spelldamage", coeff: 0.01},
@@ -1447,7 +1447,7 @@ var champVars = {
       e1: {type: "shield", child: ["a1"]},
       f1: {valuePair: [3,"f1E"], type: "shield", child: ["a2"]},
       f2: {value: 30},
-      f3: {valueEffect: 3}
+      f3: {effectNo: 3}
     },
     sInfo3:{
       f1Q: {value: [25,25,75,125,175]},
@@ -1522,7 +1522,7 @@ var champVars = {
     },
     sInfo3:{
       e1: {type: "mag", spell: true, child: ["a1","a2"]},
-      f1: {valueEffect: 1, type: "mag", spell: true, child: ["a1","a2"], ticks: 15, duration: 2.5},
+      f1: {effectNo: 1, type: "mag", spell: true, child: ["a1","a2"], ticks: 15, duration: 2.5},
     }
   },
   Kayle:{
@@ -1590,11 +1590,11 @@ var champVars = {
     },
     sInfo2:{
       active: true,
-      "base damage": {valueEffect: 1, type: "mag", spell: true, child: ["a1"]},
-      "duration - as ball": {valueEffect: 5},
-      "defenses": {valueEffect: 3},
+      "base damage": {effectNo: 1, type: "mag", spell: true, child: ["a1"]},
+      "duration - as ball": {effectNo: 5},
+      "defenses": {effectNo: 3},
       "movement speed": {value: 100},//effect 4 * 100
-      "energy refund": {valueEffect: 2},
+      "energy refund": {effectNo: 2},
       "attack speed": {valuePerLvl: [30,40,50,60,70]},//effect 6 * 100
       "damage to minions": {value: 50}
     },
@@ -1614,7 +1614,7 @@ var champVars = {
         },
         sInfo0:{
       e1: {type: "phys", spell: true, child: ["a1"]},
-      f1: {valueEffect: 1, type: "phys", spell: true, child: ["a1"], multiplier: 165}
+      f1: {effectNo: 1, type: "phys", spell: true, child: ["a1"], multiplier: 165}
     },
     sInfo1:{
       e1: {type: "phys", spell: true, child: ["a1"]},
@@ -1730,8 +1730,8 @@ var champVars = {
     },
     sInfo3:{
       e1: {type: "mag", spell: true, child: ["a1","a2"]},
-      effect1amount: {valueEffect: 1, type: "mag", spell: true, child: ["a1","a2"], multiplier: 150},
-      f4: {valueEffect: 1, type: "mag", spell: true, child: ["a1","a2"], multiplier: 200}
+      effect1amount: {effectNo: 1, type: "mag", spell: true, child: ["a1","a2"], multiplier: 150},
+      f4: {effectNo: 1, type: "mag", spell: true, child: ["a1","a2"], multiplier: 200}
     }
   },
   Leblanc:{
@@ -1853,8 +1853,8 @@ var champVars = {
         },
         sInfo0:{
       e1: {type: "mag", spell: true, child: ["a1"]},
-      f4: {valueEffect: 1, type: "mag", spell: true, child: ["a1"], multiplier: 70},
-            f6: {valueEffect: 1, type: "mag", spell: true, child: ["a1"]}
+      f4: {effectNo: 1, type: "mag", spell: true, child: ["a1"], multiplier: 70},
+            f6: {effectNo: 1, type: "mag", spell: true, child: ["a1"]}
     },
     sInfo1:{
       active: true,
@@ -1913,7 +1913,7 @@ var champVars = {
       e2: {type: "phys", child: ["a1","f2Var"], basicAttack: true},
       f2Var: {link: "armor", coeff: 0.15},
       f1: {type: "armor", child: ["f1Var"]},
-      "f4.0": {valueEffect: 1, multiplier: 300},
+      "f4.0": {effectNo: 1, multiplier: 300},
       f3: {type: "armor", child: ["f1Var"], multiplier: 300},
       f1Var: {link: "armor", coeff: [0.1,0.15,0.2,0.25,0.3]}
     },
@@ -2046,7 +2046,7 @@ var champVars = {
     sInfo3:{
             txt: "<br>Total: {{ f1 }}",
       e1: {type: "phys", spell: true, child: ["a1"]},
-            f1: {valueEffect: 1, type: "phys", spell: true, child: ["a1"], multiplier: 50, ticks: 8, duration: 4}
+            f1: {effectNo: 1, type: "phys", spell: true, child: ["a1"], multiplier: 50, ticks: 8, duration: 4}
     }
   },
   Mordekaiser:{//vars key on spell 2 is wrong
@@ -2057,7 +2057,7 @@ var champVars = {
       e3: {type: "mag", child: ["f1Var","f2Var"], basicAttack: true},
       f1Var: {link: "spelldamage", coeff: 0.6},
       f2Var: {link: "attackdamage", coeff: [0.5,0.6,0.7,0.8,0.9]},
-      f5: {valueEffect: 3, type: "mag", child: ["f1Var","f2Var"], multiplier: 200, basicAttack: true}
+      f5: {effectNo: 3, type: "mag", child: ["f1Var","f2Var"], multiplier: 200, basicAttack: true}
     },
     sInfo1:{
       active: true,
@@ -2277,7 +2277,7 @@ var champVars = {
     },
     sInfo3:{
       e1: {type: "mag", spell: true, child: ["a1"]},
-      f2: {valueEffect: 1, type: "mag", spell: true, child: ["a1"], multiplier: 12.5}
+      f2: {effectNo: 1, type: "mag", spell: true, child: ["a1"], multiplier: 12.5}
     }
   },
   Olaf:{
@@ -2306,7 +2306,7 @@ var champVars = {
       active: true,
       e1: {type: "armor"},
       e1a: {type: "mr"},
-            f1: {valueEffect: 6, child: ["f1Var"]},
+            f1: {effectNo: 6, child: ["f1Var"]},
             f1Var: {link: "attackdamage", coeff: 0.3}
     }
   },
@@ -2368,7 +2368,7 @@ var champVars = {
     },
     sInfo2:{
       e1: {type: "phys", spell: true, child: ["a1"], ticks: 3, multiplier: 33},
-      f1: {valueEffect: 1, type: "phys", spell: true, child: ["a1"], multiplier: 33}
+      f1: {effectNo: 1, type: "phys", spell: true, child: ["a1"], multiplier: 33}
     },
     sInfo3:{
       e1: {type: "mag", spell: true, child: ["a1"]}
@@ -2501,7 +2501,7 @@ var champVars = {
     },
     sInfo2:{
       e1: {type: "phys", spell: true, child: ["a1"]},
-      f2: {valueEffect: 1, type: "tru", spell: true, child: ["a1"], multiplier: 200}
+      f2: {effectNo: 1, type: "tru", spell: true, child: ["a1"], multiplier: 200}
     },
     sInfo3:{
       e8: {type: "phys", spell: true, child: ["a2"]},
@@ -2523,12 +2523,12 @@ var champVars = {
       e1: {type: "phys", spell: true, child: ["a1"]},
       e2: {type: "heal", selfHeal: true, child: ["f1Var"]},
       f1Var: {link: "bonusattackdamage", coeff: 0.04},
-      f2: {valueEffect: 2, type: "heal", child: ["f1Var"], multiplier: 300},
+      f2: {effectNo: 2, type: "heal", child: ["f1Var"], multiplier: 300},
       e4: {type: "heal"},
       e6: {type: "phys", spell: true, child: ["a2"]},
       e7: {type: "heal", child: ["f4Var"]},
       f4Var: {link: "bonusattackdamage", coeff: 0.12},
-      f5: {valueEffect: 7,type: "heal", child: ["f4Var"], multiplier: 300},
+      f5: {effectNo: 7,type: "heal", child: ["f4Var"], multiplier: 300},
       e9: {type: "heal"}
     },
     sInfo1:{
@@ -2542,7 +2542,7 @@ var champVars = {
     sInfo2:{
       e1: {type: "phys", spell: true, child: ["f1Var"]},
       f1Var: {link: "attackdamage", coeff: 0.9},
-      effect1amount: {valueEffect: 1, type: "phys", spell: true, child: ["f1Var"], multiplier: 150}
+      effect1amount: {effectNo: 1, type: "phys", spell: true, child: ["f1Var"], multiplier: 150}
     },
     sInfo3:{
       active: true,
@@ -2916,8 +2916,8 @@ var champVars = {
     },
     sInfo2:{
       active: true,
-      f1: {valueEffect: 1, child: ["f1Var"]},
-      f3: {valueEffect: 1, child: ["f1Var"]},
+      f1: {effectNo: 1, child: ["f1Var"]},
+      f3: {effectNo: 1, child: ["f1Var"]},
       f1Var: {link: "spelldamage", coeff: 0.06},
       f2: {value: 6}
     },
@@ -2962,7 +2962,7 @@ var champVars = {
         },
         sInfo0: {
             e1: {type: "mag", spell: true, child: ["a1"]},
-            f2: {valueEffect: 1, type: "mag", spell: true, child: ["a1"], multiplier: 160},
+            f2: {effectNo: 1, type: "mag", spell: true, child: ["a1"], multiplier: 160},
             f1: {child: ["f1Var"]},
             f1Var: {link: "mana", coeff: 0.03}
         },
@@ -2983,7 +2983,7 @@ var champVars = {
             f1Var: {link: "spelldamage", coeff: 0.27},
             f3: {type: "mag", child: ["f3Var"]},
             f3Var: {link: "swainFragments", coeff: 1},
-            f2: {valueEffect: 10, type: "mag", child: ["f1Var"], multiplier: 500},
+            f2: {effectNo: 10, type: "mag", child: ["f1Var"], multiplier: 500},
         }
   },
   Syndra:{//w bonus true damage at max rank
@@ -3122,7 +3122,7 @@ var champVars = {
     },
     sInfo1:{
       active: true,
-      f1: {valueEffect: 1, multiplier: 200}
+      f1: {effectNo: 1, multiplier: 200}
     },
     sInfo2:{
       e2: {type: "mag", spell: true, child: ["a1"]},
@@ -3275,7 +3275,7 @@ var champVars = {
       e2: {type: "phys", spell: true},
       e1: {type: "phys", child: ["a1","f1Var"]},
       f1Var: {link: "bonusattackdamage", coeff: 0.25},
-      f2: {type: "phys", valueEffect: 2, value: [90,120,150,180,210], child: ["f2Var","f2Var2"]},
+      f2: {type: "phys", effectNo: 2, value: [90,120,150,180,210], child: ["f2Var","f2Var2"]},
       f2Var: {link: "bonusattackdamage", coeff: 1.5},
       f2Var2: {link: "spelldamage", coeff: 1.2}
     },
@@ -3386,7 +3386,7 @@ var champVars = {
     },
     sInfo2:{
       e1: {type: "phys", spell: true, child: ["a1"]},
-      f1: {valueEffect: 1, type: "phys", spell: true, child: ["a1"], multiplier: 200}
+      f1: {effectNo: 1, type: "phys", spell: true, child: ["a1"], multiplier: 200}
     },
     sInfo3:{
       active: true
@@ -3449,7 +3449,7 @@ var champVars = {
         },
         sInfo0:{
       e1: {type: "phys", spell: true, child: ["a1"], multiplier: 50},
-      f2: {valueEffect: 1, type: "phys", spell: true, child: ["a1"]}
+      f2: {effectNo: 1, type: "phys", spell: true, child: ["a1"]}
     },
     sInfo1:{
       active: true,
@@ -3508,7 +3508,7 @@ var champVars = {
     },
     sInfo3:{
       e1: {type: "mag", spell: true, child: ["a1"]},
-      f4: {valueEffect: 1, type: "heal", selfHeal: true, spell: true, child: ["a1"]}
+      f4: {effectNo: 1, type: "heal", selfHeal: true, spell: true, child: ["a1"]}
     }
   },
   Volibear:{//add multiplier based on missing enemy health on w
@@ -3572,7 +3572,7 @@ var champVars = {
       {spell: 1, key: "e1", type: "attackSpeed", active: true}
     ],
         sInfo0:{
-      f1: {valueEffect: 1, type: "phys", child: ["f2Var"]},
+      f1: {effectNo: 1, type: "phys", child: ["f2Var"]},
       f2Var: {link: "bonusattackdamage", coeff: 1}
     },
     sInfo1:{
@@ -3596,7 +3596,7 @@ var champVars = {
     },
     sInfo1:{
       e1: {type: "mag", spell: true, child: ["a1"]},
-      f1: {valueEffect: 1, type: "mag", spell: true, child: ["a1"], multiplier: 150}
+      f1: {effectNo: 1, type: "mag", spell: true, child: ["a1"], multiplier: 150}
     },
     sInfo2:{
       e1: {type: "mag", spell: true, child: ["a1"]}
@@ -3759,8 +3759,8 @@ var champVars = {
             p1Var: {link: "spelldamage", coeff: 0.325}
         },
         sInfo0:{
-            f1: {valueEffect: 1, valuePerLvl:[7,8,9,10,12,14,16,18,20,22,24,26,29,32,35,38,42,46,50], spell:true, type: "mag", child: ["a1"]},
-            f2: {valueEffect: 1, valuePerLvl:[7,8,9,10,12,14,16,18,20,22,24,26,29,32,35,38,42,46,50], spell:true, type: "mag", child: ["a1"], multiplier: 250}
+            f1: {effectNo: 1, valuePerLvl:[7,8,9,10,12,14,16,18,20,22,24,26,29,32,35,38,42,46,50], spell:true, type: "mag", child: ["a1"]},
+            f2: {effectNo: 1, valuePerLvl:[7,8,9,10,12,14,16,18,20,22,24,26,29,32,35,38,42,46,50], spell:true, type: "mag", child: ["a1"], multiplier: 250}
     },
     sInfo1:{
             active: true,
