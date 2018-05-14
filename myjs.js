@@ -16,27 +16,16 @@ const loadJSON = function (file, callback, args = "") {// Load riot JSON files
     xhttp.send();
 };
 
-const newUID = function () {//Generate Unique Id for Champs
-    "use strict";
-    var uid = "", i = 4, possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    while (i > 0) {
-        uid += possible.charAt(Math.floor(Math.random() * possible.length));
-        i -= 1;
-    }
-    return uid;
-};
-
 // ** MATH FUNCTIONS **
 
-const getDP = function (num) {// Return decimal places
-    "use strict";
-    const numStr = num.toString();
-    return (numStr.indexOf(".") === -1)
-        ? 0
-        : numStr.length - numStr.indexOf(".") - 1;
-};
-
 const calc = function (num1, num2, o = 2) {// Calculate decimal equations
+    const getDP = function (num) {// Return decimal places
+        const numStr = num.toString();
+        return (numStr.indexOf(".") === -1)
+            ? 0
+            : numStr.length - numStr.indexOf(".") - 1;
+    };
+
     const num1DP = getDP(num1), num2DP = getDP(num2);
     const num1Int = (o === 2)
         ? Number(num1 + "e" + num1DP)
@@ -72,7 +61,7 @@ const calcBaseAspd = function (delay) {
 
 const calcMoveSpeed = function (base, flat, percent = 0) {//add slow ratio and Multiplicative MS bonus
     //(Base MS + Flat MS bonuses) × (1 + Sum of all Additive Percent MS bonuses) × (1 - Highest Slow ratio) × Product of (1 + any Multiplicative MS bonus)
-    speed = calc((base + flat), calc(1, percent, 0));
+    var speed = calc((base + flat), calc(1, percent, 0));
 
     if (speed > 490) {
         speed = calc(calc(calc(speed, 490, 1), 0.5), 475, 0);
@@ -90,7 +79,7 @@ const setLocale = function () {
     }
 };
 
-var setLang = function (json) {
+const setLang = function (json) {
     "use strict";
     theLang = json;
     // Custom Language
@@ -100,7 +89,7 @@ var setLang = function (json) {
     theLang.Regen = theLang.HealthRegen.replace(theLang.Health, "");
     theLang.AttackDamage = theLang.Attack + " " + theLang.Damage;
     theLang.MagicDamage = theLang.Magic + " " + theLang.Damage;
-    theLang.Cost = theLang.Cost_.replace(":", "");
+    //theLang.Cost = theLang.Cost_.replace(":", "");
 };
 
 const setChampList = function (json) {// Create options for selecting new champ
@@ -147,25 +136,24 @@ const setItems = function (json) {
     });
 };
 
-// ** ADD NEW CHAMP **
+// ** UPDATE SCRIPTS **
+
+const update = function () {
+    "use strict";
+    Object.keys(myChamps).forEach(function (uid) {
+        myChamps[uid].setBaseStats();
+        myChamps[uid].setItemStats();
+        myChamps[uid].drawStats();
+        myChamps[uid].drawSkillTxt();
+    });
+};
+
+// ** CHAMPION SCRIPTS **
 
 const champObj = function (obj, side, uid) {// create champion object
     "use strict";
-    var {aSpdBonus} = champVars[obj.id],
-        {buffs} = champVars[obj.id],
-        {debuffs} = champVars[obj.id],
-        {id} = obj,
-        {image} = obj,
-        {name} = obj,
-        {partype} = obj,
-        {passive} = obj,
-        {pInfo} = champVars[obj.id],
-        {sInfo0} = champVars[obj.id],
-        {sInfo1} = champVars[obj.id],
-        {sInfo2} = champVars[obj.id],
-        {sInfo3} = champVars[obj.id],
-        {spells} = obj,
-        {stats} = obj,
+    let {aSpdBonus, buffs, debuffs, pInfo, sInfo0, sInfo1, sInfo2, sInfo3} = champVars[obj.id],
+        {id, image, name, partype, passive, spells, stats} = obj,
         attackdamage = [],
         ap = 0,
         aPen = [],
@@ -184,7 +172,6 @@ const champObj = function (obj, side, uid) {// create champion object
         mp = [stats.mp, 0],
         mPen = [],
         mpregen = [stats.mpregen, 0, 0],
-        uid = uid,
         spellblock = [],
         rPaths = [],
         rSlots = [],
@@ -223,9 +210,9 @@ const champObj = function (obj, side, uid) {// create champion object
 
             const setStat = function (modStr) {
                 return statObj.hasOwnProperty(modStr)
-                ? statObj[modStr]
-                : 0;
-            }
+                    ? statObj[modStr]
+                    : 0;
+            };
 
             //add unique item additive stats
 
@@ -247,13 +234,76 @@ const champObj = function (obj, side, uid) {// create champion object
                 mp[1] = setStat("FlatMPPoolMod");
             }
         },
+        addItem = function (itemNo) {
+            const
+                toogleItems = [3800, 2065, 3001, 3379, 3285, 3145, 3303, 3098, 3092, 2301, 1402, 1410, 1414, 3100, 3384, 3025, 3078, 3057, 2015, 3087, 3094, 3134, 3147, 3742, 2031, 2032, 2033, 2003, 3194, 3174, 3252],
+                stackItems = [3124, 3091, 1082, 3041, 3027, 3151, 3136, 3907];
+            let itemDOM = document.getElementById(uid).getElementsByClassName("champItems")[0];
+            const checkBoots = function (items) {
+                return items.some(function (itemNo) {
+                    return theItems[itemNo].tags.includes("Boots");
+                });
+            };
+
+            if (items.length < 6 && !(theItems[itemNo].tags.includes("Boots") && checkBoots(items))) {
+                let theDiv = document.createElement("div"),
+                    theImg = document.createElement("img");
+
+                theImg.src = "http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/item/" + itemNo + ".png";
+                theDiv.appendChild(theImg);
+
+                let theInput;
+                if (toogleItems.includes(itemNo) && !items.includes(itemNo)) {
+                    theInput = document.createElement("input");
+                    theInput.id = "cb" + uid + itemNo;
+                    theInput.type = "checkbox";
+                    theInput.addEventListener("change", update);
+                    theDiv.appendChild(theInput);
+                } else if (stackItems.includes(itemNo) && !items.includes(itemNo)) {
+                    theInput = document.createElement("input");
+                    theInput.id = "num" + uid + itemNo;
+                    theInput.type = "number";
+                    theInput.min = 0;
+                    theInput.value = 0;
+                    switch (itemNo) {
+                    case 1082:
+                        theInput.max = 10;
+                        break;
+                    case 3041:
+                        theInput.max = 25;
+                        break;
+                    case 3091:
+                        theInput.max = 5;
+                        break;
+                    case 3124:
+                        theInput.max = 6;
+                        break;
+                    case 3027://roa
+                        theInput.max = 10;
+                        break;
+                    case 3151://liandry
+                    case 3136://haunting guise
+                        theInput.max = 5;
+                        break;
+                    case 3907://spellbinder
+                        theInput.max = 100;
+                        break;
+                    }
+                    theInput.addEventListener("change", update);
+                    theDiv.appendChild(theInput);
+                }
+                theDiv.classList.add("itemIcon");
+                itemDOM.appendChild(theDiv);
+                items.push(itemNo);
+            }
+            update();
+        },
         drawChampDiv = function () {
-            "use strict";
             const
                 home = document.getElementById("champs" + side),
                 champDOM = document.getElementsByTagName("template")[0].content.cloneNode(true);
 
-            var champDiv = document.createElement("div");
+            let champDiv = document.createElement("div");
             champDiv.id = uid;
             champDiv.classList.add("champBox");
             champDiv.appendChild(champDOM);
@@ -374,7 +424,8 @@ const champObj = function (obj, side, uid) {// create champion object
             ];
             itemFilters.forEach(function (theNode) {
                 theNode.addEventListener("input", function () {
-                    const theCat = catsDOM.value,
+                    const
+                        theCat = catsDOM.value,
                         query = new RegExp(searchDOM.value, "i"),
                         map = mapDOM.value;
                     let itemBox = finalDOM.getElementsByClassName("items")[0],
@@ -394,7 +445,7 @@ const champObj = function (obj, side, uid) {// create champion object
                             let theImg = document.createElement("img");
                             theImg.src = "http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/item/" + itemNo + ".png";
                             theImg.addEventListener("click", function () {
-                                addItem(uid, parseInt(itemNo));
+                                addItem(parseInt(itemNo));
                             });
                             docFrag.appendChild(theImg);
                         }
@@ -419,7 +470,6 @@ const champObj = function (obj, side, uid) {// create champion object
             finalDOM.getElementsByClassName("levelTxt")[0].innerText = theLang.Level;
         },
         drawStats = function () {
-            "use strict";
             let statBox = document.getElementById(uid).getElementsByClassName("statList")[0],
                 frag = document.createDocumentFragment();
             while (statBox.childElementCount > 1) {
@@ -464,65 +514,95 @@ const champObj = function (obj, side, uid) {// create champion object
             statBox.appendChild(frag);
         },
         drawSkillTxt = function () {
-            var skillDivs = document.getElementById(uid).getElementsByClassName("skillTxt");
+            let skillDivs = document.getElementById(uid).getElementsByClassName("skillTxt");
 
             const refineTtip = function (spellNo) {
-                const riotObj = spells[spellNo],
-                    myObj = ["sInfo" + spellNo],
-                    regEx = /{{[^}]*}}/g;
+                const
+                    riotObj = spells[spellNo],
+                    myObj = myChamps[uid]["sInfo" + spellNo];
 
                 let tooltip = spells[spellNo].tooltip,
                     spellLvl = document.getElementById(uid).getElementsByClassName("spellLvl")[spellNo].value;
 
                 spellLvl = (spellLvl < 1)
-                    ? 0 :
-                    spellLvl - 1;
+                    ? 0
+                    : spellLvl - 1;
 
-                if(myObj && myObj.txt) {
+                if (myObj && myObj.txt) {
                     tooltip += myObj.txt;
                 }
                 tooltip = tooltip.replace(/<span.class="\w*\d*.?color......">/g, "");
-                tooltip = tooltip.replace(/<[/]span>/g, "");
+                tooltip = tooltip.replace(/<\/span>/g, "");
                 tooltip = tooltip.replace(/[*][\d.]*/g, "");
 
-                const keys = tooltip.match(regEx);
+                const keys = tooltip.match(/\{\{[^}]*\}\}/g);
+                
+                const getVar = function (theVar) {
+                    console.log(theVar);
+                    return 0;
+                };
 
                 const getValue = function (theKey) {
                     let value = "";
 
                     //put exemption for pre calculated buffs
 
-                    if(theKey.charAt(0) === "e" && (theKey.length === 2 || (theKey.length === 3 && theKey.charAt(2) === "a"))) {
-                        value = (theKey.charAt(1) === 0) ? riotObj.effect[10][spellLvl] : riotObj.effect[theKey.charAt(1)][spellLvl];
+                    if (theKey.charAt(0) === "e" && (theKey.length === 2 || (theKey.length === 3 && theKey.charAt(2) === "a"))) {
+                        value = (theKey.charAt(1) === 0)
+                            ? riotObj.effect[10][spellLvl]
+                            : riotObj.effect[theKey.charAt(1)][spellLvl];
                     }
-                    if(myObj && myObj[theKey]) {
-                        if(myObj[theKey].empty) {
-                          return "";
+                    if (myObj && myObj[theKey]) {
+                        if (myObj[theKey].empty) {
+                            return "";
                         }
-                        value = (value === "") ? 0 : value;
+                        value = (value === "")
+                            ? 0
+                            : value;
                         if (myObj[theKey].effectNo) {
                             value = calc(value, riotObj.effect[myObj[theKey].effectNo][spellLvl], 0);
                         }
-                        if(myObj[theKey].value) {
-                            value  = calc(value, myObj[theKey].value, 0);
+                        if (myObj[theKey].value) {
+                            if(typeof myObj[theKey].value === "object") {
+                                value = calc(value, myObj[theKey].value[spellLvl], 0);
+                            } else {
+                                value = calc(value, myObj[theKey].value, 0);
+                            }
                         }
-                        if(myObj[theKey].valuePerLvl) {
-                            console.log(myObj[theKey].valuePerLvl);
-                            console.log(value);
-                            value  = calc(value, myObj[theKey].valuePerLvl[level - 1], 0);
-                            console.log(value);
+                        if (myObj[theKey].valuePerLvl) {
+                            value = calc(value, myObj[theKey].valuePerLvl[level - 1], 0);
+                        }
+                        if (myObj[theKey].child) {
+                            myObj[theKey].child.forEach(function (varKey){
+                                let varObj;
+                                if (varKey.charAt(0) === "a") {
+                                    varObj = spells[spellNo].vars.find( function (theVar) {
+                                        return theVar.key === varKey;
+                                    });
+                                } else {
+                                    varObj = myObj[varKey];
+                                }
+                                value = calc(value, getVar(varObj), 0);
+                            });
+                            
                         }
                         if (myObj[theKey].multiplier) {
-                            value = calc(value, Number(myObj[theKey].multiplier + "e-2"));
+                            if(typeof myObj[theKey].value === "object") {
+                                value = calc(value, Number(myObj[theKey].multiplier[spellLvl] + "e-2"));
+                            } else {
+                                value = calc(value, Number(myObj[theKey].multiplier + "e-2"));
+                            }
                         }
 
                     }
                     return value;
-                }
+                };
+                
                 keys.forEach(function (key) {
-                    let rawKey = key.replace(/{{./, "");
-                    rawKey = rawKey.replace(/.}}/, "");
-                    const keyValue = getValue(rawKey),
+                    let rawKey = key.replace(/\{\{./, "");
+                    rawKey = rawKey.replace(/.\}\}/, "");
+                    const
+                        keyValue = getValue(rawKey),
                         replaceRegEx = new RegExp(key);
 
                     tooltip = tooltip.replace(replaceRegEx, keyValue);
@@ -540,11 +620,9 @@ const champObj = function (obj, side, uid) {// create champion object
                     break;
                 default:
                     div.innerHTML = refineTtip(count - 2);
-                    break;
                 }
             });
         };
-
     return {
         attackdamage,
         ap,
@@ -589,12 +667,21 @@ const champObj = function (obj, side, uid) {// create champion object
         setItemStats,
         drawChampDiv,
         drawStats,
-        drawSkillTxt
+        drawSkillTxt,
+        addItem
     };
 };
 
 const newChamp = function (json, side) {
     "use strict";
+    const newUID = function () {//Generate Unique Id for Champs
+        let uid = "", i = 4, possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        while (i > 0) {
+            uid += possible.charAt(Math.floor(Math.random() * possible.length));
+            i -= 1;
+        }
+        return uid;
+    };
     const myUid = newUID();
     myChamps[myUid] = champObj(json[Object.keys(json)], side, myUid);
     myChamps[myUid].drawChampDiv();
@@ -607,90 +694,9 @@ const addChamp = function (side) {
     loadJSON("champion/" + champId, newChamp, side);
 };
 
-//** ADD ITEM SCRIPTS **
-
-const checkBoots = function (items){
-    return items.some( function (itemNo) {
-        return theItems[itemNo].tags.includes("Boots");
-    });
-}
-
-const addItem = function (uid, itemNo) {
-    const toogleItems = [3800,2065,3001,3379,3285,3145,3303,3098,3092,2301,1402,1410,1414,3100,3384,3025,3078,3057,2015,3087,3094,3134,3147,3742,2031,2032,2033,2003,3194,3174,3252],
-    stackItems = [3124,3091,1082,3041,3027,3151,3136,3907];
-
-    let itemDOM = document.getElementById(uid).getElementsByClassName("champItems")[0],
-        itemObj = myChamps[uid].items;
-
-    if (itemObj.length < 6 && !(theItems[itemNo].tags.includes("Boots") && checkBoots(itemObj))) {
-        let theDiv = document.createElement("div"),
-            theImg = document.createElement("img");
-
-        theImg.src = "http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/item/" + itemNo + ".png";
-        theDiv.appendChild(theImg);
-
-        if (toogleItems.includes(itemNo) && !itemObj.includes(itemNo)) {
-            let theInput = document.createElement("input");
-            theInput.id = "cb" + uid + itemNo;
-            theInput.type = "checkbox";
-            theInput.addEventListener("change", update);
-            theDiv.appendChild(theInput);
-        } else if (stackItems.includes(itemNo) && !itemObj.includes(itemNo)) {
-            let theInput = document.createElement("input");
-            theInput.id = "num" + uid + itemNo;
-            theInput.type = "number";
-            theInput.min = 0
-            theInput.value = 0;
-            switch(itemNo) {
-            case 1082:
-                theInput.max = 10;
-                break;
-            case 3041:
-                theInput.max = 25;
-                break;
-            case 3091:
-                theInput.max = 5;
-                break;
-            case 3124:
-                theInput.max = 6;
-                break;
-            case 3027://roa
-                theInput.max = 10;
-                break;
-            case 3151://liandry
-            case 3136://haunting guise
-                theInput.max = 5;
-            break;
-            case 3907://spellbinder
-                theInput.max = 100;
-            break;
-            }
-            theInput.addEventListener("change", update);
-            theDiv.appendChild(theInput);
-        }
-
-        theDiv.classList.add("itemIcon");
-        itemDOM.appendChild(theDiv);
-
-        itemObj.push(itemNo);
-    }
-    update();
-};
-
-// ** UPDATE SCRIPTS **
-
-const update = function () {
-    Object.keys(myChamps).forEach(function (uid) {
-        myChamps[uid].setBaseStats();
-        myChamps[uid].setItemStats();
-        myChamps[uid].drawStats();
-        myChamps[uid].drawSkillTxt();
-    });
-}
-
 // ** FIRST LOAD SCRIPTS **
 
 setLocale();
 loadJSON("language", setLang);
-loadJSON("champion", setChampList);
 loadJSON("item", setItems);
+loadJSON("champion", setChampList);

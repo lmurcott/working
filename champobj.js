@@ -49,7 +49,6 @@ var champVars = {
       e1: {type: "mag", spell: true, child: ["a1"]},
       f1: {effectNo: 1, type: "mag", spell: true, child: ["a1"], multiplier: 160},
       f1Var: {link: "spelldamage", coeff: 0.48}
-
     },
     sInfo2:{
       e1: {type: "mag", spell: true, child: ["a1"]}
@@ -897,14 +896,14 @@ var champVars = {
   Gnar:{
     aSpdBonus: 5.5,
     buffs: [
-      {spell: 1, key: "f1", type: "percentmoveSpeed", active: true},
-      {spell: 2, key: "e2", type: "attackSpeed", active: true},
-            {spell: "P", key: "p1", type: "basemovespeed", passiveOnly: true},
-            {spell: "P", key: "p2", type: "baseGrowthAd", active: true},
-            {spell: "P", key: "p3", type: "baseGrowthHp", active: true},
-            {spell: "P", key: "p4", type: "baseGrowthArm", active: true},
-            {spell: "P", key: "p5", type: "baseGrowthMR", active: true},
-            {spell: "P", key: "p6", type: "baseGrowthAtkSpdReduce", active: true},
+        {spell: 1, key: "f1", type: "percentmoveSpeed", active: true},
+        {spell: 2, key: "e2", type: "attackSpeed", active: true},
+        {spell: "P", key: "p1", type: "basemovespeed", passiveOnly: true},
+        {spell: "P", key: "p2", type: "baseGrowthAd", active: true},
+        {spell: "P", key: "p3", type: "baseGrowthHp", active: true},
+        {spell: "P", key: "p4", type: "baseGrowthArm", active: true},
+        {spell: "P", key: "p5", type: "baseGrowthMR", active: true},
+        {spell: "P", key: "p6", type: "baseGrowthAtkSpdReduce", active: true},
     ],
         pInfo:{
             active: true,
@@ -1006,13 +1005,13 @@ var champVars = {
   },
   Hecarim:{
     buffs: [
-            {spell: 2, key: "f1Buff", type: "percentmoveSpeed"},//Multiplicative speed boosts [not additive]
-      {spell: "P", key: "p1", type: "attackdamage"}
+        {spell: 2, key: "f1Buff", type: "percentmoveSpeed"},//Multiplicative speed boosts [not additive]
+        {spell: "P", key: "p1", type: "attackdamage"}
     ],
-        pInfo:{
-            p1: {info: "attackDamage", child: ["p1Var"]},
-            p1Var: {link: "bonusmovespeed", coeff: 0.15}
-        },
+    pInfo:{
+        p1: {info: "attackDamage", child: ["p1Var"]},
+        p1Var: {link: "bonusmovespeed", coeff: 0.15}
+    },
     sInfo0:{
       e1: {type: "phys", spell: true, child: ["f1"]}
     },
@@ -1114,7 +1113,6 @@ var champVars = {
       e1: {type: "phys", spell: true, onHit: 1, child: ["a1"]},
       f1: {type: "heal", child: ["f1Var"]},
       f1Var: {link: "attackdamage", coeff: [0.12,0.14,0.16,0.18,0.2]}
-      //f1Var: {link: "attackdamage", coeff: 1.2}
     },
     sInfo1:{
         active: true,
@@ -1273,39 +1271,39 @@ var champVars = {
             f2: {value: [70,120,170,220,270,320], type: "phys", multiplier: 140, spell: true, child: ["a1"]}
     },
     sInfo1:{
-            txt: "<hr>Gains a burst of energy increasing Attack Speed to maximum for 3 attacks. These attacks deal {{ f1 }} damage",
-      e4: {type: "mag", spell: true, child: ["a1"], ticks: 4, duration: 4, multiplier: 25},
-            f1: {type: "phys", child: ["f1Var"], onHit: 1, crit: [100,150]},
-            f1Var: {link: "attackdamage", coeff: [0.7,0.78,0.86,0.94,1.02,1.1]}
+        txt: "<hr>Gains a burst of energy increasing Attack Speed to maximum for 3 attacks. These attacks deal {{ f1 }} damage",
+        e4: {type: "mag", spell: true, child: ["a1"], ticks: 4, duration: 4, multiplier: 25},
+        f1: {type: "phys", child: ["f1Var"], onHit: 1, crit: [100,150]},
+        f1Var: {link: "attackdamage", coeff: [0.7,0.78,0.86,0.94,1.02,1.1]}
     },
     sInfo2:{
-            active: true,
-            txt: "<hr>Deploys an Acceleration Gate for 4 seconds increasing the Movement Speed of all allied champions who pass through it by {{ f1 }} for 3 seconds (this bonus fades over the duration).",
-            f1: {value: [30,35,40,45,50,55]},
-      e4: {type: "mag", spell: true, maxHp: true},
-      a1: {type: "mag", child: ["a1"]}
+        active: true,
+        txt: "<hr>Deploys an Acceleration Gate for 4 seconds increasing the Movement Speed of all allied champions who pass through it by {{ f1 }} for 3 seconds (this bonus fades over the duration).",
+        f1: {value: [30,35,40,45,50,55]},
+        e4: {type: "mag", spell: true, maxHp: true},
+        a1: {type: "mag", child: ["a1"]}
     },
     sInfo3:{
-            active: true,
-            txt: "<hr>Transforms the Mercury Cannon into the Mercury Hammer gaining new abilities and {{ f1 }} Armor and Magic Resist.<br>The next attack in Hammer Stance deals an additional {{ f2 }} magic damage",
-      f1: {valuePerLvl: [5,5,5,5,5,15,15,15,15,15,25,25,25,25,25,35,35,35]},
-            f2: {valuePerLvl: [25,25,25,25,25,65,65,65,65,65,105,105,105,105,105,145,145,145], type: "mag", child: ["f2Var"]},
-            f2Var: {link: "bonusattackdamage", coeff: 0.25},
-            f3: {valuePerLvl: [10,10,10,10,10,15,15,15,15,15,20,20,20,20,20,25,25,25,]}
+        active: true,
+        txt: "<hr>Transforms the Mercury Cannon into the Mercury Hammer gaining new abilities and {{ f1 }} Armor and Magic Resist.<br>The next attack in Hammer Stance deals an additional {{ f2 }} magic damage",
+        f1: {valuePerLvl: [5,5,5,5,5,15,15,15,15,15,25,25,25,25,25,35,35,35]},
+        f2: {valuePerLvl: [25,25,25,25,25,65,65,65,65,65,105,105,105,105,105,145,145,145], type: "mag", child: ["f2Var"]},
+        f2Var: {link: "bonusattackdamage", coeff: 0.25},
+        f3: {valuePerLvl: [10,10,10,10,10,15,15,15,15,15,20,20,20,20,20,25,25,25,]}
     }
   },
   Jhin:{//check to see if passive crit infinitely scales
     buffs: [
       {spell: "P", key: "p2", type: "attackdamage"}
     ],
-        pInfo:{
-            p1: {info: "PercentMovementSpeedMod", value: 10, child: ["p1Var"]},
-            p1Var:{link: "bonusattackspeed", coeff: 4},
-            p2: {info: "attackDamage", child: ["p2Var","p2Var2"]},
-            p2Var:{link: "attackdamage", coeff: [0.04,0.05,0.06,0.07,0.08,0.09,0.1,0.11,0.12,0.14,0.16,0.2,0.24,0.28,0.32,0.36,0.4,0.44]},
-            p2Var2:{link: "jhinPassive", coeff: 1},
-            p3: {info: "Damage", myInfo: " [4]", type: "phys", missHp: true, valuePerLvl:[15,15,15,15,15,20,20,20,20,20,25,25,25,25,25,25,25,25]},
-        },
+    pInfo:{
+        p1: {info: "PercentMovementSpeedMod", value: 10, child: ["p1Var"]},
+        p1Var:{link: "bonusattackspeed", coeff: 4},
+        p2: {info: "attackDamage", child: ["p2Var","p2Var2"]},
+        p2Var:{link: "attackdamage", coeff: [0.04,0.05,0.06,0.07,0.08,0.09,0.1,0.11,0.12,0.14,0.16,0.2,0.24,0.28,0.32,0.36,0.4,0.44]},
+        p2Var2:{link: "jhinPassive", coeff: 1},
+        p3: {info: "Damage", myInfo: " [4]", type: "phys", missHp: true, valuePerLvl:[15,15,15,15,15,20,20,20,20,20,25,25,25,25,25,25,25,25]},
+    },
     sInfo0:{
       e1: {type: "phys", spell: true, child: ["a1","f1Var"]},
       f1Var: {link: "attackdamage", coeff: [0.4,0.475,0.55,0.625,0.7]}
@@ -1359,7 +1357,7 @@ var champVars = {
       e3: {type: "phys", missHp: true}
     }
   },
-  Kaisa:{//find w min max damage
+  Kaisa:{
     buffs: [
             {spell: "2", key: "e5", type: "attackSpeed", active: true},
     ],
@@ -1399,11 +1397,11 @@ var champVars = {
         f3Var: {link: "spelldamage", coeff: 1}
     },
     sInfo2:{
-            active: true,
-      f1: {value: 1.2, kaisaE: true},
-      f2: {child: ["f2Var"]},
-            f2Var: {link: "bonusattackspeed", coeff: 10},
-            f4: {value: [55,60,65,70,75], kaisaMulti: true}
+        active: true,
+        f1: {value: 1.2, kaisaE: true},
+        f2: {child: ["f2Var"]},
+        f2Var: {link: "bonusattackspeed", coeff: 10},
+        f4: {value: [55,60,65,70,75], kaisaMulti: true}
     },
     sInfo3:{
       e1: {type: "shield", selfShield: true, child: ["f1Var","f2Var"]},
@@ -1494,10 +1492,9 @@ var champVars = {
     },
     sInfo3:{
       e1: {type: "mag", spell: true, child: ["a1","f2Var"]},
-      a1Var: {coeff: 0.3,link: "spelldamage"},
       f2Var: {coeff: 0.02,link: "mana"},
-      e3: {type: "mag", child: ["e3Var","f3Var"]},
-      e3Var: {coeff: 0.1,link: "spelldamage"},
+      e3: {type: "mag", child: ["f1Var","f3Var"]},
+      f1Var: {coeff: 0.1,link: "spelldamage"},
       f3Var: {coeff: 0.01,link: "mana"},
     }
   },
@@ -1506,12 +1503,12 @@ var champVars = {
       {spell: 1, key: "e4", type: "percentmoveSpeed", active: true}
     ],
     pInfo:{
-            p1: {info: ["Magic","Damage"], type: "mag", spell: true, child: ["p1Var","p1Var2"], valuePerLvl: [68,72,77,82,89,96,103,112,121,131,142,154,166,180,194,208,224,240]},
-            p1Var: {link: "bonusattackdamage", coeff: 1},
-            p1Var2: {link: "spelldamage", coeff: [0.55,0.55,0.55,0.55,0.55,0.7,0.7,0.7,0.7,0.7,0.85,0.85,0.85,0.85,0.85,1,1,1]},
-            p2: {info: "rPercentCooldownMod", myInfo: "[R]", valuePerLvl: [78,78,78,78,78,84,84,84,84,84,90,90,90,90,90,96,96,96]}
-        },
-        sInfo0:{
+        p1: {info: ["Magic","Damage"], type: "mag", spell: true, child: ["p1Var","p1Var2"], valuePerLvl: [68,72,77,82,89,96,103,112,121,131,142,154,166,180,194,208,224,240]},
+        p1Var: {link: "bonusattackdamage", coeff: 1},
+        p1Var2: {link: "spelldamage", coeff: [0.55,0.55,0.55,0.55,0.55,0.7,0.7,0.7,0.7,0.7,0.85,0.85,0.85,0.85,0.85,1,1,1]},
+        p2: {info: "rPercentCooldownMod", myInfo: "[R]", valuePerLvl: [78,78,78,78,78,84,84,84,84,84,90,90,90,90,90,96,96,96]}
+    },
+    sInfo0:{
       e1: {type: "mag", spell: true, child: ["a1"]}
     },
     sInfo1:{
