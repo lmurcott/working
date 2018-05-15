@@ -240,6 +240,12 @@ h3 {
     display: none;
 }
 
+.skillInput {
+    text-align: left;
+    font-weight: bold;
+    font-size: 0.8em;
+}
+
 .itemIcon {
     width: 2.5em;
     float: left;

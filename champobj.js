@@ -5,12 +5,12 @@ var champVars = {
       {spell: "P", key: "p2", type: "attackSpeed", active: true},
       {spell: "P", key: "p1", type: "baseAd", active: true}
     ],
-    pInfo:{
+    sInfoP:{
       active: true,
-      p1: {info: "attackDamage", child: ["p1Var"]},
+      p1: {info: "AttackDamage", child: ["p1Var"]},
       p1Var: {link: "baseAd", coeff: 0.25},
       p2: {info: "AttackSpeed", percent: true, valuePerLvl: [30,30,30,30,30,40,40,40,40,40,50,50,50,50,50,60,60,60]},
-      p3: {info: "regen", type: "heal", selfHeal: true, child: ["p3Var"]},
+      p3: {info: "Regen", type: "heal", selfHeal: true, child: ["p3Var"]},
       p3Var: {link: "maxHp", coeff: 0.3}
     },
     sInfo0:{
@@ -34,7 +34,7 @@ var champVars = {
     buffs: [
       {spell: "P", key: "p1", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
         active: true,
         p1: {info: "PercentMovementSpeedMod", value: 20},
     },
@@ -61,8 +61,8 @@ var champVars = {
     buffs: [
       {spell: 1, key: "e6", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
-      p1: {info: "regen", type: "heal", selfHeal: true, valuePerLvl: [5,7,9,11,13,15,17,19,21,23,25,30,35,40,45,50,55,60], child: ["p1Var","p1Var2"]},
+    sInfoP:{
+      p1: {info: "Regen", type: "heal", selfHeal: true, valuePerLvl: [5,7,9,11,13,15,17,19,21,23,25,30,35,40,45,50,55,60], child: ["p1Var","p1Var2"]},
       p1Var: {link: "spelldamage", coeff: 0.45},
       p1Var2: {link: "bonusattackdamage", coeff: 0.6},
       p2: {info: "Damage", type: "mag", valuePerLvl: [10,12,14,16,18,20,22,24,26,28,30,40,50,60,70,80,90,100], child: ["p2Var","p2Var2"], basicAttack: true},
@@ -88,7 +88,7 @@ var champVars = {
     buffs: [
       {spell: 3, key: "e2", type: "dmgReduction", active: true}
     ],
-    pInfo:{
+    sInfoP:{
       p1: {info: "spells_Self", type: "heal", value: 13, child: ["p1Var"]},
       p1Var: {link: "champLevel", coeff: 7},
       p2: {info: "mobileFriends", type: "heal", value: 13, child: ["p1Var"], multiplier: 200}
@@ -140,7 +140,7 @@ var champVars = {
       {spell: "P", key: "p1", type: "armor", active: true},
             {spell: "P", key: "p2", type: "mr", active: true}
     ],
-    pInfo:{
+    sInfoP:{
       active: true,
       p1: {info: "Armor", type: "armor", valuePerLvl: [-40,-40,-40,-40,-25,-25,-25,-10,-10,-10,-10,5,5,5,20,20,20,20]},
             p2: {info: "SpellBlock", type: "mr", valuePerLvl: [-40,-40,-40,-40,-25,-25,-25,-10,-10,-10,-10,5,5,5,20,20,20,20]}
@@ -182,7 +182,7 @@ var champVars = {
     buffs: [
       {spell: 0, key: "e4", type: "attackSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
       p1: {info: "Damage", type: "phys", child: ["p1Var"], basicAttack: true},
       p1Var: {link: "ashePassive", coeff: 1}
     },
@@ -203,9 +203,9 @@ var champVars = {
     buffs: [
       {spell: 2, key: "e2", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
       p1: {valuePair: [1,"f3"], info: "Damage", valuePerLvl: [20,24,28,32,36,39,44,49,54,60,66,72,78,84,93,102,111,130], type: "mag", child: ["p1Var"]},
-      p1Var: {link: "spelldamage", coeff: [0.18,0.19,0.20,0.21,0.22,0.23,0.24,0.25,0.26,0.27,0.28,0.29,0.30,0.31,0.32,0.33,0.34,0.35]}
+      p1Var: {link: "spelldamage", coeff: [0.18,0.19,0.2,0.21,0.22,0.23,0.24,0.25,0.26,0.27,0.28,0.29,0.3,0.31,0.32,0.33,0.34,0.35]}
     },
     sInfo0:{
       e1: {type: "mag", spell: true, child: ["a1"]}
@@ -228,7 +228,7 @@ var champVars = {
       {spell: 1, key: "e3", type: "attackSpeed"},
       {spell: 1, key: "e7", type: "attackSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
       p1: {info: "Damage", child: ["p1Var"]},
       p1Var: {link: "spelldamage", coeff: 0.15}
     },
@@ -255,7 +255,7 @@ var champVars = {
     buffs: [
       {spell: 2, key: "e2", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
       input: {myInfo: "5X", type: "number", max: "999"},
       p1: {info: "Damage", type: "mag", value: 30, child: ["p1Var","p1Var2"]},
       p1Var: {link: "spelldamage", coeff: 0.3},
@@ -291,7 +291,7 @@ var champVars = {
     }
   },
   Brand:{
-    pInfo:{
+    sInfoP:{
         p1: {value: 4, type: "mag", spell: true, info: "magicDamage", myInfo: " [x1]", maxHp: true, ticks: 4, duration: 4, multiplier: 25},
         p2: {value: 12, type: "mag", spell: true, info: "magicDamage", myInfo: " [x3]", maxHp: true, ticks: 4, duration: 4, multiplier: 25},
         p3: {valuePerLvl: [12,12.5,13,13.5,14,14.5,15,15.5,16,16,16,16,16,16,16,16,16,16] , type: "mag", spell: true, info: "magicDamage", maxHp: true}
@@ -316,7 +316,7 @@ var champVars = {
       {spell: 2, key: "e3", type: "dmgReduction", active: true},
       {spell: 2, key: "e4", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
       p1: {info: "magicDamage", type: "mag", value: 16, child: ["p1Var"]},
       p1Var: {link: "champLevel", coeff: 10}
     },
@@ -340,7 +340,7 @@ var champVars = {
   },
   Caitlyn:{
     aSpdBonus: 10,
-    pInfo:{
+    sInfoP:{
       p1: {info: "Damage", type: "phys", child: ["p1Var","p2Var"]},
       p1Var: {link: "attackdamage", coeff: 0.5},
             p2Var: {link: "caitPassive", coeff: 1}
@@ -364,7 +364,7 @@ var champVars = {
     buffs: [
       {spell: 2, key: "e2", type: "attackSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
       p1: {info: "statDefense", type: "shield", selfShield: true, child: ["p1Var"]},
       p1Var: {link: "maxHp", coeff: 0.2}
     },
@@ -394,7 +394,7 @@ var champVars = {
     buffs: [
       {spell: "P", key: "p1", type: "basemovespeed"}
     ],
-    pInfo:{
+    sInfoP:{
       p1: {info: "Movement", child: ["p1Var"]},
       p1Var: {link: "champLevel", coeff: 4}
     },
@@ -419,7 +419,7 @@ var champVars = {
     buffs: [
       {spell: 3, key: "f3Buff", type: "hp"}
     ],
-    pInfo:{
+    sInfoP:{
       p1: {value: 17, type: "heal", selfHeal: true, info: "Health", child: ["p1Var"]},
             p2: {value: 3.25, info: "Mana", child: ["p2Var"]},
       p1Var: {link: "champLevel", coeff: 3},
@@ -478,13 +478,13 @@ var champVars = {
             {spell: "P", key: "p3", type: "attackdamage", active: true},
       {spell: 2, key: "e1", type: "percentArmPen"}
     ],
-    pInfo:{
+    sInfoP:{
             active: true,
       p1: {value: 12, type: "phys", info: "Damage", myInfo: " [x1]", child: ["p1Var"]},
             p1Var: {link: "champLevel", coeff: 1},
             p2: {value: 60, type: "phys", spell: true, info: "Damage", myInfo: " [x5]", child: ["p2Var"]},
             p2Var: {link: "champLevel", coeff: 5},
-            p3: {valuePerLvl: [30,35,40,45,50,55,60,65,70,75,85,95,105,130,155,180,205,230], info: "attackDamage"}
+            p3: {valuePerLvl: [30,35,40,45,50,55,60,65,70,75,85,95,105,130,155,180,205,230], info: "AttackDamage"}
         },
     sInfo0:{
       e2: {type: "phys", spell: true, child: ["f1Var"]},
@@ -505,7 +505,7 @@ var champVars = {
     buffs: [
             {spell: "P", key: "p1", type: "attackSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             active: true,
       p1: {valuePair: [2,"f1"], info: "PercentAttackSpeedMod"},
             p1Var: {link: "champLevel", coeff: 1},
@@ -555,7 +555,7 @@ var champVars = {
       {spell: 2, key: "f5", type: "attackdamage", active: true},
       {spell: 3, key: "e3", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             p1: {type: "heal", selfHeal: true, info: "HealthRegen", child: ["p1Var"]},
             p1Var: {link: "maxHp", coeff: 0.03}
         },
@@ -588,7 +588,7 @@ var champVars = {
     buffs: [
       {spell: "P", key: "p2", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
         active: true,
         p1: {valuePerLvl: [30,40,50,60,70,80,85,90,95,100,105,110,115,120,125,130,135,140], type: "mag", info: "magicDamage", child: ["p1Var"]},
         p1Var: {link: "spelldamage", coeff: 0.8},
@@ -616,9 +616,9 @@ var champVars = {
       {spell: 1, key: "f2", type: "attackSpeed", active: true},
       {spell: 3, key: "e3", type: "flatmoveSpeed", active: true}
     ],
-        pInfo:{
+        sInfoP:{
             p1: {type: "mag", valuePair: [3,"f1"], info: "magicDamage"},
-            p2: {type: "heal", selfHeal: true, valuePair: [3,"f2"], info: "regen"}
+            p2: {type: "heal", selfHeal: true, valuePair: [3,"f2"], info: "Regen"}
         },
     sInfo0:{
             txt: "<hr>Lunges to a target with a poisonous bite that deals Magic Damage equal to {{ f1 }} plus {{ f2 }}% Health. Max {{ f3 }} bonus damage to monsters.",
@@ -656,7 +656,7 @@ var champVars = {
         img: "spell/EvelynnW.png"
       }
     ],
-        pInfo:{
+        sInfoP:{
             p1: {value: 230, info: ["Health","Level"], child: ["p1Var","p1Var2"]},
             p1Var: {link: "champLevel", coeff: 20},
             p1Var2: {link: "spelldamage", coeff: 2.5},
@@ -682,7 +682,7 @@ var champVars = {
       {spell: 1, key: "e2", type: "attackSpeed", active: true},
             {spell: "P", key: "p1", type: "attackSpeed"}
     ],
-        pInfo:{
+        sInfoP:{
             input: {type: "number", max: "5"},
             p1: {info: "PercentAttackSpeedMod", child: ["p1Var"]},
             p1Var: {inputId: "P", link: "input", coeff: [10,10,10,10,10,10,12,12,12,12,12,12,14,14,14,14,14,14]},
@@ -705,7 +705,7 @@ var champVars = {
     buffs: [
       {spell: "P", key: "p1", type: "percentmoveSpeed", active: true}
     ],
-        pInfo:{
+        sInfoP:{
             active: true,
             p1: {info: "PercentMovementSpeedMod", valuePerLvl: [25,25,25,25,25,30,30,30,30,30,35,35,35,35,35,40,40,40]}
         },
@@ -731,11 +731,11 @@ var champVars = {
     buffs: [
       {spell: "P", key: "p3", type: "percentmoveSpeed", active: true}
     ],
-        pInfo:{
+        sInfoP:{
             active: true,
             p1: {info: "Damage", value: 2.5, type: "tru", maxHp: true, child: ["p1Var"]},
             p1Var: {link: "attackdamage", coeff: 0.045},
-            p2: {info: "regen", value: 25, type: "heal", selfHeal: true, child: ["p2Var"]},
+            p2: {info: "Regen", value: 25, type: "heal", selfHeal: true, child: ["p2Var"]},
             p2Var: {link: "champLevel", coeff: 5},
             p3: {info: "PercentMovementSpeedMod", value: 20, valuePair: [3,"f1"]}
         },
@@ -763,7 +763,7 @@ var champVars = {
     }
   },
   Fizz:{
-    pInfo:{
+    sInfoP:{
       p1: {valuePerLvl: [4,4,4,6,6,6,8,8,8,10,10,10,12,12,12,14,14,14], info: ["Attack","reduction"]}
     },
     sInfo0:{
@@ -788,7 +788,7 @@ var champVars = {
       {spell: 1, key: "e1", type: "magDmgReduction", active: true},
       {spell: 1, key: "e1Buff2", type: "physDmgReduction", active: true}
     ],
-    pInfo:{
+    sInfoP:{
       p1: {value: 8, info: "magicDamage", type: "mag", child:["p1Var","p1Var2","p1Var3","p1Var4"]},
             p1Var: {link: "champLevel", coeff: 4},
             p1Var2: {link: "attackdamage", coeff: 1},
@@ -829,7 +829,7 @@ var champVars = {
       {spell: 2, key: "e0", type: "percentArmPen", active: true},
             {spell: "P", key: "p2", type: "percentmoveSpeed", active: true}
     ],
-        pInfo:{
+        sInfoP:{
             active: true,
             p1: {type: "tru", info: "Damage", value: 45, child: ["p1Var","p1Var2"]},
             p1Var: {link: "bonusattackdamage", coeff: 1},
@@ -866,7 +866,7 @@ var champVars = {
         img: "spell/GarenE.png"
       }
     ],
-    pInfo:{
+    sInfoP:{
         p1: {type: "heal", info: "HealthRegen", child: ["p1Var"]},
         p2: {type: "heal", info: "HealthRegen", child: ["p1Var"], myInfo: "(low)", multiplier: 200},
         p1Var: {link: "maxHp", coeff: [0.004,0.004,0.004,0.004,0.004,0.004,0.004,0.004,0.004,0.004,0.008,0.008,0.008,0.008,0.008,0.008,0.008,0.008]}
@@ -905,10 +905,10 @@ var champVars = {
         {spell: "P", key: "p5", type: "baseGrowthMR", active: true},
         {spell: "P", key: "p6", type: "baseGrowthAtkSpdReduce", active: true},
     ],
-        pInfo:{
+        sInfoP:{
             active: true,
             p1: {valuePerLvl: [10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,26,28,30], info: ["Movement","reduction"]},
-            p2: {value: 6, info: "attackDamage", child: ["p2Var"]},
+            p2: {value: 6, info: "AttackDamage", child: ["p2Var"]},
             p2Var: {link: "baseGrowth", coeff: 2.5},
             p3: {value: 70, info: "Health", child: ["p3Var"]},
             p3Var: {link: "baseGrowth", coeff: 43},
@@ -946,7 +946,7 @@ var champVars = {
     buffs: [
       {spell: 1, key: "e1", type: "dmgReduction", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             p1: {type: "heal", selfHeal: true, info: "HealthRegen", child: ["p1Var"]},
             p1Var: {link: "maxHp", coeff: 0.06}
         },
@@ -972,7 +972,7 @@ var champVars = {
     buffs: [
       {spell: 2, key: "f5Buff", type: "armor"},
     ],
-        pInfo:{
+        sInfoP:{
             p1: {type: "phys", onHit: 1, basicAttack: true, info: "Damage", myInfo: "[X1]", crit:[40,60], child: ["p1Var"]},
             p1Var: {link: "attackdamage", coeff: [0.7,0.71,0.72,0.74,0.75,0.76,0.78,0.8,0.81,0.83,0.85,0.87,0.89,0.91,0.95,0.96,0.97,1]},
             p2: {type: "phys", onHit: 1, basicAttack: true, info: "Damage", myInfo: "[X2]", crit:[40,60], child: ["p1Var","p2Var"]},
@@ -1008,8 +1008,8 @@ var champVars = {
         {spell: 2, key: "f1Buff", type: "percentmoveSpeed"},//Multiplicative speed boosts [not additive]
         {spell: "P", key: "p1", type: "attackdamage"}
     ],
-    pInfo:{
-        p1: {info: "attackDamage", child: ["p1Var"]},
+    sInfoP:{
+        p1: {info: "AttackDamage", child: ["p1Var"]},
         p1Var: {link: "bonusmovespeed", coeff: 0.15}
     },
     sInfo0:{
@@ -1034,7 +1034,7 @@ var champVars = {
     buffs: [
         {spell: "P", key: "p1", type: "percentmoveSpeed", active: true},
     ],
-        pInfo:{
+        sInfoP:{
             active: true,
             p1: {info: "PercentMovementSpeedMod", value: 20}
         },
@@ -1067,7 +1067,7 @@ var champVars = {
     }
   },
   Illaoi:{
-        pInfo:{
+        sInfoP:{
             p1: {info: "Damage", type: "phys", child: ["p1Var","p1Var2"]},
             p1Var: {link: "champLevel", coeff: 10},
             p1Var2: {link: "attackdamage", coeff: 1.2}
@@ -1096,7 +1096,7 @@ var champVars = {
         {spell: 1, key: "e1", type: "dmgReduction", active: true},
         {spell: "P", key: "p4", type: "attackSpeed", active: true}
       ],
-    pInfo:{
+    sInfoP:{
         active: true,
         p0: {info: "magicDamage", myInfo: "[X1]", type: "mag", value: 1.5, child: ["p0Var1","p0Var2"]},
         p0Var1: {link: "champLevel", coeff: 1},
@@ -1132,7 +1132,7 @@ var champVars = {
     }
   },
   Ivern:{//find out how much the health cost of passive is, wiki might be incorrect
-    pInfo:{
+    sInfoP:{
         //p1: {info: ["Health","Cost"], valuePerLvl: [147,156,167,177,185,193,199,205,209,212,213,213,212,209,203,194,188,176]},
         //p2: {info: ["Mana","Cost"], valuePerLvl: [149,156,162,167,172,176,178,180,180,179,176,172,167,159,150,139,126,111]}
     },
@@ -1166,7 +1166,7 @@ var champVars = {
       {spell: 1, key: "e1", type: "percentmoveSpeed"},
             {spell: 2, key: "e2", type: "attackdamage", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             p1: {info: "PercentMovementSpeedMod", value: 8},
             p2: {info: "magicDamage", type: "mag", child: ["p2Var"]},
             p2Var: {link: "bonusmovespeed", coeff: [0.15,0.15,0.15,0.15,0.15,0.15,0.25,0.25,0.25,0.25,0.25,0.25,0.35,0.35,0.35,0.35,0.35,0.35]},
@@ -1199,7 +1199,7 @@ var champVars = {
         img: "spell/JarvanIVDragonStrike.png"
       }
     ],
-    pInfo:{
+    sInfoP:{
             p1: {info: "Damage", currHp: true, type: "phys", value: 8},
             p2: {info: ["spells_target_1", "Cooldown"], valuePerLvl:[10,10,10,10,10,10,8,8,8,8,8,8,6,6,6,6,6,6]}
         },
@@ -1223,7 +1223,7 @@ var champVars = {
       {spell: 3, key: "f1", type: "mr", active: true},
             {spell: "P", key: "p1", type: "attackSpeed"},
     ],
-        pInfo:{
+        sInfoP:{
             input: {type: "number", max: "8"},
             p1: {info: "PercentAttackSpeedMod", child: ["p1Var"]},
             p1Var: {inputId: "P", link: "input", coeff: [3.5,3.5,3.5,5,5,5,6.5,6.5,6.5,8,8,8,9.5,9.5,9.5,11,11,11]}
@@ -1260,7 +1260,7 @@ var champVars = {
       img: "spell/JayceStanceHtG.png"
       }
     ],
-    pInfo:{
+    sInfoP:{
             active: true,
             p1: {info: "Movement", value: 40}
         },
@@ -1296,10 +1296,10 @@ var champVars = {
     buffs: [
       {spell: "P", key: "p2", type: "attackdamage"}
     ],
-    pInfo:{
+    sInfoP:{
         p1: {info: "PercentMovementSpeedMod", value: 10, child: ["p1Var"]},
         p1Var:{link: "bonusattackspeed", coeff: 4},
-        p2: {info: "attackDamage", child: ["p2Var","p2Var2"]},
+        p2: {info: "AttackDamage", child: ["p2Var","p2Var2"]},
         p2Var:{link: "attackdamage", coeff: [0.04,0.05,0.06,0.07,0.08,0.09,0.1,0.11,0.12,0.14,0.16,0.2,0.24,0.28,0.32,0.36,0.4,0.44]},
         p2Var2:{link: "jhinPassive", coeff: 1},
         p3: {info: "Damage", myInfo: " [4]", type: "phys", missHp: true, valuePerLvl:[15,15,15,15,15,20,20,20,20,20,25,25,25,25,25,25,25,25]},
@@ -1331,7 +1331,7 @@ var champVars = {
             {spell: "P", key: "p2", type: "uncapAtkSpd", active: true},//key is placeholder
             {spell: 0, key: "f1", type: "attackSpeed"}
     ],
-        pInfo: {
+        sInfoP: {
             active: true,
             //input: {type: "number", max: "255"},
             p1: {info: "PercentMovementSpeedMod", value: 175},
@@ -1361,7 +1361,7 @@ var champVars = {
     buffs: [
             {spell: "2", key: "e5", type: "attackSpeed", active: true},
     ],
-    pInfo:{
+    sInfoP:{
       p0: {info: "magicDamage", myInfo: "[X0]", type: "mag", valuePerLvl: [7,7,7,8,8,8,9,9,9,10,10,10,11,11,11,12,12,12], child: ["p1Var"]},
       p0Var: {link: "spelldamage", coeff: 0.2},
       p1: {info: "magicDamage", myInfo: "[X1]", type: "mag", valuePerLvl: [8,8,9,10,11,11,13,13,14,15,16,16,18,18,19,20,21,21], child: ["p1Var"]},
@@ -1476,7 +1476,7 @@ var champVars = {
         buffs: [
             {spell: "P", key: "p1", type: "magDmgReduction"}
         ],
-        pInfo:{
+        sInfoP:{
             p1: {value: 15, hide: true},
         },
         sInfo0:{
@@ -1502,7 +1502,7 @@ var champVars = {
     buffs: [
       {spell: 1, key: "e4", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
         p1: {info: ["Magic","Damage"], type: "mag", spell: true, child: ["p1Var","p1Var2"], valuePerLvl: [68,72,77,82,89,96,103,112,121,131,142,154,166,180,194,208,224,240]},
         p1Var: {link: "bonusattackdamage", coeff: 1},
         p1Var2: {link: "spelldamage", coeff: [0.55,0.55,0.55,0.55,0.55,0.7,0.7,0.7,0.7,0.7,0.85,0.85,0.85,0.85,0.85,1,1,1]},
@@ -1553,7 +1553,7 @@ var champVars = {
         buffs: [
       {spell: "P", key: "p1", type: "kaynShadowPassive", active: true},
     ],
-        pInfo:{
+        sInfoP:{
             active: true,
             p1: {info: ["Assassin","Magic","Damage"], myInfo: "%", valuePerLvl: [12,14,16,18,20,21,23,25,27,29,31,33,35,37,39,40,42,44]}
         },
@@ -1603,7 +1603,7 @@ var champVars = {
     buffs: [
       {spell: 3, key: "e3", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             p1: {info: "Damage", type: "mag", value: 6, child: ["p1Var","p1Var2"]},
             p1Var: {link: "champLevel", coeff: 8},
             p1Var2: {link: "bonusattackdamage", coeff: 0.2},
@@ -1630,7 +1630,7 @@ var champVars = {
     buffs: [
       {spell: 0, key: "f2", type: "attackSpeed", active: true}
     ],
-        pInfo:{
+        sInfoP:{
             input: {type: "number", max: "9999"},
             p1: {info: "PercentAttackSpeedMod", myInfo: "[Q]", child: ["p1Var"]},
             p1Var: {inputId: "P", link: "input", coeff: 5},
@@ -1671,7 +1671,7 @@ var champVars = {
             {spell: "P", key: "p2", type: "flatmoveSpeed", passiveOnly: true},
             {spell: "P", key: "p3", type: "hp", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             active: true,
             p1: {value: 400, info: "Health", child: ["p1Var"]},
             p1Var: {link: "baseGrowth", coeff: 60},
@@ -1710,7 +1710,7 @@ var champVars = {
       img: "spell/KogMawQ.png"
       }
     ],
-    pInfo:{
+    sInfoP:{
             p1: {info: "Damage", type: "tru", spell: true, value: 100,child: ["p1Var"]},
             p1Var: {link: "champLevel", coeff: 25}
         },
@@ -1756,7 +1756,7 @@ var champVars = {
     buffs: [
       {spell: "P", key: "p1", type: "attackSpeed", active: true},
     ],
-        pInfo:{
+        sInfoP:{
             active: true,
             p1: {info: "AttackSpeed", value: 40}
         },
@@ -1780,7 +1780,7 @@ var champVars = {
       {spell: 1, key: "e4", type: "armor", active: true},
       {spell: 1, key: "e2", type: "mr", active: true},
     ],
-        pInfo:{
+        sInfoP:{
             p1: {info: "magicDamage", value: 18, type: "mag", spell: true, child: ["p1Var"]},
             p1Var: {link: "champLevel", coeff: 7}
         },
@@ -1822,7 +1822,7 @@ var champVars = {
     buffs:[
       {spell: 1, key: "e2", type: "flatmoveSpeed", active: true},
     ],
-    pInfo:{
+    sInfoP:{
             p1: {info: "Damage", myInfo: "[2]", type: "phys", onHit: 1, basicAttack: true, crit:[75,112.5], child: ["p1Var"]},
             p1Var: {link: "attackdamage", coeff:[0.5,0.5,0.5,0.5,0.5,0.5,0.55,0.55,0.55,0.55,0.55,0.55,0.6,0.6,0.6,0.6,0.6,0.6]}
         },
@@ -1842,7 +1842,7 @@ var champVars = {
     buffs: [
       {spell: 1, key: "e1", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             p1: {info: "magicDamage", myInfo: "[x1]", value: 3, type: "mag", child: ["p1Var","p1Var2"]},
             p1Var: {link: "champLevel", coeff: 2},
             p1Var2: {link: "spelldamage", coeff: 0.05},
@@ -1867,7 +1867,7 @@ var champVars = {
   },
   Lux:{
     aSpdBonus: 7,
-    pInfo:{
+    sInfoP:{
             p1: {info: "magicDamage", value: 10, spell: true, type: "mag", child: ["p1Var","p1Var2"]},
             p1Var: {link: "champLevel", coeff: 10},
             p1Var2: {link: "spelldamage", coeff: 0.2},
@@ -1898,7 +1898,7 @@ var champVars = {
       img: "spell/Landslide.png"
       }
     ],
-    pInfo:{
+    sInfoP:{
             p1: {info: "Defense", type: "shield", selfShield: true, child: ["p1Var"]},
             p1Var: {link: "maxHp", coeff: 0.1}
         },
@@ -1939,7 +1939,7 @@ var champVars = {
   },
   Maokai:{
     aSpdBonus: 15.3,
-    pInfo:{
+    sInfoP:{
         p1: {info: ["SpecialRecipeLarge","HealthRegen"], type: "heal", selfHeal: true, child: ["p1Var"], valuePerLvl: [5,5,5,5,5,15,15,15,25,25,35,35,45,45,55,55,65,65]},
         p1Var: {link: "maxHp", coeff: [0.06,0.06,0.06,0.06,0.06,0.075,0.075,0.075,0.09,0.09,0.1,0.1,0.11,0.11,0.12,0.12,0.13,0.13]}
     },
@@ -1966,7 +1966,7 @@ var champVars = {
       {spell: 2, key: "f1", type: "attackdamage"},
       {spell: 2, key: "e3", type: "truOnHit", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             p1: {info: "Damage", myInfo: "[2]", type: "phys", onHit: 1, basicAttack: true, crit:[100,150], child: ["p1Var"]},
             p1Var: {link: "attackdamage", coeff:0.5}
         },
@@ -1990,14 +1990,14 @@ var champVars = {
       {spell: 1, key: "e2", type: "flatmoveSpeed", active: true},
       {spell: 1, key: "e1", type: "attackSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             p1: {info: "Damage", type: "phys", basicAttack: true, child: ["p1Var"]},
             p1Var: {link: "attackdamage", coeff:[0.5,0.5,0.5,0.6,0.6,0.6,0.7,0.7,0.8,0.8,0.9,0.9,1,1,1,1,1,1]}
         },
-        sInfo0:{
-      e2: {type: "phys", spell: true, child: ["a1","a2"], onHit: 1, crit: [100,150,true]},
-      f1: {value: 100, child: ["f1Var"]},
-      f1Var: {link: "bonusCritDamage", coeff: 1}
+    sInfo0:{
+        e2: {type: "phys", spell: true, child: ["a1","a2"], onHit: 1, crit: [100,150,true]},
+        f1: {value: 100, child: ["f1Var"]},
+        f1Var: {link: "bonusCritDamage", coeff: 1}
     },
     sInfo1:{
       active: true
@@ -2025,7 +2025,7 @@ var champVars = {
       img: "spell/MonkeyKingDoubleAttack.png"
       }
     ],
-    pInfo:{
+    sInfoP:{
             input: {type: "number", max: 6},
       p1: {info: "Armor", type: "armor", child: ["p1Var"]},
       p2: {info: "SpellBlock", type: "mr", child: ["p1Var"]},
@@ -2089,7 +2089,7 @@ var champVars = {
     }
   },
   Nami:{
-    pInfo:{
+    sInfoP:{
             p1: {info: "PercentMovementSpeedMod", value: 60, child: ["p1Var"]},
             p1Var: {link: "spelldamage", coeff: 0.2},
             p2: {info: "PercentMovementSpeedMod", myInfo: "[R]",  value: 120, child: ["p2Var"]},
@@ -2130,7 +2130,7 @@ var champVars = {
       img: "spell/NasusE.png"
       }
     ],
-    pInfo:{
+    sInfoP:{
             p1: {info: "PercentLifeStealMod", valuePerLvl: [10,10,10,10,10,10,15,15,15,15,15,15,20,20,20,20,20,20]}
         },
         sInfo0:{
@@ -2150,7 +2150,7 @@ var champVars = {
   },
   Nautilus:{
     aSpdBonus: 15,
-    pInfo:{
+    sInfoP:{
             p1: {info: "Damage", type: "phys", value: 2, child: ["p1Var"]},
             p1Var: {link: "champLevel", coeff: 6}
         },
@@ -2175,7 +2175,7 @@ var champVars = {
             {spell: "P", key: "p1", type: "percentmoveSpeed", active: true},
             {spell: "2", key: "e4", type: "attackSpeed", active: true},
         ],
-    pInfo:{
+    sInfoP:{
             active: true,
             p1: {info: "PercentMovementSpeedMod", value: 10},
         },
@@ -2223,7 +2223,7 @@ var champVars = {
       {spell: 1, key: "e1", type: "attackSpeed"},
       {spell: 1, key: "e1", type: "attackSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             p1: {info: "Damage", type: "phys", child: ["p1Var"]},
             p1Var: {link: "attackdamage", coeff: 1.2},
             p2: {info: ["SpecialRecipeLarge","HealthRegen"], type: "heal", selfHeal: true, valuePerLvl: [15,16,18,19,21,22,24,25,27,28,30,31,33,34,36,37,39,40], child: ["p2Var"]},
@@ -2286,7 +2286,7 @@ var champVars = {
       {spell: 3, key: "e1", type: "mr", passiveOnly: true},
       {spell: 3, key: "e5", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             p1: {info: "PercentAttackSpeedMod", child: ["p1Var"]},
             p1Var: {link: "percentMissingHp", coeff: 1}
         },
@@ -2311,7 +2311,7 @@ var champVars = {
     buffs: [
       {spell: 1, key: "e3", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             p1: {info: "magicDamage", type: "mag", child: ["p1Var"], valuePerLvl: [10,10,10,18,18,18,26,26,26,34,34,34,42,42,42,50,50,50]},
             p1Var: {link: "spelldamage", coeff: 0.15}
         },
@@ -2377,7 +2377,7 @@ var champVars = {
       {spell: 1, key: "f2", type: "mr"},
       {spell: 1, key: "e2", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             p1: {info: "magicDamage", type: "mag", valuePerLvl: [20,29,39,48,58,67,76,86,95,105,114,124,133,142,152,161,171,180]},
             p2: {info: "Defense", type: "shield", selfShield: true, child: ["p2Var"]},
             p2Var: {link: "maxHp", coeff: [0.15,0.15,0.15,0.15,0.15,0.15,0.175,0.175,0.175,0.175,0.175,0.175,0.2,0.2,0.2,0.2,0.2,0.2]},
@@ -2407,7 +2407,7 @@ var champVars = {
       {spell: 1, key: "e2", type: "attackSpeed", active: true},
       {spell: 1, key: "e3", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             p1: {info: "Damage", type: "phys", value: 10, child: ["p1Var","p1Var2"]},
             p1Var: {link: "champLevel", coeff: 5},
             p1Var2: {link: "attackdamage", coeff: [0.16,0.18,0.2,0.22,0.24,0.26,0.28,0.3,0.32,0.34,0.36,0.38,0.4,0.42,0.44,0.46,0.48,0.5]},
@@ -2429,7 +2429,7 @@ var champVars = {
         }
   },
   Rakan:{
-    pInfo:{
+    sInfoP:{
             p1: {info: "Defense", type: "shield", selfShield: true, value: 20, child: ["p1Var","p1Var2"]},
             p1Var: {link: "champLevel", coeff: 13},
             p1Var2: {link: "spelldamage", coeff: 0.9}
@@ -2457,7 +2457,7 @@ var champVars = {
       {spell: 1, key: "f2", type: "mr", active: true},
       {spell: 2, key: "e2", type: "attackSpeed", active: true},
     ],
-    pInfo:{
+    sInfoP:{
             p1: {info: "magicDamage", type: "mag", valuePerLvl: [8,9,10,11,12,13,14,15,16,17,18,19,20,20,20,20,20,20], child: ["p1Var"]},
             p1Var: {link: "armor", coeff: 0.1},
             p2: {info: ["SpecialRecipeLarge","magicDamage"], type: "mag", valuePerLvl: [8,9,10,11,12,13,14,15,16,17,18,19,20,20,20,20,20,20], child: ["p1Var"], multiplier: 150},
@@ -2484,7 +2484,7 @@ var champVars = {
     }
   },
   RekSai:{
-        pInfo:{
+        sInfoP:{
             p1: {info: ["SpecialRecipeLarge","HealthRegen"], type: "heal", selfHeal: true, child: ["p1Var"], value: 10},
             p1Var: {link: "champLevel", coeff: 10}
         },
@@ -2558,9 +2558,9 @@ var champVars = {
       img: "spell/RengarR.png"
       }
         ],
-    pInfo:{
+    sInfoP:{
             input: {type: "number", max: "6"},
-            p1: {info: "attackDamage", child: ["p1Var"]},
+            p1: {info: "AttackDamage", child: ["p1Var"]},
             p1Var: {link: "rengarPassive", coeff: 10}
         },
         sInfo0:{
@@ -2589,7 +2589,7 @@ var champVars = {
     buffs: [
       {spell: 3, key: "f3", type: "attackdamage", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             p1: {type: "phys", info: "Damage", child: ["p1Var"]},
             p1Var: {link: "attackdamage", coeff: [0.25,0.25,0.25,0.25,0.25,0.3,0.3,0.3,0.35,0.35,0.35,0.4,0.4,0.4,0.45,0.45,0.45,0.5]}
         },
@@ -2615,7 +2615,7 @@ var champVars = {
     buffs: [
       {spell: 1, key: "e2", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             p1: {info: ["Attack","magicDamage"], value: 20, type: "mag", child: ["p1Var","p1Var2"]},
             p1Var: {link: "champLevel", coeff: 5},
             p1Var2: {link: "spelldamage", coeff: 0.3},
@@ -2639,7 +2639,7 @@ var champVars = {
       {spell: 0, key: "e4", type: "percentmoveSpeed", active: true},
             {spell: "P", key: "p1", type: "mp"}
     ],
-    pInfo:{
+    sInfoP:{
             p1: {info: "Mana", child: ["p1Var"]},
             p1Var: {link: "spelldamage", coeff: 0.05},
         },
@@ -2664,7 +2664,7 @@ var champVars = {
             {spell: "P", key: "p1", type: "armor", active: true},
             {spell: "P", key: "p2", type: "mr", active: true}
     ],
-        pInfo:{
+        sInfoP:{
             active: true,
             p1: {info: "Armor", type: "armor", valuePerLvl: [20,20,20,20,20,20,70,70,70,70,70,70,70,120,120,120,120,120], child: ["p1Var"]},
             p1Var: {link: "armor", coeff: 1},
@@ -2692,7 +2692,7 @@ var champVars = {
     }
   },
   Shaco:{
-        pInfo:{
+        sInfoP:{
             p1: {info: "Damage", type: "phys", child: ["p1Var","p1Var2"]},
             p1Var: {link: "shacoPassive", coeff: 1},
             p1Var2: {link: "spelldamage", coeff: 0.4}
@@ -2716,7 +2716,7 @@ var champVars = {
   },
   Shen:{
     aSpdBonus: 15,
-    pInfo:{
+    sInfoP:{
         p1: {value: 47, info: "Defense", type: "shield", selfShield: true, child: ["p1Var","p1Var2"]},
         p1Var: {link: "champLevel", coeff: 3},
         p1Var2: {link: "bonusHp", coeff: 0.14}
@@ -2747,7 +2747,7 @@ var champVars = {
       {spell: 3, key: "e0", type: "hp", active: true},
       {spell: 1, key: "e2", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
         input: {type: "number", max: 5},
         p1: {info: "Armor", type: "armor", child: ["p1Var"]},
         p1Var: {inputId: "P", link: "input", coeff: 5},
@@ -2791,7 +2791,7 @@ var champVars = {
       {spell: 3, key: "e1", type: "mpregen", active: true},
       {spell: 3, key: "e1", type: "hpregen", active: true},
     ],
-    pInfo:{
+    sInfoP:{
             input: {type: "number", max: 25},
             p1: {info: "PercentMovementSpeedMod", child: ["p1Var"]},
             p1Var: {inputId: "P", link: "input", coeff: 20},
@@ -2864,7 +2864,7 @@ var champVars = {
             {spell: "P", key: "p2", type: "attackSpeed", active: true},
       {spell: 1, key: "e5", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             active: true,
             p1: {info: "Movement", valuePerLvl: [70,72,74,76,78,80,82,85,88,91,94,97,100,104,108,112,116,120]},
             p2: {info: "PercentAttackSpeedMod", valuePerLvl: [43,48,53,58,63,68,73,80,87,94,101,108,115,124,133,142,151,160]},
@@ -2894,7 +2894,7 @@ var champVars = {
     buffs: [
       {spell: 2, key: "f1", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             p1: {info: "magicDamage", myInfo: " [Q]", type: "mag", valuePerLvl: [20,30,40,50,60,70,80,90,105,120,135,150,165,180,195,210,225,240], child: ["p1Var"], multiplier: 140},
             p2: {info: "magicDamage", myInfo: " [W,E]", type: "mag", valuePerLvl: [20,30,40,50,60,70,80,90,105,120,135,150,165,180,195,210,225,240], child: ["p1Var"]},
             p1Var: {link: "spelldamage", coeff: 0.2},
@@ -2927,7 +2927,7 @@ var champVars = {
             {spell: "P", key: "p1", type: "percentmoveSpeed", active: true},
       {spell: 0, key: "e9", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             active: true,
             p1: {info: "PercentMovementSpeedMod", value: 70}
         },
@@ -2949,7 +2949,7 @@ var champVars = {
     }
   },
   Swain:{
-        pInfo: {
+        sInfoP: {
             input: {type: "number", max: 5},
             p1: {info: "magicDamage", value: 15, type: "mag", child: ["p1Var","p1Var2"]},
             p1Var: {link: "spelldamage", coeff: 0.3},
@@ -2984,7 +2984,7 @@ var champVars = {
         }
   },
   Syndra:{//w bonus true damage at max rank
-    pInfo:{
+    sInfoP:{
         p1: {info: "magicDamage", myInfo: "[Q]", valuePair: [0,"e1"], type: "mag", spell: true, multiplier: 115},
         p2: {info: "magicDamage", myInfo: "[W]", valuePair: [1,"e2"], type: "tru", multiplier: 20},
     },
@@ -3005,7 +3005,7 @@ var champVars = {
     }
   },
   TahmKench:{
-    pInfo:{
+    sInfoP:{
             p1: {info: "magicDamage", myInfo: "[x1]", type: "mag", child: ["p1Var"]},
             p1Var: {link: "maxHp", coeff: [0.0125,0.0125,0.0125,0.0125,0.0125,0.0125,0.015,0.015,0.015,0.015,0.015,0.015,0.0175,0.0175,0.0175,0.0175,0.0175,0.0175]},
             p2: {info: "magicDamage", myInfo: "[x3]", type: "mag", child: ["p2Var"]},
@@ -3024,7 +3024,7 @@ var champVars = {
       {spell: 0, key: "f2", type: "percentmoveSpeed", active: true},
             {spell: "P", key: "p1", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             active: true,
             p1: {info: "PercentMovementSpeedMod", valuePerLvl: [20,22,23,24,26,27,28,29,30,31,32,33,34,35,37,38,39,40]}
         },
@@ -3051,7 +3051,7 @@ var champVars = {
     buffs: [
       {spell: 3, key: "e3", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             p1: {info: "Damage", valuePerLvl: [75,85,95,105,115,125,135,145,155,165,175,175,175,175,175,175,175,175], type: "phys", child: ["p1Var"]},
             p1Var: {link: "bonusattackdamage", coeff: 2}
         },
@@ -3081,7 +3081,7 @@ var champVars = {
             {spell: "P", key: "p1", type: "attackSpeed", active: true},
       {spell: 1, key: "f1", type: "armor", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             active: true,
             p1: {info: "PercentAttackSpeedMod", value: 100},
             p2: {info: "magicDamage", type: "mag", value: 21, child: ["p2Var","p2Var2"]},
@@ -3110,7 +3110,7 @@ var champVars = {
             {spell: "P", key: "p1", type: "attackSpeed", active: true},
       {spell: 1, key: "f1", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             active: true,
             p1: {info: "PercentAttackSpeedMod", valuePerLvl: [20,20,20,20,40,40,40,40,40,60,60,60,60,60,80,80,80,80]}
         },
@@ -3134,7 +3134,7 @@ var champVars = {
       {spell: "P", key: "p1", type: "armor"},
       {spell: "P", key: "p1", type: "abilityPower"},
     ],
-        pInfo:{
+        sInfoP:{
             input: {type: "number", max: 999999},
             p1: {info: "SpellDamage", child: ["p1Var"]},
             p1Var: {inputId: "P", link: "input", coeff: 0.75},
@@ -3162,7 +3162,7 @@ var champVars = {
     buffs: [
       {spell: 0, key: "e1", type: "attackSpeed", active: true}
     ],
-        pInfo:{
+        sInfoP:{
             p1: {info: ["Attack","Range"], value: 517, child: ["p1Var"]},
             p1Var: {link: "champLevel", coeff: 8},
         },
@@ -3223,7 +3223,7 @@ var champVars = {
       img: "spell/TryndamereW.png"
       }
     ],
-        pInfo:{
+        sInfoP:{
             input: {type: "number", max: 100},
             p1: {info: "PercentCritChanceMod", child: ["p1Var"]},
             p1Var: {inputId: "P", link: "input", coeff: 0.35},
@@ -3259,7 +3259,7 @@ var champVars = {
       {spell: 0, key: "e1", type: "attackSpeed", active: true},
       {spell: 0, key: "e3", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             input: {type: "number", max: 6},
             p1: {info: "Damage", type: "tru", child: ["p1Var"]},
             p1Var: {inputId: "P", link: "input", coeff: [1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5]},
@@ -3287,7 +3287,7 @@ var champVars = {
       {spell: 0, key: "e2", type: "attackSpeed", active: true},
       {spell: 2, key: "e1", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             input: {type: "number", max: 3},
             p1: {info: "Movement", child: ["p1Var"]},
             p1Var: {inputId: "P", link: "input", coeff: 5},
@@ -3313,7 +3313,7 @@ var champVars = {
     }
   },
   Urgot:{
-    pInfo:{
+    sInfoP:{
             p1: {info: "Damage",type: "phys", child: ["p1Var"]},
             p1Var: {link: "attackdamage", coeff: [0.4,0.4,0.4,0.4,0.4,0.5,0.5,0.5,0.65,0.65,0.65,0.8,0.8,0.9,0.9,1,1,1,1]},
             p2: {info: ["Damage"],type: "phys", maxHp: true, valuePerLvl: [2,2,2,2,2,3,3,3,4,4,6,6,8,8,8,8,8,8,8]}
@@ -3338,7 +3338,7 @@ var champVars = {
     buffs: [
       {spell: "P", key: "p1", type: "attackSpeed", active: true},
     ],
-    pInfo:{
+    sInfoP:{
             active: true,
             p1: {info: "PercentAttackSpeedMod", value: 20, child: ["p1Var"]},
             p1Var: {link: "bonusattackspeed", coeff: 1.5},
@@ -3368,7 +3368,7 @@ var champVars = {
       {spell: 3, key: "e4", type: "flatmoveSpeed", active: true},
             {spell: "P", key: "p1", type: "flatmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             active: true,
             p1: {value: 30, info: "Movement"},
             p2: {value: 90, info: "Movement", myInfo: "[R]"}
@@ -3393,7 +3393,7 @@ var champVars = {
     buffs: [
       {spell: "P", key: "p1", type: "abilityPower"}
     ],
-    pInfo:{
+    sInfoP:{
             input: {type: "number", max: 999999},
             p1: {info: "SpellDamage", child: ["p1Var"]},
             p1Var: {inputId: "P", link: "input", coeff: 1},
@@ -3410,7 +3410,7 @@ var champVars = {
     }
   },
   Velkoz:{
-    pInfo:{
+    sInfoP:{
             p1: {info: "Damage", type: "tru", value: 25, child: ["p1Var","p1Var2"]},
             p1Var: {link: "champLevel", coeff: 8},
             p1Var2: {link: "spelldamage", coeff: 0.5}
@@ -3440,7 +3440,7 @@ var champVars = {
       img: "spell/ViW.png"
       }
     ],
-        pInfo:{
+        sInfoP:{
             p1: {info: "Defense", type: "shield", selfShield: true, child: ["p1Var"]},
             p1Var: {link: "maxHp", coeff: 0.1}
         },
@@ -3482,7 +3482,7 @@ var champVars = {
     }
   },
   Vladimir:{//add debuff for ult damage increase
-    pInfo:{
+    sInfoP:{
             p1: {hide: true}//placeholder
         },
         sInfo0:{
@@ -3513,7 +3513,7 @@ var champVars = {
       {spell: 0, key: "e4", type: "percentmoveSpeed", active: true},
       {spell: 1, key: "wBuff", type: "attackSpeed"}
     ],
-        pInfo:{
+        sInfoP:{
             p1: {info: ["SpecialRecipeLarge","HealthRegen"], type: "heal", child: ["p1Var"]},
             p1Var: {link: "maxHp", coeff: 0.3}
         },
@@ -3543,7 +3543,7 @@ var champVars = {
       {spell: 1, key: "e2", type: "attackSpeed", active: true},
       {spell: 2, key: "e1", type: "dmgReduction", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             p1: {info: "magicDamage", type: "mag", value: 8, child: ["p1Var"]},
             p1Var: {link: "champLevel", coeff: 2},
             p2: {info: ["SpecialRecipeLarge","HealthRegen"], myInfo: "<50%", type: "heal", selfHeal: true, value: 8, child: ["p1Var"]},
@@ -3584,7 +3584,7 @@ var champVars = {
     }
   },
   Xerath:{
-    pInfo:{
+    sInfoP:{
             p1: {info: "Mana", valuePerLvl: [30,33,36,42,48,54,63,72,81,90,102,114,126,138,150,165,180,195]},
             p2: {info: ["categoryChampion", "Mana"], valuePerLvl: [60,66,72,84,96,108,126,144,162,180,204,228,252,276,300,330,360,390]}
         },
@@ -3606,7 +3606,7 @@ var champVars = {
     buffs: [
       {spell: 2, key: "e3", type: "attackSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             p1: {info: "Damage", type: "phys", child: ["p1Var"]},
             p1Var: {link: "attackdamage", coeff: [0.15,0.15,0.15,0.15,0.15,0.25,0.25,0.25,0.25,0.25,0.35,0.35,0.35,0.35,0.35,0.45,0.45,0.45]},
             p2: {info: ["SpecialRecipeLarge","HealthRegen"], value: 5, type: "heal", selfHeal: true, child: ["p2Var","p2Var2","p2Var3"]},
@@ -3633,7 +3633,7 @@ var champVars = {
   },
   Yasuo:{//ult gives critical strikes extra armor pen
     aSpdBonus: 4,
-    pInfo:{
+    sInfoP:{
         p1: {info: "Defense", type: "shield", selfShield: true, valuePerLvl: [100,105,110,115,120,130,140,150,165,180,200,225,255,290,330,380,440,510]}
     },
     sInfo0:{
@@ -3671,7 +3671,7 @@ var champVars = {
   },
   Zac:{
     aSpdBonus: 15,
-    pInfo:{
+    sInfoP:{
         p1: {info: ["SpecialRecipeLarge","HealthRegen"], type: "heal", selfHeal: true, child: ["p1Var"]},
         p1Var: {link: "maxHp", coeff: 0.04},
         p2: {info: ["mobileCompanion","Health"], child: ["p2Var"]},
@@ -3700,7 +3700,7 @@ var champVars = {
     }
   },
   Zed:{//ult steals percent of enemys ad
-    pInfo:{
+    sInfoP:{
             p1: {info: "magicDamage",type: "mag", valuePerLvl: [6,6,6,6,6,6,8,8,8,8,8,8,8,8,8,8,10,10], maxHp: true},
         },
     sInfo0:{
@@ -3715,7 +3715,7 @@ var champVars = {
     }
   },
   Ziggs:{
-    pInfo:{
+    sInfoP:{
             p1: {info: "magicDamage",type: "mag", valuePerLvl: [20,24,28,32,26,40,48,56,64,72,80,88,100,112,124,136,148,160], child: ["p1Var"]},
             p1Var: {link: "spelldamage", coeff: [0.6,0.6,0.6,0.6,0.6,0.6,0.8,0.8,0.8,0.8,0.8,0.8,1,1,1,1,1,1]}
         },
@@ -3751,7 +3751,7 @@ var champVars = {
     buffs:[
       {spell: 1, key: "e9", type: "percentmoveSpeed", active: true}
     ],
-    pInfo:{
+    sInfoP:{
             p1: {info: "magicDamage",type: "mag", valuePerLvl: [12,15,20,25,30,35,48,53,67,73,79,86,93,100,109,117,126,135], child: ["p1Var"]},
             p1Var: {link: "spelldamage", coeff: 0.325}
         },

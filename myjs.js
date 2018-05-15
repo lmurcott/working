@@ -152,7 +152,7 @@ const update = function () {
 
 const champObj = function (obj, side, uid) {// create champion object
     "use strict";
-    let {aSpdBonus, buffs, debuffs, pInfo, sInfo0, sInfo1, sInfo2, sInfo3} = champVars[obj.id],
+    let {aSpdBonus, buffs, debuffs, sInfoP, sInfo0, sInfo1, sInfo2, sInfo3} = champVars[obj.id],
         {id, image, name, partype, passive, spells, stats} = obj,
         attackdamage = [],
         ap = 0,
@@ -313,6 +313,7 @@ const champObj = function (obj, side, uid) {// create champion object
             let skillDesc = finalDOM.getElementsByClassName("skillDesc");
 
             Array.from(skillDesc).forEach(function (theNode, index) {
+                let inputDiv, spellInputDOM;
                 switch (index) {
                 case 0:
                     theNode.getElementsByTagName("h3")[0].innerText = theLang.Attack;
@@ -322,6 +323,27 @@ const champObj = function (obj, side, uid) {// create champion object
                     break;
                 default:
                     theNode.getElementsByTagName("h3")[0].innerText = spells[index - 2].name;
+                    if (myChamps[uid]["sInfo" + (index - 2)] && myChamps[uid]["sInfo" + (index - 2)].active) {
+                        spellInputDOM = document.createElement("input");
+                        spellInputDOM.type = "checkbox";
+                        spellInputDOM.id = uid + "Input" + (index - 2);
+                        spellInputDOM.addEventListener("change", update);
+                        inputDiv = document.getElementById(uid).getElementsByClassName("skillInput")[index - 1];
+                        inputDiv.innerText = theLang.Active + " ";
+                        inputDiv.appendChild(spellInputDOM);
+                    } else if (myChamps[uid]["sInfo" + (index - 2)] && myChamps[uid]["sInfo" + (index - 2)].input) {
+                        spellInputDOM = document.createElement("input");
+                        spellInputDOM.type = "number";
+                        spellInputDOM.id = uid + "Input" + (index - 2);
+                        spellInputDOM.min = 0;
+                        spellInputDOM.value = 0;
+                        if (myChamps[uid]["sInfo" + (index - 2)].input.max) {
+                            spellInputDOM.max = myChamps[uid]["sInfo" + (index - 2)].input.max;
+                        }
+                        spellInputDOM.addEventListener("change", update);
+                        inputDiv = document.getElementById(uid).getElementsByClassName("skillInput")[index - 1];
+                        inputDiv.appendChild(spellInputDOM);
+                    }
                 }
             });
 
@@ -355,7 +377,7 @@ const champObj = function (obj, side, uid) {// create champion object
             finalDOM.getElementsByClassName("killBtn")[0].addEventListener("click", function () {
                 finalDOM.remove();// remove main div
                 Array.from(document.getElementById("enemy" + side)).find(function (option) {// remove option from enemy select
-                    return option.value = uid;
+                    return option.value === uid;
                 }).remove();
                 delete myChamps[uid];// remove object
                 update();
@@ -467,9 +489,9 @@ const champObj = function (obj, side, uid) {// create champion object
             );
             catsDOM.dispatchEvent(drawItems);
             finalDOM.getElementsByClassName("levelTxt")[0].innerText = theLang.Level;
-            
+
             //add enemy select option
-            
+
             let champOpt = document.createElement("option");
             champOpt.innerText = name;
             champOpt.value = uid;
@@ -520,33 +542,47 @@ const champObj = function (obj, side, uid) {// create champion object
             statBox.appendChild(frag);
         },
         drawSkillTxt = function () {
-            let skillDivs = document.getElementById(uid).getElementsByClassName("skillTxt");
-
             const refineTtip = function (spellNo) {
-                const
-                    riotObj = spells[spellNo],
-                    myObj = myChamps[uid]["sInfo" + spellNo];
+                let riotObj, spellLvl;
+                const myObj = myChamps[uid]["sInfo" + spellNo];
 
-                let tooltip = spells[spellNo].tooltip,
+                if (spellNo !== "P") {
+                    riotObj = spells[spellNo];
                     spellLvl = document.getElementById(uid).getElementsByClassName("spellLvl")[spellNo].value;
-
-                spellLvl = (spellLvl < 1)
-                    ? 0
-                    : spellLvl - 1;
+                    spellLvl = (spellLvl < 1)
+                        ? 0
+                        : spellLvl - 1;
+                }
+                let tooltip = (spellNo === "P")
+                    ? passive.description
+                    : spells[spellNo].tooltip;
 
                 if (myObj && myObj.txt) {
                     tooltip += myObj.txt;
                 }
+
+                if (myObj && spellNo === "P") {
+                    Object.keys(myObj).forEach(function (id) {
+                        if (id.length < 3) {
+                            tooltip += "<br>" + theLang[myObj[id].info] + ": {{ " + id + " }}";
+                        }
+                    });
+                }
+
                 tooltip = tooltip.replace(/<span.class="\w*\d*.?color......">/g, "");
                 tooltip = tooltip.replace(/<\/span>/g, "");
                 tooltip = tooltip.replace(/[*][\d.]*/g, "");
 
                 const keys = tooltip.match(/\{\{[^}]*\}\}/g);
-                
+
                 const getVar = function (theVar) {
                     let theCoeff, stat;
-                    if(typeof theVar.coeff === "object") {
-                        theCoeff = theVar.coeff[spellLvl];
+                    if (typeof theVar.coeff === "object") {
+                        if (theVar.coeff.length > 4) {
+                            theCoeff = theVar.coeff[level - 1];
+                        } else {
+                            theCoeff = theVar.coeff[spellLvl];
+                        }
                     } else {
                         theCoeff = theVar.coeff;
                     }
@@ -575,6 +611,13 @@ const champObj = function (obj, side, uid) {// create champion object
                     case "champLevel":
                         stat = level;
                         break;
+                    case "input":
+                        if (spellNo === "P" || document.getElementById(uid).getElementsByClassName("spellLvl")[theVar.inputId].value > 0) {
+                            stat = document.getElementById(uid + "Input" + theVar.inputId).value;
+                        } else {
+                            stat = 0;
+                        }
+                        break;
                     case "maxHp":
                         stat = hp[0] + hp[1];
                         break;
@@ -590,7 +633,7 @@ const champObj = function (obj, side, uid) {// create champion object
                     }
                     return calc(theCoeff, stat);
                 };
-                    
+
 /*
 
 case "baseGrowth":
@@ -610,7 +653,7 @@ stat = Math.round(Number(Number(this.hp[0] + "e1") + Number(this.hp[1] + "e1") -
 break;
 case "percentMissingHp":
 let missHp;
-if(document.getElementById(this.uid + "currHp")) {
+if (document.getElementById(this.uid + "currHp")) {
 missHp = document.getElementById(this.uid + "currHp").value / (this.hp[0] + this.hp[1]);
 } else {
 missHp = 1;
@@ -624,23 +667,15 @@ case "critChance":
 stat = (this.crit > 1)? 1000:Number(this.crit + "e3");
 break;
 case "bonusCritDamage":
-if(this.myItems.includes(3031) || this.myItems.includes(3371)) {//I Edge
+if (this.myItems.includes(3031) || this.myItems.includes(3371)) {//I Edge
 stat = 500;
-} else {
-stat = 0;
-}
-break;
-case "input":
-if(theVars.inputId === "P" ||
-document.getElementById(this.uid + "skillLvl" + theVars.inputId).value > 0) {//check level for stacks that scale other abilities
-stat = Number(document.getElementById(this.uid + "num" + theVars.inputId).value + "e1");
 } else {
 stat = 0;
 }
 break;
 case "ashePassive":
 let asheMulti = Number(this.crit + "e2");
-if(this.myItems.includes(3031) || this.myItems.includes(3371)) {
+if (this.myItems.includes(3031) || this.myItems.includes(3371)) {
 asheMulti = Number((asheMulti * 15) + "e-1");
 }
 asheMulti += 10;
@@ -648,7 +683,7 @@ stat = Number(((this.attackdamage[0] + this.attackdamage[1]) * asheMulti) + "e-1
 break;
 case "caitPassive":
 let caitMulti = (this.crit > 1) ? 100:Number(this.crit + "e2");
-if(this.myItems.includes(3031) || this.myItems.includes(3371)) {//iedga
+if (this.myItems.includes(3031) || this.myItems.includes(3371)) {//iedga
 caitMulti += 25;
 }
 stat = Number((this.attackdamage[0] + this.attackdamage[1]) * caitMulti + "e-1");
@@ -658,7 +693,7 @@ stat = Math.round(Number(25 * this.attackspeed[1] + "e-1"));
 stat += Number(4 * this.crit + "e2");
 break;
 case "rengarPassive":
-if(document.getElementById(this.uid + "numP")) {
+if (document.getElementById(this.uid + "numP")) {
 switch(document.getElementById(this.uid + "numP").value) {
 case "0":
 stat = 0;
@@ -689,7 +724,7 @@ stat = 0;
 }
 break;
 case "swainFragments":
-if(document.getElementById(this.uid + "numP")) {
+if (document.getElementById(this.uid + "numP")) {
 let baseFragDmg = Math.round(Number(this.ap * 27 + "e-2"));
 let ultLvl = document.getElementById(this.uid + "skillLvl3").value;
 ultLvl = (ultLvl > 0) ? ultLvl - 1:0;
@@ -701,15 +736,18 @@ stat = 0;
 break;
 case "shacoPassive":
 let shacoMulti = 130;
-if(this.myItems.includes(3031) || this.myItems.includes(3371)) {
+if (this.myItems.includes(3031) || this.myItems.includes(3371)) {
 shacoMulti += 50;
 }
 stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1");
 
 */
-                const getValue = function (theKey) {
+                const getValue = function (theKey, no = spellNo) {
                     let value = "";
 
+                    const keyObj = (myChamps[uid]["sInfo" + no])
+                        ? myChamps[uid]["sInfo" + no][theKey]
+                        : undefined;
                     //put exemption for pre calculated buffs
 
                     if (theKey.charAt(0) === "e" && (theKey.length === 2 || (theKey.length === 3 && theKey.charAt(2) === "a"))) {
@@ -717,70 +755,79 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                             ? riotObj.effect[10][spellLvl]
                             : riotObj.effect[theKey.charAt(1)][spellLvl];
                     }
-                    if (myObj && myObj[theKey]) {
-                        if (myObj[theKey].empty) {
+                    if (myChamps[uid]["sInfo" + no] && keyObj) {
+                        if (keyObj.empty) {
                             return "";
                         }
                         value = (value === "")
                             ? 0
                             : value;
-                        if (myObj[theKey].effectNo) {
-                            value = calc(value, riotObj.effect[myObj[theKey].effectNo][spellLvl], 0);
+                        if (keyObj.effectNo) {
+                            value = calc(value, riotObj.effect[keyObj.effectNo][spellLvl], 0);
                         }
-                        if (myObj[theKey].value) {
-                            if(typeof myObj[theKey].value === "object") {
-                                value = calc(value, myObj[theKey].value[spellLvl], 0);
+                        if (keyObj.value) {
+                            if (typeof keyObj.value === "object") {
+                                value = calc(value, keyObj.value[spellLvl], 0);
                             } else {
-                                value = calc(value, myObj[theKey].value, 0);
+                                value = calc(value, keyObj.value, 0);
                             }
                         }
-                        if (myObj[theKey].valuePerLvl) {
-                            value = calc(value, myObj[theKey].valuePerLvl[level - 1], 0);
+                        if (keyObj.valuePerLvl) {
+                            value = calc(value, keyObj.valuePerLvl[level - 1], 0);
                         }
-                        if (myObj[theKey].child) {
-                            myObj[theKey].child.forEach(function (varKey){
-                                let varObj = spells[spellNo].vars.find( function (theVar) {
-                                    return theVar.key === varKey;
-                                });
+                        if (keyObj.valuePair) {
+                            value = calc(value, getValue(keyObj.valuePair[1], keyObj.valuePair[0]), 0);
+                        }
+                        if (keyObj.child) {
+                            keyObj.child.forEach(function (varKey) {
+                                let varObj;
+                                if (spellNo !== "P") {
+                                    varObj = spells[spellNo].vars.find(function (theVar) {
+                                        return theVar.key === varKey;
+                                    });
+                                }
                                 if (!varObj) {
                                     varObj = myObj[varKey];
                                 }
                                 value = calc(value, getVar(varObj), 0);
                             });
-                            
                         }
-                        if (myObj[theKey].multiplier) {
-                            if(typeof myObj[theKey].value === "object") {
-                                value = calc(value, Number(myObj[theKey].multiplier[spellLvl] + "e-2"));
+                        if (keyObj.multiplier) {
+                            if (typeof keyObj.value === "object") {
+                                value = calc(value, Number(keyObj.multiplier[spellLvl] + "e-2"));
                             } else {
-                                value = calc(value, Number(myObj[theKey].multiplier + "e-2"));
+                                value = calc(value, Number(keyObj.multiplier + "e-2"));
                             }
                         }
                     }
                     return value;
                 };
-                keys.forEach(function (key) {
-                    let rawKey = key.replace(/\{\{./, "");
-                    rawKey = rawKey.replace(/.\}\}/, "");
-                    const
-                        keyValue = getValue(rawKey),
-                        replaceRegEx = new RegExp(key);
 
-                    tooltip = tooltip.replace(replaceRegEx, keyValue);
-                    tooltip = tooltip.replace(/\(\+\%?\)/g, "");
-                    tooltip = tooltip.replace(/<font.color\=\'\#......\'.?size\=\'..\'>/g, "");
-                    tooltip = tooltip.replace(/\(\+\%.Missing.Health\)/g, "");
-                });
+                if (keys !== null) {
+                    keys.forEach(function (key) {
+                        let rawKey = key.replace(/\{\{./, "");
+                        rawKey = rawKey.replace(/.\}\}/, "");
+                        const
+                            keyValue = getValue(rawKey),
+                            replaceRegEx = new RegExp(key);
+
+                        tooltip = tooltip.replace(replaceRegEx, keyValue);
+                        tooltip = tooltip.replace(/\(\+%?\)/g, "");
+                        tooltip = tooltip.replace(/<font.color\='#......'.?size\='..'>/g, "");
+                        tooltip = tooltip.replace(/\(\+%.Missing.Health\)/g, "");
+                    });
+                }
+
                 return tooltip;
             };
-
+            let skillDivs = document.getElementById(uid).getElementsByClassName("skillTxt");
             Array.from(skillDivs).forEach(function (div, count) {
                 switch (count) {
                 case 0:
                     div.innerText = count;
                     break;
                 case 1:
-                    div.innerHTML = passive.description;
+                    div.innerHTML = refineTtip("P");
                     break;
                 default:
                     div.innerHTML = refineTtip(count - 2);
@@ -814,11 +861,11 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
         name,
         partype,
         passive,
-        pInfo,
         rPaths,
         rSlots,
         runes,
         side,
+        sInfoP,
         sInfo0,
         sInfo1,
         sInfo2,
