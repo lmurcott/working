@@ -227,6 +227,22 @@ h2 {
     padding: 0.5% 0 0 2%;
 }
 
+.runes0, .runes1 {
+    height: 50%;
+    background-color: black;
+}
+
+.runeDiv {
+    float: left;
+    height: 100%;
+    padding: 0 1.5em;
+}
+
+.runeDiv img {
+    height: 50%;
+    cursor: pointer;
+}
+
 h3 {
     text-align: left;
 }
@@ -300,7 +316,7 @@ h3 {
     text-align: center;
 }
 
-.dropContent img {
+.items img {
     width: 2rem;
     cursor: pointer;
     border-radius: 0.3em;

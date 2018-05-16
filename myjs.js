@@ -9,7 +9,7 @@ const loadJSON = function (file, callback, args = "") {// Load riot JSON files
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
         if (xhttp.readyState === 4 && xhttp.status === 200) {
-            callback(JSON.parse(xhttp.responseText).data, args);
+            callback(JSON.parse(xhttp.responseText), args);
         }
     };
     xhttp.open("GET", `http://ddragon.leagueoflegends.com/cdn/${patch}/data/${lang}/${file}.json`, true);
@@ -81,7 +81,7 @@ const setLocale = function () {
 
 const setLang = function (json) {
     "use strict";
-    theLang = json;
+    theLang = json.data;
     // Custom Language
     const findReduction = theLang.rPercentCooldownMod.replace("%", "");
     theLang.Cooldown = findReduction.replace(" ", "");
@@ -95,10 +95,10 @@ const setLang = function (json) {
 const setChampList = function (json) {// Create options for selecting new champ
     "use strict";
     var opt, allOptions = document.createDocumentFragment();
-    Object.keys(json).forEach(function (champ) {
+    Object.keys(json.data).forEach(function (champ) {
         opt = document.createElement("option");
-        opt.innerText = json[champ].name;
-        opt.value = json[champ].id;
+        opt.innerText = json.data[champ].name;
+        opt.value = json.data[champ].id;
         allOptions.appendChild(opt);
     });
     document.getElementById("chmpSlct0").appendChild(allOptions.cloneNode(true));
@@ -111,7 +111,7 @@ const setItems = function (json) {
         delItem = [3043, 3048, 3007, 3008, 3073, 3029],
         delhideFromAll = [1400, 1401, 1402, 1412, 1413, 1414, 1416, 1419];
 
-    theItems = json;
+    theItems = json.data;
     delItem.forEach(function (itemNo) {
         delete theItems[itemNo];
     });
@@ -134,6 +134,10 @@ const setItems = function (json) {
     sortedItems = Object.keys(theItems).sort(function (a, b) {
         return theItems[a].gold.total - theItems[b].gold.total;
     });
+};
+
+const setRunes = function (json) {
+    theRunes = json;
 };
 
 // ** UPDATE SCRIPTS **
@@ -173,8 +177,7 @@ const champObj = function (obj, side, uid) {// create champion object
         mPen = [],
         mpregen = [stats.mpregen, 0, 0],
         spellblock = [],
-        rPaths = [],
-        rSlots = [],
+        runePaths = [],
         runes = [],
         setBaseStats = function () {
             level = document.getElementById(uid).getElementsByClassName("champLevel")[0].value;
@@ -392,6 +395,24 @@ const champObj = function (obj, side, uid) {// create champion object
                 }
             }, false);
 
+
+            // Change Drop Box Divs
+
+            let dropBtns = document.getElementById(uid).getElementsByClassName("dropTBar")[0].children;
+            Array.from(dropBtns).forEach(function (element, btnIndex) {
+                element.addEventListener("click", function () {
+                    let dropDiv = document.getElementById(uid).getElementsByClassName("dropContent");
+                    Array.from(dropDiv).forEach(function (div, divIndex) {
+                        if (divIndex === btnIndex) {
+                            div.style.display = "block";
+                        } else {
+                            div.style.display = "none";
+                        }
+                    });
+                });
+            });
+
+
             // Add Item Categories
             let catsDOM = finalDOM.getElementsByClassName("itemCats")[0],
                 catsFrag = document.createDocumentFragment();
@@ -489,6 +510,129 @@ const champObj = function (obj, side, uid) {// create champion object
             );
             catsDOM.dispatchEvent(drawItems);
             finalDOM.getElementsByClassName("levelTxt")[0].innerText = theLang.Level;
+
+            // add runes
+
+            const getRuneObj = function (rune, path) {
+                let runeFound;
+                let slotNo = -1;
+                while (!runeFound) {
+                    slotNo += 1;
+                    runeFound = theRunes[path].slots[slotNo].runes.find(function (theRune) {
+                        return theRune.id === rune;
+                    });
+                }
+                return [runeFound, slotNo];
+            };
+
+            const drawPaths = function (rank, exclude) {
+                let runeDiv = document.getElementById(uid).getElementsByClassName("runes" + rank)[0];
+                while (runeDiv.hasChildNodes()) {
+                    runeDiv.removeChild(runeDiv.lastChild);
+                }
+                theRunes.forEach(function (path, num) {
+                    if (!(exclude && exclude === num)) {
+                        let pathImg = document.createElement("img");
+                        let pathDiv = document.createElement("div");
+                        pathDiv.classList.add("runeDiv");
+                        pathImg.src = "https://ddragon.leagueoflegends.com/cdn/img/" + path.icon;
+                        pathImg.addEventListener("click", function () {
+                            runePaths[rank] = num;
+                            drawAllRunes(rank, true);
+                        });
+                        pathDiv.appendChild(pathImg);
+                        runeDiv.appendChild(pathDiv);
+                    }
+                });
+            };
+
+            const drawAllRunes = function (rank, newPath) {
+               let runeDiv = document.getElementById(uid).getElementsByClassName("runes" + rank)[0];
+                while (runeDiv.hasChildNodes()) {
+                    runeDiv.removeChild(runeDiv.lastChild);
+                }
+                if (newPath){// input fresh set of default runes
+                    runes[rank] = [];
+                    theRunes[runePaths[rank]].slots.forEach(function (slot, num) {
+                        if (!(rank === 1 && (num === 0 || num === 3))) {
+                            runes[rank].push(slot.runes[0].id);
+                        }
+                    });
+                    if (rank === 0 && (runePaths[1] === runePaths[0] || !runePaths[1])) {
+                        drawPaths(1, runePaths[0]);
+                    }
+                }
+                let pathDiv = document.createElement("div");
+                pathDiv.classList.add("runeDiv");
+                let pathImg = document.createElement("img");
+                pathImg.src = "https://ddragon.leagueoflegends.com/cdn/img/" + theRunes[runePaths[rank]].icon;
+                pathImg.addEventListener("click", function () {
+                    if (rank === 1) {
+                        drawPaths(rank, runePaths[0]);
+                    } else {
+                        drawPaths(rank);
+                    }
+                });
+                pathDiv.appendChild(pathImg);
+                runeDiv.appendChild(pathDiv);
+
+                runes[rank].forEach(function (rune, index) {
+                    let runeObj = getRuneObj(rune, runePaths[rank]);
+                    let singleRuneDiv = document.createElement("div");
+                    singleRuneDiv.classList.add("runeDiv");
+                    let singleRuneImg = document.createElement("img");
+                    singleRuneImg.src = "https://ddragon.leagueoflegends.com/cdn/img/" + runeObj[0].icon;
+                    singleRuneImg.addEventListener("click", function () {
+                        drawRuneOptions(rank, index);
+                    });
+                    singleRuneDiv.appendChild(singleRuneImg);
+                    runeDiv.appendChild(singleRuneDiv);
+                });
+            };
+
+            const drawRuneOptions = function (rank, runeSlot) {
+                let runeDiv = document.getElementById(uid).getElementsByClassName("runes" + rank)[0];
+                while (runeDiv.hasChildNodes()) {
+                    runeDiv.removeChild(runeDiv.lastChild);
+                }
+                const drawRunes = function (slot, champRuneSlot) {
+                    theRunes[runePaths[rank]].slots[slot].runes.forEach(function (rune) {
+                        let singleRuneDiv = document.createElement("div");
+                        singleRuneDiv.classList.add("runeDiv");
+                        let singleRuneImg = document.createElement("img");
+                        singleRuneImg.addEventListener("click", function () {
+                            runes[rank][champRuneSlot] = rune.id;
+                            drawAllRunes(rank);
+                        });
+                        singleRuneImg.src = "https://ddragon.leagueoflegends.com/cdn/img/" + rune.icon;
+                        singleRuneDiv.appendChild(singleRuneImg);
+                        runeDiv.appendChild(singleRuneDiv);
+                    });
+                };
+                if (rank === 1) {
+                    const runeSlot0 = getRuneObj(runes[1][0], runePaths[rank])[1];
+                    const runeSlot1 = getRuneObj(runes[1][1], runePaths[rank])[1];
+
+                    switch (runeSlot) {
+                        case 0:
+                            drawRunes(runeSlot0, runeSlot);
+                        break;
+                        case 1:
+                            drawRunes(runeSlot1, runeSlot);
+                        break;
+                    }
+                    let extraSlotNum = 1;
+                    while (extraSlotNum === runeSlot0 || extraSlotNum === runeSlot1) {
+                        extraSlotNum += 1;
+                    }
+                    drawRunes(extraSlotNum, runeSlot);
+                } else  {
+                    drawRunes(runeSlot, runeSlot);
+                }
+            };
+
+            drawPaths(0);
+
 
             //add enemy select option
 
@@ -633,7 +777,6 @@ const champObj = function (obj, side, uid) {// create champion object
                     }
                     return calc(theCoeff, stat);
                 };
-
 /*
 
 case "baseGrowth":
@@ -861,8 +1004,7 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
         name,
         partype,
         passive,
-        rPaths,
-        rSlots,
+        runePaths,
         runes,
         side,
         sInfoP,
@@ -894,7 +1036,7 @@ const newChamp = function (json, side) {
         return uid;
     };
     const myUid = newUID();
-    myChamps[myUid] = champObj(json[Object.keys(json)], side, myUid);
+    myChamps[myUid] = champObj(json.data[Object.keys(json.data)], side, myUid);
     myChamps[myUid].drawChampDOM();
     update();
 };
@@ -910,4 +1052,5 @@ const addChamp = function (side) {
 setLocale();
 loadJSON("language", setLang);
 loadJSON("item", setItems);
+loadJSON("runesReforged", setRunes);
 loadJSON("champion", setChampList);
