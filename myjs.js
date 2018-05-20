@@ -70,6 +70,29 @@ const calcMoveSpeed = function (base, flat, percent = 0) {//add slow ratio and M
     return speed;
 };
 
+// *** UI ***
+
+const showHover = function (txt, x, y) {
+  var hoverDiv;
+  hoverDiv = document.getElementById("hoverDiv");
+  hoverDiv.innerHTML = txt;
+  hoverDiv.style.display = "block";
+  if((x + 285) > (window.outerWidth)) {
+    hoverDiv.style.left = (x - hoverDiv.scrollWidth - 5) + "px";
+  } else {
+    hoverDiv.style.left = (x + 5) + "px";
+  }
+  if((y + hoverDiv.scrollHeight) > (window.outerHeight - 125)) {
+    hoverDiv.style.top = (y - hoverDiv.scrollHeight - 5) + "px";
+  } else {
+    hoverDiv.style.top = (y + 5) + "px";
+  }
+};
+
+const hideHover = function () {
+    document.getElementById("hoverDiv").style.display = "none";
+};
+
 // ** PRE LOADER **
 
 const setLocale = function () {
@@ -147,7 +170,11 @@ const update = function () {
     Object.keys(myChamps).forEach(function (uid) {
         myChamps[uid].setBaseStats();
         myChamps[uid].setItemStats();
+    });
+    Object.keys(myChamps).forEach(function (uid) {
         myChamps[uid].drawStats();
+    });
+    Object.keys(myChamps).forEach(function (uid) {
         myChamps[uid].drawSkillTxt();
     });
 };
@@ -160,7 +187,7 @@ const champObj = function (obj, side, uid) {// create champion object
         {id, image, name, partype, passive, spells, stats} = obj,
         attackdamage = [],
         ap = 0,
-        aPen = [],
+        aPen = [],// flat armor reduction, percent armor reduction, percent armor pen, flat armor pen/calulated lethality
         armor = [],
         attackspeed = [calcBaseAspd(stats.attackspeedoffset)],
         buffStats = [],
@@ -174,7 +201,7 @@ const champObj = function (obj, side, uid) {// create champion object
         lifeSteal = 0,
         move = [],
         mp = [stats.mp, 0],
-        mPen = [],
+        mPen = [],// flat magic reduction, percent magic reduction, percent magic pen, flat magic pen/calulated lethality
         mpregen = [stats.mpregen, 0, 0],
         spellblock = [],
         runePaths = [],
@@ -234,6 +261,34 @@ const champObj = function (obj, side, uid) {// create champion object
             if (partype === theLang.Mana) {
                 mp[1] = setStat("FlatMPPoolMod");
             }
+            
+            aPen = [0, 0, 0, 0];
+            // Lethality Items
+            let lethality = 0;
+            if (items.includes(3134)) {// Serrated Dirk
+                lethality += 10;
+            }
+            if (items.includes(3142)) {// Youmuu
+                lethality += 18;
+            }
+            if (items.includes(3147)) {// Duskblade
+                lethality += 18;
+            }
+            if (items.includes(3814)) {// Edge of Night
+                lethality += 18;
+            }
+            aPen[3] = round(calc(lethality, calc(0.6, calc(calc(0.4, level), 18, 3), 0)));
+            
+            if (items.includes(3036)) {// Lord Dominick's Regards
+                aPen[2] = 35;
+            } else if (items.includes(3033)) {// Mortal Reminder
+                aPen[2] = 25;
+            } else if (items.includes(3035)) {// Last Whisper
+                aPen[2] = 10;
+            }
+            
+            mPen = [0, 0, 0, 0];
+        
         },
         addItem = function (itemNo) {
             const
@@ -379,7 +434,13 @@ const champObj = function (obj, side, uid) {// create champion object
 
             finalDOM.getElementsByClassName("killBtn")[0].addEventListener("click", function () {
                 finalDOM.remove();// remove main div
-                Array.from(document.getElementById("enemy" + side)).find(function (option) {// remove option from enemy select
+                let selectId;
+                if (side === "1") {
+                    selectId = "enemy0";
+                } else {
+                    selectId = "enemy1";
+                }
+                Array.from(document.getElementById(selectId)).find(function (option) {// remove option from enemy select
                     return option.value === uid;
                 }).remove();
                 delete myChamps[uid];// remove object
@@ -411,7 +472,6 @@ const champObj = function (obj, side, uid) {// create champion object
                     });
                 });
             });
-
 
             // Add Item Categories
             let catsDOM = finalDOM.getElementsByClassName("itemCats")[0],
@@ -490,10 +550,15 @@ const champObj = function (obj, side, uid) {// create champion object
                             theImg.addEventListener("click", function () {
                                 addItem(parseInt(itemNo));
                             });
+                            theImg.addEventListener("mouseover", function (e) {
+                                let description = theItems[itemNo].description;
+                                description = description.replace(/size='\d*'/g, "");
+                                showHover(theItems[itemNo].name + "<hr>" + description, e.pageX, e.pageY);
+                            });
+                            theImg.addEventListener("mouseout", hideHover);
                             docFrag.appendChild(theImg);
                         }
                     });
-
                     while (itemBox.hasChildNodes()) {
                         itemBox.removeChild(itemBox.lastChild);
                     }
@@ -633,23 +698,52 @@ const champObj = function (obj, side, uid) {// create champion object
 
             drawPaths(0);
 
-
             //add enemy select option
 
             let champOpt = document.createElement("option");
             champOpt.innerText = name;
             champOpt.value = uid;
-            document.getElementById("enemy" + side).appendChild(champOpt);
+            if (side === 1) {
+                document.getElementById("enemy0").appendChild(champOpt);
+            } else {
+                document.getElementById("enemy1").appendChild(champOpt);
+            }
         },
         drawStats = function () {
+            let theLi, oldMaxHP, oldCurrentHP;
             let statBox = document.getElementById(uid).getElementsByClassName("statList")[0],
-                frag = document.createDocumentFragment();
+                frag = document.createDocumentFragment(),
+                maxHp = hp[0] + hp[1];
+            
+            if (document.getElementById(uid + "HP")) {
+                oldMaxHP = parseInt(document.getElementById(uid + "HP").max);
+                oldCurrentHP = parseInt(document.getElementById(uid + "HP").value);
+            } else {
+                oldMaxHP = maxHp;
+                oldCurrentHP = maxHp;
+            }
+            
             while (statBox.childElementCount > 1) {
                 statBox.removeChild(statBox.lastChild);
             }
+            
+            theLi = document.createElement("li");
+            theLi.innerText = theLang.Health + ": ";
+            let theInput = document.createElement("input");
+            theInput.type = "number";
+            theInput.min = 0;
+            theInput.max = maxHp;
+            theInput.value = oldCurrentHP + ((maxHp) - oldMaxHP);
+            theInput.addEventListener("change", update);
+            theInput.id = uid + "HP";
+            theLi.appendChild(theInput);
+            let theSpan = document.createElement("span");
+            theSpan.innerText = "/" + (maxHp);
+            theLi.appendChild(theSpan);
+            frag.appendChild(theLi);
+            
             let statList = [];
             statList.push(
-                [theLang.Health, hp[0] + hp[1]],
                 [theLang.HealthRegen, hpregen[0] + hpregen[1]],
                 [theLang.Armor, armor[0] + armor[1]],
                 [theLang.SpellBlock, spellblock[0] + spellblock[1]],
@@ -661,7 +755,6 @@ const champObj = function (obj, side, uid) {// create champion object
                 [theLang.CooldownReduction, cdr + "%"],
                 [theLang.Movement, calcMoveSpeed(move[0], move[1], move[2])]
             );
-
             if (partype === theLang.Mana) {
                 statList.push(
                     [partype, mp[0] + mp[1]],
@@ -679,7 +772,7 @@ const champObj = function (obj, side, uid) {// create champion object
             }
 
             statList.forEach(function (stat) {
-                let theLi = document.createElement("li");
+                theLi = document.createElement("li");
                 theLi.innerText = stat[0] + ": " + stat[1];
                 frag.appendChild(theLi);
             });
@@ -689,6 +782,12 @@ const champObj = function (obj, side, uid) {// create champion object
             const refineTtip = function (spellNo) {
                 let riotObj, spellLvl;
                 const myObj = myChamps[uid]["sInfo" + spellNo];
+                
+                var enemyUID;
+                
+                if (document.getElementById("enemy" + side).length > 0){
+                    enemyUID = document.getElementById("enemy" + side).value;
+                }
 
                 if (spellNo !== "P") {
                     riotObj = spells[spellNo];
@@ -765,6 +864,13 @@ const champObj = function (obj, side, uid) {// create champion object
                     case "maxHp":
                         stat = hp[0] + hp[1];
                         break;
+                    case "missingHp":
+                        if (document.getElementById(uid + "HP")) {
+                            stat = Number((hp[0] + hp[1]) - parseInt(document.getElementById(uid + "HP").value) + "e-2");
+                        } else {
+                            stat = 0;
+                        }
+                        break;
                     case "mr":
                         stat = spellblock[0] + spellblock[1];
                         break;
@@ -790,9 +896,6 @@ stat = Number(this.getMoveSpeed() - this.movespeed[0] + "e1");
 break;
 case "mana":
 stat = Number(this.mp[0] + "e1") + Number(this.mp[1] + "e1");
-break;
-case "missingHp":
-stat = Math.round(Number(Number(this.hp[0] + "e1") + Number(this.hp[1] + "e1") - Number(document.getElementById(this.uid + "currHp").value + "e1") + "e-2"));
 break;
 case "percentMissingHp":
 let missHp;
@@ -942,25 +1045,110 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                                 value = calc(value, Number(keyObj.multiplier + "e-2"));
                             }
                         }
+                        if (keyObj.apply) {
+                            if (keyObj.type === "heal") {
+                                value = 0;
+                            } else {
+                                if (enemyUID) {
+                                    value = myChamps[enemyUID].getPercentHP(Number(value + "e-2"), keyObj.apply);
+                                } else {
+                                    value = 0;
+                                }
+                            }
+                        }
                     }
                     return value;
                 };
 
+                const getDmg = function (rawDmg, type) {
+                    let magDmg = 0, physDmg = 0, truDmg = 0;
+                    switch (type) {
+                    case "phys":
+                        physDmg = rawDmg;
+                        break;
+                    case "mag":
+                        magDmg = rawDmg;
+                        break;
+                    case "tru":
+                        truDmg = rawDmg;
+                        break;
+                    case "hybrid":
+                        physDmg = calc(rawDmg, 0.5);
+                        magDmg = calc(rawDmg, 0.5);
+                        break;
+                    case "corkiAuto":
+                        physDmg = calc(rawDmg, 0.2);
+                        magDmg = calc(rawDmg, 0.8);
+                    break;
+                    }
+                    
+                    return [physDmg, magDmg, truDmg];
+                };
+                
                 if (keys !== null) {
                     keys.forEach(function (key) {
                         let rawKey = key.replace(/\{\{./, "");
                         rawKey = rawKey.replace(/.\}\}/, "");
-                        const
-                            keyValue = getValue(rawKey),
-                            replaceRegEx = new RegExp(key);
-
+                        
+                        let keyValue = getValue(rawKey);
+                        
+                        const replaceRegEx = new RegExp(key);
+                            
+//use map() for array sums
+                        
+                        if (myChamps[uid]["sInfo" + spellNo] && myChamps[uid]["sInfo" + spellNo][rawKey]) {
+                            let keyObj = myChamps[uid]["sInfo" + spellNo][rawKey];
+                            if (keyObj.apply) {// Remove Percent Sign from jp scaling variables
+                                let percentLoc = tooltip.indexOf("%",tooltip.indexOf(rawKey));
+                                tooltip = tooltip.slice(0, percentLoc) + tooltip.slice(percentLoc + 1);
+                            }
+                            if (keyObj.type) {
+                                switch (keyObj.type) {
+                                case "heal":
+                                case "shield":
+                                    break;
+                                default:
+                                    let dmgArray = getDmg(keyValue, keyObj.type);
+                                    
+                                    //calculate channel spells here....
+                                    
+                                    if (keyObj.type === "phys") {
+                                        keyValue = "<span class='phys'>" + dmgArray[0] + "</span>";
+                                        if (dmgArray[1] > 0) {
+                                            keyValue += "<span class='mag'>[" + dmgArray[1] + "]</span>";
+                                        }
+                                        if (dmgArray[2] > 0) {
+                                            keyValue += "<span class='tru'>[" + dmgArray[2] + "]</span>";
+                                        }
+                                    } else if (keyObj.type === "tru") {
+                                        keyValue = "<span class='tru'>" + dmgArray[2] + "</span>";
+                                        if (dmgArray[1] > 0) {
+                                            keyValue += "<span class='mag'>[" + dmgArray[1] + "]</span>";
+                                        }
+                                        if (dmgArray[0] > 0) {
+                                            keyValue += "<span class='phys'>[" + dmgArray[0] + "]</span>";
+                                        }
+                                    } else {
+                                        keyValue = "<span class='mag'>" + dmgArray[1] + "</span>";
+                                        if (dmgArray[0] > 0) {
+                                            keyValue += "<span class='phys'>[" + dmgArray[0] + "]</span>";
+                                        }
+                                        if (dmgArray[2] > 0) {
+                                            keyValue += "<span class='tru'>[" + dmgArray[2] + "]</span>";
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            //add exception for vars with alternate values
+                        }
                         tooltip = tooltip.replace(replaceRegEx, keyValue);
-                        tooltip = tooltip.replace(/\(\+%?\)/g, "");
-                        tooltip = tooltip.replace(/<font.color\='#......'.?size\='..'>/g, "");
-                        tooltip = tooltip.replace(/\(\+%.Missing.Health\)/g, "");
                     });
                 }
-
+                tooltip = tooltip.replace(/\(\+%?\)/g, "");
+                tooltip = tooltip.replace(/<font.color\='#......'.?size\='..'>/g, "");
+                tooltip = tooltip.replace(/\(\+%.Missing.Health\)/g, "");
+                
                 return tooltip;
             };
             let skillDivs = document.getElementById(uid).getElementsByClassName("skillTxt");
@@ -976,7 +1164,27 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                     div.innerHTML = refineTtip(count - 2);
                 }
             });
+        },
+        takeDmg = function (amount, type, flatPen = 0, percentPen = 0, bonusPercentPen = 0, ticks) {
+            return 0;
+        },
+        getPercentHP = function (amount, type) {
+            const
+                maxHp = hp[0] + hp[1],
+                currentHP = document.getElementById(uid + "HP").value;
+            switch (type) {
+            case "currHp":
+                return calc(currentHP, amount);
+            case "maxHp":
+                return calc(maxHp, amount);
+            case "missHp":
+                return calc(maxHp - currentHP, amount);
+            default:
+                console.log(type);
+                return 0;
+            }
         };
+
     return {
         attackdamage,
         ap,
@@ -1021,7 +1229,9 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
         drawChampDOM,
         drawStats,
         drawSkillTxt,
-        addItem
+        addItem,
+        takeDmg,
+        getPercentHP
     };
 };
 
