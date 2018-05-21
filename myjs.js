@@ -187,7 +187,7 @@ const champObj = function (obj, side, uid) {// create champion object
         {id, image, name, partype, passive, spells, stats} = obj,
         attackdamage = [],
         ap = 0,
-        aPen = [],// flat armor reduction, percent armor reduction, percent armor pen, flat armor pen/calulated lethality
+        aPen = [],// flat reduction, percent reduction, percent pen, flat pen
         armor = [],
         attackspeed = [calcBaseAspd(stats.attackspeedoffset)],
         buffStats = [],
@@ -201,7 +201,7 @@ const champObj = function (obj, side, uid) {// create champion object
         lifeSteal = 0,
         move = [],
         mp = [stats.mp, 0],
-        mPen = [],// flat magic reduction, percent magic reduction, percent magic pen, flat magic pen/calulated lethality
+        mPen = [],// flat reduction, percent reduction, percent pen, flat pen
         mpregen = [stats.mpregen, 0, 0],
         spellblock = [],
         runePaths = [],
@@ -261,7 +261,7 @@ const champObj = function (obj, side, uid) {// create champion object
             if (partype === theLang.Mana) {
                 mp[1] = setStat("FlatMPPoolMod");
             }
-            
+
             aPen = [0, 0, 0, 0];
             // Lethality Items
             let lethality = 0;
@@ -278,7 +278,7 @@ const champObj = function (obj, side, uid) {// create champion object
                 lethality += 18;
             }
             aPen[3] = round(calc(lethality, calc(0.6, calc(calc(0.4, level), 18, 3), 0)));
-            
+
             if (items.includes(3036)) {// Lord Dominick's Regards
                 aPen[2] = 35;
             } else if (items.includes(3033)) {// Mortal Reminder
@@ -286,9 +286,9 @@ const champObj = function (obj, side, uid) {// create champion object
             } else if (items.includes(3035)) {// Last Whisper
                 aPen[2] = 10;
             }
-            
+
             mPen = [0, 0, 0, 0];
-        
+
         },
         addItem = function (itemNo) {
             const
@@ -366,7 +366,7 @@ const champObj = function (obj, side, uid) {// create champion object
 
             let finalDOM = document.getElementById(uid);
             finalDOM.getElementsByTagName("h2")[0].innerText = name;
-            finalDOM.getElementsByClassName("champHead")[0].style.backgroundImage = "url('http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/champion/" + image.full + "')";
+            finalDOM.querySelector(".champHead").style.backgroundImage = "url('http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/champion/" + image.full + "')";
 
             let skillDesc = finalDOM.getElementsByClassName("skillDesc");
 
@@ -432,7 +432,7 @@ const champObj = function (obj, side, uid) {// create champion object
                 }, false);
             });
 
-            finalDOM.getElementsByClassName("killBtn")[0].addEventListener("click", function () {
+            finalDOM.querySelector(".killBtn").addEventListener("click", function () {
                 finalDOM.remove();// remove main div
                 let selectId;
                 if (side === "1") {
@@ -447,7 +447,7 @@ const champObj = function (obj, side, uid) {// create champion object
                 update();
             }, false);
 
-            finalDOM.getElementsByClassName("advOpt")[0].addEventListener("click", function () {
+            finalDOM.querySelector(".advOpt").addEventListener("click", function () {
                 let element = finalDOM.getElementsByClassName("dropPanel")[0];
                 if (element.style.display === "block") {
                     element.style.display = "none";
@@ -459,7 +459,7 @@ const champObj = function (obj, side, uid) {// create champion object
 
             // Change Drop Box Divs
 
-            let dropBtns = document.getElementById(uid).getElementsByClassName("dropTBar")[0].children;
+            let dropBtns = document.getElementById(uid).querySelector(".dropTBar").children;
             Array.from(dropBtns).forEach(function (element, btnIndex) {
                 element.addEventListener("click", function () {
                     let dropDiv = document.getElementById(uid).getElementsByClassName("dropContent");
@@ -474,7 +474,7 @@ const champObj = function (obj, side, uid) {// create champion object
             });
 
             // Add Item Categories
-            let catsDOM = finalDOM.getElementsByClassName("itemCats")[0],
+            let catsDOM = finalDOM.querySelector(".itemCats"),
                 catsFrag = document.createDocumentFragment();
             const theCats = [
                 "AllItems",
@@ -506,7 +506,7 @@ const champObj = function (obj, side, uid) {// create champion object
 
             // Add item map options
             const itemMap = [[theLang.Map1, 11], [theLang.Map10, 10], [theLang.Map12, 12]];
-            let mapDOM = finalDOM.getElementsByClassName("itemMaps")[0],
+            let mapDOM = finalDOM.querySelector(".itemMaps"),
                 mapFrag = document.createDocumentFragment();
 
             itemMap.forEach(function (map) {
@@ -517,7 +517,7 @@ const champObj = function (obj, side, uid) {// create champion object
             });
             mapDOM.appendChild(mapFrag);
 
-            const searchDOM = finalDOM.getElementsByClassName("itemSearch")[0];
+            const searchDOM = finalDOM.querySelector(".itemSearch");
 
             //Add event handlers to image filtering
             let itemFilters = [
@@ -531,7 +531,7 @@ const champObj = function (obj, side, uid) {// create champion object
                         theCat = catsDOM.value,
                         query = new RegExp(searchDOM.value, "i"),
                         map = mapDOM.value;
-                    let itemBox = finalDOM.getElementsByClassName("items")[0],
+                    let itemBox = finalDOM.querySelector(".items"),
                         docFrag = document.createDocumentFragment();
 
                     sortedItems.forEach(function (itemNo) {
@@ -574,18 +574,38 @@ const champObj = function (obj, side, uid) {// create champion object
                 }
             );
             catsDOM.dispatchEvent(drawItems);
-            finalDOM.getElementsByClassName("levelTxt")[0].innerText = theLang.Level;
+            finalDOM.querySelector(".levelTxt").innerText = theLang.Level;
 
+            // add elixirs
+            
+            const elixirID = [2138, 2139, 2140];
+            elixirID.forEach(function (id) {
+                let elixOpt = document.createElement("option");
+                elixOpt.innerText = theItems[id].name;
+                elixOpt.value = id;
+                finalDOM.querySelector(".slctElix").appendChild(elixOpt);
+            });
+            
+            
+            
             // add runes
 
+            /*
             const getRuneObj = function (rune, path) {
                 let runeFound;
                 let slotNo = -1;
-                while (!runeFound) {
-                    slotNo += 1;
-                    runeFound = theRunes[path].slots[slotNo].runes.find(function (theRune) {
+                
+                const checkRuneSlot = function () {
+                    console.log(path);
+                    console.log(slotNo);
+                    theRunes[path].slots[slotNo].runes.find(function (theRune) {
                         return theRune.id === rune;
                     });
+                }
+                
+                while (!runeFound) {
+                    slotNo += 1;
+                    runeFound = checkRuneSlot();
                 }
                 return [runeFound, slotNo];
             };
@@ -609,6 +629,47 @@ const champObj = function (obj, side, uid) {// create champion object
                         runeDiv.appendChild(pathDiv);
                     }
                 });
+            };
+
+            const drawRuneOptions = function (rank, runeSlot) {
+                let runeDiv = document.getElementById(uid).getElementsByClassName("runes" + rank)[0];
+                while (runeDiv.hasChildNodes()) {
+                    runeDiv.removeChild(runeDiv.lastChild);
+                }
+                const drawRunes = function (slot, champRuneSlot) {
+                    theRunes[runePaths[rank]].slots[slot].runes.forEach(function (rune) {
+                        let singleRuneDiv = document.createElement("div");
+                        singleRuneDiv.classList.add("runeDiv");
+                        let singleRuneImg = document.createElement("img");
+                        singleRuneImg.addEventListener("click", function () {
+                            runes[rank][champRuneSlot] = rune.id;
+                            drawAllRunes(rank);
+                        });
+                        singleRuneImg.src = "https://ddragon.leagueoflegends.com/cdn/img/" + rune.icon;
+                        singleRuneDiv.appendChild(singleRuneImg);
+                        runeDiv.appendChild(singleRuneDiv);
+                    });
+                };
+                if (rank === 1) {
+                    const runeSlot0 = getRuneObj(runes[1][0], runePaths[rank])[1];
+                    const runeSlot1 = getRuneObj(runes[1][1], runePaths[rank])[1];
+
+                    switch (runeSlot) {
+                        case 0:
+                            drawRunes(runeSlot0, runeSlot);
+                        break;
+                        case 1:
+                            drawRunes(runeSlot1, runeSlot);
+                        break;
+                    }
+                    let extraSlotNum = 1;
+                    while (extraSlotNum === runeSlot0 || extraSlotNum === runeSlot1) {
+                        extraSlotNum += 1;
+                    }
+                    drawRunes(extraSlotNum, runeSlot);
+                } else  {
+                    drawRunes(runeSlot, runeSlot);
+                }
             };
 
             const drawAllRunes = function (rank, newPath) {
@@ -655,49 +716,8 @@ const champObj = function (obj, side, uid) {// create champion object
                 });
             };
 
-            const drawRuneOptions = function (rank, runeSlot) {
-                let runeDiv = document.getElementById(uid).getElementsByClassName("runes" + rank)[0];
-                while (runeDiv.hasChildNodes()) {
-                    runeDiv.removeChild(runeDiv.lastChild);
-                }
-                const drawRunes = function (slot, champRuneSlot) {
-                    theRunes[runePaths[rank]].slots[slot].runes.forEach(function (rune) {
-                        let singleRuneDiv = document.createElement("div");
-                        singleRuneDiv.classList.add("runeDiv");
-                        let singleRuneImg = document.createElement("img");
-                        singleRuneImg.addEventListener("click", function () {
-                            runes[rank][champRuneSlot] = rune.id;
-                            drawAllRunes(rank);
-                        });
-                        singleRuneImg.src = "https://ddragon.leagueoflegends.com/cdn/img/" + rune.icon;
-                        singleRuneDiv.appendChild(singleRuneImg);
-                        runeDiv.appendChild(singleRuneDiv);
-                    });
-                };
-                if (rank === 1) {
-                    const runeSlot0 = getRuneObj(runes[1][0], runePaths[rank])[1];
-                    const runeSlot1 = getRuneObj(runes[1][1], runePaths[rank])[1];
-
-                    switch (runeSlot) {
-                        case 0:
-                            drawRunes(runeSlot0, runeSlot);
-                        break;
-                        case 1:
-                            drawRunes(runeSlot1, runeSlot);
-                        break;
-                    }
-                    let extraSlotNum = 1;
-                    while (extraSlotNum === runeSlot0 || extraSlotNum === runeSlot1) {
-                        extraSlotNum += 1;
-                    }
-                    drawRunes(extraSlotNum, runeSlot);
-                } else  {
-                    drawRunes(runeSlot, runeSlot);
-                }
-            };
-
             drawPaths(0);
-
+*/
             //add enemy select option
 
             let champOpt = document.createElement("option");
@@ -714,7 +734,7 @@ const champObj = function (obj, side, uid) {// create champion object
             let statBox = document.getElementById(uid).getElementsByClassName("statList")[0],
                 frag = document.createDocumentFragment(),
                 maxHp = hp[0] + hp[1];
-            
+
             if (document.getElementById(uid + "HP")) {
                 oldMaxHP = parseInt(document.getElementById(uid + "HP").max);
                 oldCurrentHP = parseInt(document.getElementById(uid + "HP").value);
@@ -722,11 +742,11 @@ const champObj = function (obj, side, uid) {// create champion object
                 oldMaxHP = maxHp;
                 oldCurrentHP = maxHp;
             }
-            
+
             while (statBox.childElementCount > 1) {
                 statBox.removeChild(statBox.lastChild);
             }
-            
+
             theLi = document.createElement("li");
             theLi.innerText = theLang.Health + ": ";
             let theInput = document.createElement("input");
@@ -741,7 +761,7 @@ const champObj = function (obj, side, uid) {// create champion object
             theSpan.innerText = "/" + (maxHp);
             theLi.appendChild(theSpan);
             frag.appendChild(theLi);
-            
+
             let statList = [];
             statList.push(
                 [theLang.HealthRegen, hpregen[0] + hpregen[1]],
@@ -782,9 +802,9 @@ const champObj = function (obj, side, uid) {// create champion object
             const refineTtip = function (spellNo) {
                 let riotObj, spellLvl;
                 const myObj = myChamps[uid]["sInfo" + spellNo];
-                
+
                 var enemyUID;
-                
+
                 if (document.getElementById("enemy" + side).length > 0){
                     enemyUID = document.getElementById("enemy" + side).value;
                 }
@@ -1060,42 +1080,51 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                     return value;
                 };
 
-                const getDmg = function (rawDmg, type) {
-                    let magDmg = 0, physDmg = 0, truDmg = 0;
-                    switch (type) {
+                const getDmg = function (rawDmg, spellObj, crit = false) {
+                    let magDmg = 0, physDmg = 0, truDmg = 0, resistedDmg;
+                    
+                    let myDmg = (spellObj.basicAttack && enemyUID) ? myChamps[enemyUID].takeBasicAtk(rawDmg) : rawDmg;// Ninja Tabi
+                    
+                    switch (spellObj.type) {
                     case "phys":
-                        physDmg = rawDmg;
+                        physDmg = myDmg;
                         break;
                     case "mag":
-                        magDmg = rawDmg;
+                        magDmg = myDmg;
                         break;
                     case "tru":
-                        truDmg = rawDmg;
+                        truDmg = myDmg;
                         break;
                     case "hybrid":
-                        physDmg = calc(rawDmg, 0.5);
-                        magDmg = calc(rawDmg, 0.5);
+                        physDmg = calc(myDmg, 0.5);
+                        magDmg = calc(myDmg, 0.5);
                         break;
                     case "corkiAuto":
-                        physDmg = calc(rawDmg, 0.2);
-                        magDmg = calc(rawDmg, 0.8);
+                        physDmg = calc(myDmg, 0.2);
+                        magDmg = calc(myDmg, 0.8);
                     break;
                     }
                     
+                    if (enemyUID) {
+                        resistedDmg = takeDmg([physDmg, magDmg], aPen, mPen);
+                        physDmg = resistedDmg[0];
+                        magDmg = resistedDmg[1];
+                    }
+
                     return [physDmg, magDmg, truDmg];
                 };
-                
+
                 if (keys !== null) {
                     keys.forEach(function (key) {
                         let rawKey = key.replace(/\{\{./, "");
                         rawKey = rawKey.replace(/.\}\}/, "");
-                        
+
                         let keyValue = getValue(rawKey);
-                        
+
                         const replaceRegEx = new RegExp(key);
-                            
+
 //use map() for array sums
-                        
+
                         if (myChamps[uid]["sInfo" + spellNo] && myChamps[uid]["sInfo" + spellNo][rawKey]) {
                             let keyObj = myChamps[uid]["sInfo" + spellNo][rawKey];
                             if (keyObj.apply) {// Remove Percent Sign from jp scaling variables
@@ -1108,10 +1137,10 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                                 case "shield":
                                     break;
                                 default:
-                                    let dmgArray = getDmg(keyValue, keyObj.type);
-                                    
+                                    let dmgArray = getDmg(keyValue, keyObj);
+
                                     //calculate channel spells here....
-                                    
+
                                     if (keyObj.type === "phys") {
                                         keyValue = "<span class='phys'>" + dmgArray[0] + "</span>";
                                         if (dmgArray[1] > 0) {
@@ -1139,7 +1168,7 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                                     }
                                 }
                             }
-                            
+
                             //add exception for vars with alternate values
                         }
                         tooltip = tooltip.replace(replaceRegEx, keyValue);
@@ -1148,7 +1177,7 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                 tooltip = tooltip.replace(/\(\+%?\)/g, "");
                 tooltip = tooltip.replace(/<font.color\='#......'.?size\='..'>/g, "");
                 tooltip = tooltip.replace(/\(\+%.Missing.Health\)/g, "");
-                
+
                 return tooltip;
             };
             let skillDivs = document.getElementById(uid).getElementsByClassName("skillTxt");
@@ -1165,8 +1194,29 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                 }
             });
         },
-        takeDmg = function (amount, type, flatPen = 0, percentPen = 0, bonusPercentPen = 0, ticks) {
-            return 0;
+        takeDmg = function (dmg, eAPen, eMPen) {
+            const calcResist = function (resistance, pen) {
+                if (resistance >= 0) {
+                    return calc(100, calc(100, resistance, 0), 3);
+                } else {
+                    return calc(2, calc(100, calc(100, resistance, 1), 3), 1);
+                }
+            };
+            
+            const totalArmor = armor[0] + armor[1];
+            const totalSBlock = spellblock[0] + spellblock[1];
+            
+            const physDmg = round(calc(dmg[0], calcResist(totalArmor)), 1);
+            const magDmg = round(calc(dmg[1], calcResist(totalSBlock)), 1);
+            
+            return [physDmg, magDmg];
+        },
+        takeBasicAtk = function (dmg) {
+            return (items.includes(3047) ? calc(dmg, 0.88) : dmg);
+        },
+        takeCrit = function (dmg) {
+        },
+        takeTickDmg = function (dmg, enemyPen, cleaverStacks) {
         },
         getPercentHP = function (amount, type) {
             const
@@ -1231,6 +1281,8 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
         drawSkillTxt,
         addItem,
         takeDmg,
+        takeBasicAtk,
+        takeTickDmg,
         getPercentHP
     };
 };

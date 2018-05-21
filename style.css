@@ -179,6 +179,29 @@ h2 {
     cursor: pointer;
 }
 
+.elixir {
+    float: right;
+    height: 100%;
+    width: 8em;
+    text-align: center;
+    margin: 0 0.5em;
+}
+
+.elixir img {
+    width: 2.5em;
+    border-radius: 0.3em;
+    border: solid 2px green;
+}
+
+.elixir select {
+    width: 100%;
+    font-size: 0.85em;
+    text-align: center;
+}
+
+
+
+
 .items {
     float: left;
 }
@@ -337,6 +360,7 @@ h3 {
     display: none;
     height: 6rem;
     text-align: center;
+    overflow: auto;
 }
 
 .items img {
@@ -365,6 +389,26 @@ h3 {
     overflow: auto;
     float: right;
     clear: right;
+}
+
+.debuff {
+    width: 4em;
+    float: left;
+    margin: 0 0.1em;
+    
+}
+
+.debuff img{
+    width: 2.5em;
+    border: solid 1px red;
+    border-radius: 10%;
+}
+
+.debuff select, .debuff input{
+    width: 4em;
+    font-size: 0.85em;
+    padding: 0;
+    text-align: center;
 }
 
 /* Footer */

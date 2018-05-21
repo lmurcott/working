@@ -1,4 +1,4 @@
-var champVars = {
+const champVars = {
   Aatrox:{
     buffs: [
       {spell: 3, key: "e3", type: "attackSpeed", active: true},
