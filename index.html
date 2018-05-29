@@ -99,6 +99,7 @@
                                     </h3>
                                     <p class="skillInput">
                                     </p>
+                                    <hr>
                                     <p class="skillTxt">
                                         PASSIVE
                                     </p>
@@ -108,6 +109,7 @@
                                     </h3>
                                     <p class="skillInput">
                                     </p>
+                                    <hr>
                                     <p class="skillTxt">
                                         SKILL 1
                                     </p>
@@ -117,6 +119,7 @@
                                     </h3>
                                     <p class="skillInput">
                                     </p>
+                                    <hr>
                                     <p class="skillTxt">
                                         SKILL 2
                                     </p>
@@ -126,6 +129,7 @@
                                     </h3>
                                     <p class="skillInput">
                                     </p>
+                                    <hr>
                                     <p class="skillTxt">
                                         SKILL 3
                                     </p>
@@ -135,6 +139,7 @@
                                     </h3>
                                     <p class="skillInput">
                                     </p>
+                                    <hr>
                                     <p class="skillTxt">
                                         SKILL 4
                                     </p>
@@ -153,7 +158,7 @@
                                 <div class="advOpt">&#11206;</div> <!-- &#11205; -->
                                 <div class="elixir">
                                     <img src="img/elix.png">
-                                    <select class="slctElix">
+                                    <select class="slctElix" onchange="update()">
                                         <option></option>
                                     </select>
                                 </div>
@@ -178,14 +183,16 @@
                                 </div>
                                 <!-- rune drop box -->
                                 <div class="dropContent">
-                                    <div class="runes0"></div>
-                                    <div class="runes1">sec runes</div>
+                                    <div class="runes"></div>
+                                    <div class="runeSelect"></div>
+                                    <div class="runes"></div>
+                                    <div class="runeSelect"></div>
                                 </div>
                                 <!-- debuff dropbox -->
                                 <div class="dropContent">
                                     <div class="debuff">
                                         <img src="http://ddragon.leagueoflegends.com/cdn/8.9.1/img/item/3071.png">
-                                        <select class="cleaver">
+                                        <select class="cleaver" onchange="update()">
                                             <option value=0>0%</option>
                                             <option value=4>4%</option>
                                             <option value=8>8%</option>
@@ -197,7 +204,7 @@
                                     </div>
                                     <div class="debuff">
                                         <img src="http://ddragon.leagueoflegends.com/cdn/8.9.1/img/item/3091.png">
-                                        <select class="wits">
+                                        <select class="wits" onchange="update()">
                                             <option value=0>0</option>
                                             <option value=3>3</option>
                                             <option value=6>6</option>
@@ -212,15 +219,15 @@
                                     </div>
                                     <div class="debuff">
                                         <img src="http://ddragon.leagueoflegends.com/cdn/8.9.1/img/item/1001.png">
-                                        <input type=number min=0 value=0 max=100 class="slow">
+                                        <input type=number min=0 value=0 max=100 class="slow" onchange="update()">
                                     </div>
                                     <div class="debuff">
                                         <img src="http://ddragon.leagueoflegends.com/cdn/8.9.1/img/item/3110.png">
-                                        <input type=checkbox class=frozenHeart>
+                                        <input type=checkbox class=frozenHeart onchange="update()">
                                     </div>
                                     <div class="debuff">
                                         <img src="http://ddragon.leagueoflegends.com/cdn/8.9.1/img/item/3082.png">
-                                        <input type=checkbox class=coldSteel>
+                                        <input type=checkbox class=coldSteel onchange="update()">
                                     </div>
                                 </div>
 

@@ -199,13 +199,16 @@ h2 {
     text-align: center;
 }
 
-
-
-
 .items {
     float: left;
 }
 
+hr {
+  margin: 0.2em 0 0.2em 0;
+  border: none;
+  background-color: #544c1e;
+  padding-top: 1px;
+}
 
 .skillBox{
     width: 40%;
@@ -240,7 +243,7 @@ h2 {
     width: 100%;
     font-size: 0.8em;
     text-align: center;
-    margin-top: 0.1em;
+    margin-top: 0.05em;
 }
 
 .skillTBar {
@@ -249,20 +252,44 @@ h2 {
     padding: 0.5% 0 0 2%;
 }
 
-.runes0, .runes1 {
+.runes {
     height: 50%;
-    background-color: #EEE;
+    background-color: #000;
+    overflow: hidden;
 }
 
-.runeDiv {
+.runes div {
+    height: 100%;
+    float: left;
+    margin: 0 0.5em;
+}
+
+.runes img {
+    height: 55%;
+}
+
+.runes input[type="checkbox"] {
+}
+
+.runes input[type="number"] {
+    width: 3em;
+    padding: 0;
+    text-align: center;
+}
+
+.runeSelect {
+    display: none;
+    height: 50%;
+    background-color: #000;
+}
+
+.runeSelect div {
     display: inline;
     height: 100%;
 }
 
-.runeDiv img {
+.runeSelect img {
     height: 100%;
-    padding: 0.2em;
-    cursor: pointer;
 }
 
 h3 {
@@ -290,6 +317,10 @@ h3 {
 
 .tru {
     color: #d6d6d6;
+    font-weight: bold;
+}
+
+.statValue {
     font-weight: bold;
 }
 
@@ -358,7 +389,7 @@ h3 {
 .dropContent {
     width: 100%;
     display: none;
-    height: 6rem;
+    height: 8rem;
     text-align: center;
     overflow: auto;
 }

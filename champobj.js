@@ -656,12 +656,12 @@ const champVars = {
         img: "spell/EvelynnW.png"
       }
     ],
-        sInfoP:{
-            p1: {value: 230, info: ["Health","Level"], child: ["p1Var","p1Var2"]},
-            p1Var: {link: "champLevel", coeff: 20},
-            p1Var2: {link: "spelldamage", coeff: 2.5},
-            p2: {type: "heal", valuePerLvl: [15,19,22,26,29,33,36,40,43,47,50,54,57,61,64,68,71,75], info: "HealthRegen"}
-        },
+    sInfoP:{
+        p1: {value: 230, info: ["Health","Level"], child: ["p1Var","p1Var2"]},
+        p1Var: {link: "champLevel", coeff: 20},
+        p1Var2: {link: "spelldamage", coeff: 2.5},
+        p2: {type: "heal", valuePerLvl: [15,19,22,26,29,33,36,40,43,47,50,54,57,61,64,68,71,75], info: "HealthRegen"}
+    },
     sInfo0:{
       e4: {type: "mag", spell: true, child: ["a1"]},
       e5: {type: "mag", spell: true, child: ["a2"]}
@@ -1679,7 +1679,7 @@ const champVars = {
             p3: {value: -340, child: ["p3Var"], hide:true},
             p3Var: {link: "baseGrowth", coeff: -70}
         },
-        sInfo0:{
+    sInfo0:{
       e1: {type: "phys", spell: true, child: ["a1"]},
       e1a: {type: "phys", spell: true,  child: ["a1"], multiplier: 200}
     },
@@ -1995,7 +1995,7 @@ const champVars = {
             p1Var: {link: "attackdamage", coeff:[0.5,0.5,0.5,0.6,0.6,0.6,0.7,0.7,0.8,0.8,0.9,0.9,1,1,1,1,1,1]}
         },
     sInfo0:{
-        e2: {type: "phys", spell: true, child: ["a1","a2"], onHit: 1, crit: [100,150,true]},
+        e2: {type: "phys", spell: true, child: ["a1","a2"], onHit: 1, crit: [100, 150, true]},
         f1: {value: 100, child: ["f1Var"]},
         f1Var: {link: "bonusCritDamage", coeff: 1}
     },
@@ -2006,11 +2006,11 @@ const champVars = {
       e1: {type: "mag", spell: true, child: ["a1"], duration: 2, ticks: 2, multiplier: 50}
     },
     sInfo3:{
-      f1: {type: "phys", spell: true, child: ["a1","f1Var"], crit: [20,30]},
-      f1Var: {link: "attackdamage", coeff: 0.75},
-      f3: {value: 120, child: ["f3Var"]},
-      f3Var: {link: "bonusCritDamage", coeff: 0.2},
-            f2: {type: "phys", spell: true, ticks: [12,14,16], tickLvl: 3, duration: 3, child: ["a1","f1Var"], crit: [20,30]}
+        f1: {type: "phys", spell: true, child: ["a1","f1Var"], crit: [20,30]},
+        f1Var: {link: "attackdamage", coeff: 0.75},
+        f3: {value: 120, child: ["f3Var"]},
+        f3Var: {link: "bonusCritDamage", coeff: 0.2},
+        f2: {type: "phys", spell: true, ticks: [12,14,16], duration: 3, child: ["a1","f1Var"], crit: [20,30]}
     }
   },
   MonkeyKing:{
@@ -2621,8 +2621,8 @@ const champVars = {
             p1Var: {link: "champLevel", coeff: 5},
             p1Var2: {link: "spelldamage", coeff: 0.3},
         },
-        sInfo0:{
-      e1: {type: "mag", spell: true, child: ["a1"], duration: 3, ticks: 3, multiplier: 33}
+    sInfo0:{
+        e1: {type: "mag", spell: true, child: ["a1"], duration: 3, ticks: 3, multiplier: 33}
     },
     sInfo1:{
       active: true,
@@ -2644,7 +2644,7 @@ const champVars = {
             p1: {info: "Mana", child: ["p1Var"]},
             p1Var: {link: "spelldamage", coeff: 0.05},
         },
-        sInfo0:{
+    sInfo0:{
       active: true,
       e1: {type: "mag", spell: true, child: ["a1","f1Var"]},
       f1Var: {coeff: 0.02, link: "mana"},
@@ -3569,9 +3569,9 @@ const champVars = {
     buffs: [
       {spell: 1, key: "e1", type: "attackSpeed", active: true}
     ],
-        sInfo0:{
-      f1: {effectNo: 1, type: "phys", child: ["f2Var"]},
-      f2Var: {link: "bonusattackdamage", coeff: 1}
+    sInfo0:{
+        f1: {effectNo: 1, type: "phys", child: ["f2Var"]},
+        f2Var: {link: "bonusattackdamage", coeff: 1}
     },
     sInfo1:{
       active: true,

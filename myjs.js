@@ -25,7 +25,6 @@ const calc = function (num1, num2, o = 2) {// Calculate decimal equations
             ? 0
             : numStr.length - numStr.indexOf(".") - 1;
     };
-
     const num1DP = getDP(num1), num2DP = getDP(num2);
     const num1Int = (o === 2)
         ? Number(num1 + "e" + num1DP)
@@ -35,7 +34,8 @@ const calc = function (num1, num2, o = 2) {// Calculate decimal equations
         : Number(num2 + "e" + Math.max(num1DP, num2DP));
     switch (o) {
     case 0:// Addition
-        return Number(`${num1Int + num2Int}e-${Math.max(num1DP, num2DP)}`);
+        //return Number(`${num1Int + num2Int}e-${Math.max(num1DP, num2DP)}`);
+        return Number(num1Int + num2Int + "e-" + Math.max(num1DP, num2DP));
     case 1:// Subtraction
         return Number(`${num1Int - num2Int}e-${Math.max(num1DP, num2DP)}`);
     case 2:// Multiplication
@@ -66,7 +66,6 @@ const calcMoveSpeed = function (base, flat, percent = 0) {//add slow ratio and M
     if (speed > 490) {
         speed = calc(calc(calc(speed, 490, 1), 0.5), 475, 0);
     }
-
     return speed;
 };
 
@@ -150,6 +149,19 @@ const setItems = function (json) {
     theItems[3042].tags = theItems[3004].tags;
     theItems[3040].gold.total = theItems[3003].gold.total;//Seraphs Embrace
     theItems[3040].tags = theItems[3040].tags.concat(theItems[3003].tags);
+    //Jungle Items
+    theItems[1402].tags.push("SpellDamage");//Runic
+    theItems[1414].tags.push("SpellDamage");
+    theItems[1402].tags.push("NonbootsMovement");
+    theItems[1414].tags.push("NonbootsMovement");
+    theItems[1401].tags.push("Health");//Cinderhulk
+    theItems[1413].tags.push("Health");
+    theItems[1416].tags.push("AttackSpeed");//Bloodrazor
+    theItems[1419].tags.push("AttackSpeed");
+    theItems[1400].tags.push("CooldownReduction");//Warrior
+    theItems[1412].tags.push("CooldownReduction");
+    theItems[1400].tags.push("Damage");
+    theItems[1412].tags.push("Damage");
     delete theItems[3200].inStore;//viktor base item
     theItems[3200].tags = theItems[3198].tags;
     delete theItems[2003].consumed;//health potion
@@ -168,13 +180,10 @@ const setRunes = function (json) {
 const update = function () {
     "use strict";
     Object.keys(myChamps).forEach(function (uid) {
-        myChamps[uid].setBaseStats();
-        myChamps[uid].setItemStats();
+        myChamps[uid].setStats();
     });
     Object.keys(myChamps).forEach(function (uid) {
         myChamps[uid].drawStats();
-    });
-    Object.keys(myChamps).forEach(function (uid) {
         myChamps[uid].drawSkillTxt();
     });
 };
@@ -205,153 +214,400 @@ const champObj = function (obj, side, uid) {// create champion object
         mpregen = [stats.mpregen, 0, 0],
         spellblock = [],
         runePaths = [],
-        runes = [],
-        setBaseStats = function () {
-            level = document.getElementById(uid).getElementsByClassName("champLevel")[0].value;
-            attackdamage[0] = round(calcBaseStats(stats.attackdamage, stats.attackdamageperlevel, level));
-            armor[0] = round(calcBaseStats(stats.armor, stats.armorperlevel, level));
-            attackspeed[1] = Number(round(calcBaseStats(0, stats.attackspeedperlevel, level)) + "e-2");
-            hp[0] = round(calcBaseStats(stats.hp, stats.hpperlevel, level));
-            hpregen[0] = round(calcBaseStats(stats.hpregen, stats.hpregenperlevel, level), 1);
-            if (stats.mpperlevel !== 0) {
-                mp[0] = round(calcBaseStats(stats.mp, stats.mpperlevel, level));
+        runes = [[],[]],
+        getAdapt = function () {
+            if(ap === attackdamage[1]) {
+                const magChamps = ["Ahri","AurelionSol","Alistar","Amumu","Anivia","Annie","Azir","Bard","Brand","Cassiopeia","Chogath",
+                "Diana","Ekko","Elise","Evelynn","Fiddlesticks","Fizz","Galio","Gragas","Heimerdinger","Ivern","Janna","Karma","Karthus",
+                "Kassadin","Katarina","Kayle","Kennen","Leblanc","Lissandra","Lulu","Lux","Malphite","Malzahar","Maokai","Mordekaiser",
+                "Morgana","Nami","Nautilus","Nidalee","Nunu","Orianna","Rakan","Rumble","Ryze","Singed","Sona","Soraka","Swain","Syndra","Taliyah",
+                "Taric","TwistedFate","Veigar","Velkoz","Viktor","Vladimir","Xerath","Zac","Ziggs","Zilean","Zoe","Zyra"];
+                if(magChamps.includes(id)) {
+                    return "mag";
+                } else {
+                    return "phys";
+                }
+            } else if(ap > attackdamage[1]) {
+                return "mag";
+            } else if(ap < attackdamage[1]) {
+                return "phys";
             }
-            if (stats.mpregenperlevel !== 0) {
-                mpregen[0] = round(calcBaseStats(stats.mpregen, stats.mpregenperlevel, level), 1);
-            }
-            spellblock[0] = round(calcBaseStats(stats.spellblock, stats.spellblockperlevel, level));
-            cdr[0] = 0;
-            move[0] = stats.movespeed;
         },
-        setItemStats = function () {
-            let statObj = {};
+        itemCheck = function (itemID, status) {
+            if (items.includes(itemID)) {
+                if (status && !document.getElementById(uid + itemID).checked) {
+                    return false;
+                }
+                return true;
+            }
+            return false;
+        },
+        runeCheck = function (runeID, status) {
+            if (runes[0].includes(runeID) || runes[1].includes(runeID)) {
+                if (status && !document.getElementById(uid + "RCB" + runeID).checked) {
+                    return false;
+                }
+                return true;
+            }
+            return false;
+        },
+        setStats = function () {
+            const setBaseStats = function () {
+                attackdamage[0] = round(calcBaseStats(stats.attackdamage, stats.attackdamageperlevel, level));
+                armor[0] = round(calcBaseStats(stats.armor, stats.armorperlevel, level));
+                attackspeed[1] = Number(round(calcBaseStats(0, stats.attackspeedperlevel, level)) + "e-2");
+                hp[0] = round(calcBaseStats(stats.hp, stats.hpperlevel, level));
+                hpregen[0] = round(calcBaseStats(stats.hpregen, stats.hpregenperlevel, level), 1);
+                if (stats.mpperlevel !== 0) {
+                    mp[0] = round(calcBaseStats(stats.mp, stats.mpperlevel, level));
+                }
+                if (stats.mpregenperlevel !== 0) {
+                    mpregen[0] = round(calcBaseStats(stats.mpregen, stats.mpregenperlevel, level), 1);
+                }
+                spellblock[0] = round(calcBaseStats(stats.spellblock, stats.spellblockperlevel, level));
+                cdr = [0, 0.4];
+                move[0] = stats.movespeed;
+                move[3] = parseInt(document.getElementById(uid).querySelector(".slow").value);// slow
+            };
+            const setItemStats = function () {
+                let statObj = {};
+                hpregen[2] = 0;
+                mpregen[1] = 0;
+                mpregen[2] = 0;
 
-            if (items.length > 0) {
-                items.forEach(function (itemNo) {
-                    Object.keys(theItems[itemNo].stats).forEach(function (key) {
-                        if (statObj.hasOwnProperty(key)) {
-                            statObj[key] = calc(theItems[itemNo].stats[key], statObj[key], 0);
-                        } else {
-                            statObj[key] = theItems[itemNo].stats[key];
+                if (items.length > 0) {
+                    items.forEach(function (itemNo) {
+                        const// base hp regen items
+                        hp50 = [3801,3096,3107,1006,3097,3077,3305],
+                        hp100 = [3074,3401,3194,3065,3748,3309],
+                        hp125 = [2053,3060,3512],
+                        hp150 = [3056,3382],
+                        hp175 = [3069,3306],
+                        hp200 = [3083];
+                        if (hp50.includes(itemNo)) {
+                            hpregen[2] = calc(0.5, hpregen[2], 0);
+                        } else if (hp100.includes(itemNo)) {
+                            hpregen[2] = calc(1, hpregen[2], 0);
+                        } else if (hp125.includes(itemNo)) {
+                            hpregen[2] = calc(1.25, hpregen[2], 0);
+                        } else if (hp150.includes(itemNo)) {
+                            hpregen[2] = calc(1.5, hpregen[2], 0);
+                        } else if (hp175.includes(itemNo)) {
+                            hpregen[2] = calc(1.75, hpregen[2], 0);
+                        } else if (hp200.includes(itemNo)) {
+                            hpregen[2] = calc(2, hpregen[2], 0);
+                        }
+                        const// base mp regen items                        
+                            regen25 = [1004, 3303],
+                            regen50 = [3504, 3028, 3092, 3098, 3114,3312],
+                            regen100 = [3174, 3222],
+                            regen150 = [3107],
+                            regen200 = [3382];
+                        if (regen25.includes(itemNo)) {
+                            mpregen[2] = calc(0.25, mpregen[2], 0);
+                        } else if (regen50.includes(itemNo)) {
+                            mpregen[2] = calc(0.5, mpregen[2], 0);
+                        } else if (regen100.includes(itemNo)) {
+                            mpregen[2] = calc(1, mpregen[2], 0);
+                        } else if (regen150.includes(itemNo)) {
+                            mpregen[2] = calc(1.5, mpregen[2], 0);
+                        } else if (regen200.includes(itemNo)) {
+                            mpregen[2] = calc(2, mpregen[2], 0);
+                        }
+                        if (itemNo === 1056) {// Dorans Ring
+                            mpregen[1] = calc(5, mpregen[1], 0);
+                        }
+                        
+                        const//non unique cdr
+                            cdr5 = [3301],
+                            cdr10  = [3001,3194,3504,3174,3060,3102,3812,3147,3401,3092,3098,3152,3379,3109,3100,3104,3156,3222,3096,3056,3107,3800,3382,3057,3065,3069,1400,1408,1412,3142,3050,3157,3386,3285,3030,3003,3040,3905,1402,1414],
+                            cdr20 = [3025,3110,3071,3380,3384,3078];
+                        if (cdr5.includes(itemNo)) {
+                            cdr[0] = calc(0.05, cdr[0], 0);
+                        } else if (cdr10.includes(itemNo)) {
+                            cdr[0] = calc(0.1, cdr[0], 0);
+                        } else if (cdr20.includes(itemNo)) {
+                            cdr[0] = calc(0.2, cdr[0], 0);
+                        } 
+
+                        //get items stats from object
+                        Object.keys(theItems[itemNo].stats).forEach(function (key) {
+                            if (statObj.hasOwnProperty(key)) {
+                                statObj[key] = calc(theItems[itemNo].stats[key], statObj[key], 0);
+                            } else {
+                                statObj[key] = theItems[itemNo].stats[key];
+                            }
+                        });
+                    });
+                }
+
+                const setStat = function (modStr) {
+                    return statObj.hasOwnProperty(modStr)
+                        ? statObj[modStr]
+                        : 0;
+                };
+                hp[1] = setStat("FlatHPPoolMod");
+                armor[1] = setStat("FlatArmorMod");
+                spellblock[1] = setStat("FlatSpellBlockMod");
+                ap = setStat("FlatMagicDamageMod");
+                attackdamage[1] = setStat("FlatPhysicalDamageMod");
+                hpregen[1] = calc(setStat("FlatHPRegenMod"), 5);
+                crit = setStat("FlatCritChanceMod");
+                move[1] = setStat("FlatMovementSpeedMod");
+                move[2] = setStat("PercentMovementSpeedMod");
+                move[3] = 0;// slow resist
+                lifeSteal = setStat("PercentLifeStealMod");
+                if (statObj.hasOwnProperty("PercentAttackSpeedMod")) {// Attack Speed
+                    attackspeed[1] = calc(statObj.PercentAttackSpeedMod, attackspeed[1], 0);
+                }
+                if (partype === theLang.Mana) {
+                    mp[1] = setStat("FlatMPPoolMod");
+                }
+
+                // ** UNIQUE STATS **
+                if (itemCheck(3211, true)) {// spectre cowl active
+                    hpregen[2] = calc(1.5, hpregen[2], 0);
+                }
+                if (itemCheck(3742, true)) {// deadmans
+                    move[1] = calc(60, move[1], 0);
+                }
+                // unique cdr
+                const
+                    uniqCdr10 = [2065,3133,3108,3114,3024,3158,3067,3101,3083,3508],
+                    uniqCdr20 = [3115];
+                uniqCdr10.forEach(function (cdrItemNo) {
+                    if (items.includes(cdrItemNo)) {
+                        cdr[0] = calc(0.1, cdr[0], 0);
+                    }
+                });
+                uniqCdr20.forEach(function (cdrItemNo) {
+                    if (items.includes(cdrItemNo)) {
+                        cdr[0] = calc(0.2, cdr[0], 0);
+                    }
+                });
+                if(//haste cdr
+                    items.includes(3285)||
+                    items.includes(3802)||
+                    items.includes(3030)||
+                    items.includes(3003)||
+                    items.includes(3040)
+                ) {
+                    cdr[0] = calc(0.1, cdr[0], 0);
+                }
+                
+                // Armour Penetration
+                aPen = [0, 0, 0, 0];
+                if (items.includes(3036)) {// Lord Dominick's Regards
+                    aPen[2] = 35;
+                } else if (items.includes(3033)) {// Mortal Reminder
+                    aPen[2] = 25;
+                } else if (items.includes(3035)) {// Last Whisper
+                    aPen[2] = 10;
+                }
+                // Lethality Items
+                let lethality = 0;
+                if (items.includes(3134)) {// Serrated Dirk
+                    lethality += 10;
+                }
+                if (items.includes(3142)) {// Youmuu
+                    lethality += 18;
+                }
+                if (items.includes(3147)) {// Duskblade
+                    lethality += 18;
+                }
+                if (items.includes(3814)) {// Edge of Night
+                    lethality += 18;
+                }
+                aPen[3] = round(calc(lethality, calc(0.6, calc(calc(0.4, level), 18, 3), 0)));
+                //Magic Penetration
+                mPen = [0, 0, 0, 0];
+                if (items.includes(3135)) {// Void Staff
+                    mPen[2] = calc(40, mPen[2], 0);
+                }
+                if (items.includes(3916) || items.includes(3165)) {// Cursed Strike
+                    mPen[3] = calc(15, mPen[3], 0);
+                }
+                if (items.includes(3020)) {// Sorc Shoes
+                    mPen[3] = calc(18, mPen[3], 0);
+                }
+                //Slow Resist
+                if(items.includes(3009)) {//swift boots
+                    move[3] += 25;
+                }
+            };
+            const setLevel = function () {
+                const levelDOM = document.getElementById(uid).querySelector(".champLevel");
+                let lvlRquired = parseInt(levelDOM.value);
+                if (lvlRquired < 16) {
+                    const abilityLvls = document.getElementById(uid).getElementsByClassName("spellLvl");
+                    const rquiredSkillLvl = {
+                        "5" : {
+                            1 : 1,
+                            2 : 3,
+                            3 : 5,
+                            4 : 7,
+                            5 : 9
+                        },
+                        "6" : {// ryze q
+                            1 : 1,
+                            2 : 3,
+                            3 : 5,
+                            4 : 7,
+                            5 : 9,
+                            6 : 11
+                        },
+                        "2" : {// ryze ult
+                            2 : 6,
+                            3 : 11
+                        },
+                        "3" : {
+                            1 : 6,
+                            2 : 11,
+                            3 : 16
+                        },
+                        "4" : {
+                            2 : 6,
+                            3 : 11,
+                            4 : 16
+                        }
+                    };
+                    Array.from(abilityLvls).forEach(function (theDOM) {
+                        if(theDOM.value !== "0") {
+                            let theLvl = rquiredSkillLvl[theDOM.max][parseInt(theDOM.value)];
+                            if (theLvl > lvlRquired) {
+                                lvlRquired = theLvl;
+                            }
                         }
                     });
-                });
-            }
-
-            const setStat = function (modStr) {
-                return statObj.hasOwnProperty(modStr)
-                    ? statObj[modStr]
-                    : 0;
+                }
+                levelDOM.value = lvlRquired;
+                level = lvlRquired;
             };
-            //add unique item additive stats
+            const setRuneStats = function () {
+                /*
+                if(this.myRunes[0].includes(8230) && document.getElementById(this.uid + "cb8230").checked) {//phase rush
+                slowResist += 75;
+                }
+                if((this.myRunes[0].includes(8242) || this.myRunes[1].includes(8242)) && document.getElementById(this.uid + "cb8242").checked) {//unflinching
+                slowResist += 15;
+                }
+                */
+            };
+            const setRunePathStats = function () {
+            };
+            const setStatMultis = function () {
 
-            hp[1] = setStat("FlatHPPoolMod");
-            armor[1] = setStat("FlatArmorMod");
-            spellblock[1] = setStat("FlatSpellBlockMod");
-            ap = setStat("FlatMagicDamageMod");
-            attackdamage[1] = setStat("FlatPhysicalDamageMod");
-            hpregen[1] = setStat("FlatHPRegenMod");
-            crit = setStat("FlatCritChanceMod");
-            move[1] = setStat("FlatMovementSpeedMod");
-            move[2] = setStat("PercentMovementSpeedMod");
-            lifeSteal = setStat("PercentLifeStealMod");
-            if (statObj.hasOwnProperty("PercentAttackSpeedMod")) {// Attack Speed
-                attackspeed[1] = calc(statObj.PercentAttackSpeedMod, attackspeed[1], 0);
-            }
-            if (partype === theLang.Mana) {
-                mp[1] = setStat("FlatMPPoolMod");
-            }
-
-            aPen = [0, 0, 0, 0];
-            // Lethality Items
-            let lethality = 0;
-            if (items.includes(3134)) {// Serrated Dirk
-                lethality += 10;
-            }
-            if (items.includes(3142)) {// Youmuu
-                lethality += 18;
-            }
-            if (items.includes(3147)) {// Duskblade
-                lethality += 18;
-            }
-            if (items.includes(3814)) {// Edge of Night
-                lethality += 18;
-            }
-            aPen[3] = round(calc(lethality, calc(0.6, calc(calc(0.4, level), 18, 3), 0)));
-
-            if (items.includes(3036)) {// Lord Dominick's Regards
-                aPen[2] = 35;
-            } else if (items.includes(3033)) {// Mortal Reminder
-                aPen[2] = 25;
-            } else if (items.includes(3035)) {// Last Whisper
-                aPen[2] = 10;
-            }
-
-            mPen = [0, 0, 0, 0];
-
+            };
+            setLevel();
+            setBaseStats();
+            setItemStats();
+            setRuneStats();
+            setRunePathStats();
+            setStatMultis();
         },
         addItem = function (itemNo) {
-            const
-                toogleItems = [3800, 2065, 3001, 3379, 3285, 3145, 3303, 3098, 3092, 2301, 1402, 1410, 1414, 3100, 3384, 3025, 3078, 3057, 2015, 3087, 3094, 3134, 3147, 3742, 2031, 2032, 2033, 2003, 3194, 3174, 3252],
-                stackItems = [3124, 3091, 1082, 3041, 3027, 3151, 3136, 3907];
             let itemDOM = document.getElementById(uid).getElementsByClassName("champItems")[0];
-            const checkBoots = function (items) {
+            const checkBoots = function () {
                 return items.some(function (itemNo) {
                     return theItems[itemNo].tags.includes("Boots");
                 });
             };
-            if (items.length < 6 && !(theItems[itemNo].tags.includes("Boots") && checkBoots(items))) {
+            if (items.length < 6 && !(theItems[itemNo].tags.includes("Boots") && checkBoots())) {
+                const toogleItems = [//items that require check boxes
+                    3800,
+                    2065,
+                    3001,
+                    3379,
+                    3285,
+                    3145,
+                    3303,
+                    3098,
+                    3092,
+                    2301,
+                    1402,
+                    1410,
+                    1414,
+                    3100,
+                    3384,
+                    3025,
+                    3078,
+                    3057,
+                    2015,
+                    3087,
+                    3094,
+                    3134,
+                    3147,
+                    3742,
+                    2031,
+                    2032,
+                    2033,
+                    2003,
+                    3194,
+                    3174,
+                    3252,
+                    3211
+                ];
+                const maxValue = {//items that require number inputs
+                    1082 : 10,
+                    3041 : 25,
+                    3091 : 5,
+                    3124 : 6,
+                    3027 : 10,
+                    3151 : 5,
+                    3136 : 5,
+                    3907 : 100
+                };
                 let theDiv = document.createElement("div"),
                     theImg = document.createElement("img");
-
                 theImg.src = "http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/item/" + itemNo + ".png";
-                theDiv.appendChild(theImg);
-
-                let theInput;
-                if (toogleItems.includes(itemNo) && !items.includes(itemNo)) {
-                    theInput = document.createElement("input");
-                    theInput.id = "cb" + uid + itemNo;
-                    theInput.type = "checkbox";
-                    theInput.addEventListener("change", update);
-                    theDiv.appendChild(theInput);
-                } else if (stackItems.includes(itemNo) && !items.includes(itemNo)) {
-                    theInput = document.createElement("input");
-                    theInput.id = "num" + uid + itemNo;
-                    theInput.type = "number";
-                    theInput.min = 0;
-                    theInput.value = 0;
-                    switch (itemNo) {
-                    case 1082:
-                        theInput.max = 10;
-                        break;
-                    case 3041:
-                        theInput.max = 25;
-                        break;
-                    case 3091:
-                        theInput.max = 5;
-                        break;
-                    case 3124:
-                        theInput.max = 6;
-                        break;
-                    case 3027://roa
-                        theInput.max = 10;
-                        break;
-                    case 3151://liandry
-                    case 3136://haunting guise
-                        theInput.max = 5;
-                        break;
-                    case 3907://spellbinder
-                        theInput.max = 100;
-                        break;
+                const itemSlotNo = items.length;
+                theImg.addEventListener("click", function (e) {// remove item
+                    let currSlotNo = itemSlotNo;
+                    while (items[currSlotNo] !== itemNo) {
+                        currSlotNo -= 1;
                     }
+                    document.getElementById(uid).getElementsByClassName("itemIcon")[currSlotNo].remove();
+                    items.splice(currSlotNo, 1);
+                    if (items.indexOf(itemNo) >= currSlotNo) {
+                        if (toogleItems.includes(itemNo) || maxValue[itemNo]) {
+                            let theInput = document.createElement("input");
+                            theInput.id = uid + itemNo;
+                            theInput.type = (maxValue[itemNo]) ? "number" : "checkbox";
+                            theInput.addEventListener("change", update);
+                            if (maxValue[itemNo]) {
+                                theInput.min = 0;
+                                theInput.value = 0;
+                                theInput.max = maxValue[itemNo];
+                            }
+                            document.getElementById(uid).getElementsByClassName("itemIcon")[items.indexOf(itemNo)].appendChild(theInput);
+                        }
+                    }
+                    hideHover();
+                    update();
+                });
+                theImg.addEventListener("mouseover", function (e) {
+                    let description = theItems[itemNo].description;
+                    description = description.replace(/size='\d*'/g, "");
+                    showHover(theItems[itemNo].name + "<hr>" + description, e.pageX, e.pageY);
+                });
+                theImg.addEventListener("mouseout", hideHover);
+                theDiv.appendChild(theImg);
+                if (((toogleItems.includes(itemNo) && !items.includes(itemNo)) || maxValue[itemNo]) && !items.includes(itemNo)) {
+                    let theInput = document.createElement("input");
+                    theInput.id = uid + itemNo;
+                    theInput.type = (maxValue[itemNo]) ? "number" : "checkbox";
                     theInput.addEventListener("change", update);
+                    if (maxValue[itemNo]) {
+                        theInput.min = 0;
+                        theInput.value = 0;
+                        theInput.max = maxValue[itemNo];
+                    }
                     theDiv.appendChild(theInput);
                 }
                 theDiv.classList.add("itemIcon");
                 itemDOM.appendChild(theDiv);
                 items.push(itemNo);
             }
-            update();
         },
         drawChampDOM = function () {
             const
@@ -378,28 +634,41 @@ const champObj = function (obj, side, uid) {// create champion object
                     break;
                 case 1:
                     theNode.getElementsByTagName("h3")[0].innerText = passive.name;
+                    if (sInfoP && (sInfoP.active || sInfoP.input)) {
+                        spellInputDOM = document.createElement("input");
+                        spellInputDOM.type = (sInfoP.active) ? "checkbox" : "number";
+                        spellInputDOM.id = uid + "InputP";
+                        spellInputDOM.addEventListener("change", update);
+                        inputDiv = document.getElementById(uid).getElementsByClassName("skillInput")[index - 1];
+                        if (sInfoP.active) {
+                            inputDiv.innerText = theLang.Active + " ";
+                        } else {
+                            spellInputDOM.value = 0;
+                            spellInputDOM.min = 0;
+                            if (sInfoP.input.max) {
+                                spellInputDOM.max = sInfoP.input.max;
+                            }
+                        }
+                        inputDiv.appendChild(spellInputDOM);
+                    }
                     break;
                 default:
                     theNode.getElementsByTagName("h3")[0].innerText = spells[index - 2].name;
-                    if (myChamps[uid]["sInfo" + (index - 2)] && myChamps[uid]["sInfo" + (index - 2)].active) {
+                    if (myChamps[uid]["sInfo" + (index - 2)] && (myChamps[uid]["sInfo" + (index - 2)].active || myChamps[uid]["sInfo" + (index - 2)].input)) {
                         spellInputDOM = document.createElement("input");
-                        spellInputDOM.type = "checkbox";
+                        spellInputDOM.type = (myChamps[uid]["sInfo" + (index - 2)].active) ? "checkbox" : "number";
                         spellInputDOM.id = uid + "Input" + (index - 2);
                         spellInputDOM.addEventListener("change", update);
                         inputDiv = document.getElementById(uid).getElementsByClassName("skillInput")[index - 1];
-                        inputDiv.innerText = theLang.Active + " ";
-                        inputDiv.appendChild(spellInputDOM);
-                    } else if (myChamps[uid]["sInfo" + (index - 2)] && myChamps[uid]["sInfo" + (index - 2)].input) {
-                        spellInputDOM = document.createElement("input");
-                        spellInputDOM.type = "number";
-                        spellInputDOM.id = uid + "Input" + (index - 2);
-                        spellInputDOM.min = 0;
-                        spellInputDOM.value = 0;
-                        if (myChamps[uid]["sInfo" + (index - 2)].input.max) {
-                            spellInputDOM.max = myChamps[uid]["sInfo" + (index - 2)].input.max;
+                        if (myChamps[uid]["sInfo" + (index - 2)].active) {
+                            inputDiv.innerText = theLang.Active + " ";
+                        } else {
+                            spellInputDOM.value = 0;
+                            spellInputDOM.min = 0;
+                            if (myChamps[uid]["sInfo" + (index - 2)].input.max) {
+                                spellInputDOM.max = myChamps[uid]["sInfo" + (index - 2)].input.max;
+                            }
                         }
-                        spellInputDOM.addEventListener("change", update);
-                        inputDiv = document.getElementById(uid).getElementsByClassName("skillInput")[index - 1];
                         inputDiv.appendChild(spellInputDOM);
                     }
                 }
@@ -416,10 +685,15 @@ const champObj = function (obj, side, uid) {// create champion object
                     break;
                 default:
                     theNode.getElementsByTagName("img")[0].src = "http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/spell/" + spells[index - 2].image.full;
+                    if (index === 2 && spells[0].maxrank !== 5) {
+                        theNode.getElementsByTagName("input")[0].max = spells[0].maxrank;
+                    }
                     if (index === 5 && spells[3].maxrank !== 3) {
                         theNode.getElementsByTagName("input")[0].max = spells[3].maxrank;
-                        theNode.getElementsByTagName("input")[0].min = 1;
-                        theNode.getElementsByTagName("input")[0].value = 1;
+                        if (spells[3].maxrank === 4) {
+                            theNode.getElementsByTagName("input")[0].min = 1;
+                            theNode.getElementsByTagName("input")[0].value = 1;
+                        }
                     }
                 }
                 theNode.getElementsByTagName("img")[0].addEventListener("click", function () {
@@ -455,7 +729,6 @@ const champObj = function (obj, side, uid) {// create champion object
                     element.style.display = "block";
                 }
             }, false);
-
 
             // Change Drop Box Divs
 
@@ -508,7 +781,6 @@ const champObj = function (obj, side, uid) {// create champion object
             const itemMap = [[theLang.Map1, 11], [theLang.Map10, 10], [theLang.Map12, 12]];
             let mapDOM = finalDOM.querySelector(".itemMaps"),
                 mapFrag = document.createDocumentFragment();
-
             itemMap.forEach(function (map) {
                 let theOption = document.createElement("option");
                 theOption.value = map[1];
@@ -516,7 +788,6 @@ const champObj = function (obj, side, uid) {// create champion object
                 mapFrag.appendChild(theOption);
             });
             mapDOM.appendChild(mapFrag);
-
             const searchDOM = finalDOM.querySelector(".itemSearch");
 
             //Add event handlers to image filtering
@@ -549,6 +820,7 @@ const champObj = function (obj, side, uid) {// create champion object
                             theImg.src = "http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/item/" + itemNo + ".png";
                             theImg.addEventListener("click", function () {
                                 addItem(parseInt(itemNo));
+                                update();
                             });
                             theImg.addEventListener("mouseover", function (e) {
                                 let description = theItems[itemNo].description;
@@ -577,7 +849,7 @@ const champObj = function (obj, side, uid) {// create champion object
             finalDOM.querySelector(".levelTxt").innerText = theLang.Level;
 
             // add elixirs
-            
+
             const elixirID = [2138, 2139, 2140];
             elixirID.forEach(function (id) {
                 let elixOpt = document.createElement("option");
@@ -585,139 +857,219 @@ const champObj = function (obj, side, uid) {// create champion object
                 elixOpt.value = id;
                 finalDOM.querySelector(".slctElix").appendChild(elixOpt);
             });
-            
-            
-            
+
             // add runes
-
-            /*
-            const getRuneObj = function (rune, path) {
-                let runeFound;
-                let slotNo = -1;
-                
-                const checkRuneSlot = function () {
-                    console.log(path);
-                    console.log(slotNo);
-                    theRunes[path].slots[slotNo].runes.find(function (theRune) {
-                        return theRune.id === rune;
-                    });
-                }
-                
-                while (!runeFound) {
-                    slotNo += 1;
-                    runeFound = checkRuneSlot();
-                }
-                return [runeFound, slotNo];
-            };
-
             const drawPaths = function (rank, exclude) {
-                let runeDiv = document.getElementById(uid).getElementsByClassName("runes" + rank)[0];
+                let runeDiv = document.getElementById(uid).getElementsByClassName("runes")[rank];
+                runeDiv.style.display = "block";
+                document.getElementById(uid).getElementsByClassName("runeSelect")[rank].style.display = "none";// Hide rune select
+
+                const getRuneObj = function (runeId, slotNo) {
+                    let runeNo = -1;
+                    if (rank === 0) {
+                        runeNo = theRunes[runePaths[rank]].slots[slotNo].runes.findIndex(function (rune) {
+                            return rune.id === runeId;
+                        });
+                        return [runeNo, slotNo];
+                    } else {
+                        let runeSlotNo = 0;
+                        const findRune = function () {
+                            return theRunes[runePaths[rank]].slots[runeSlotNo].runes.findIndex(function (rune) {
+                                return rune.id === runeId;
+                            });
+                        };
+                        
+                        while (runeNo === -1) {
+                            runeSlotNo += 1;
+                            
+                            runeNo = findRune();
+                            /*
+                            runeNo = theRunes[runePaths[rank]].slots[runeSlotNo].runes.findIndex(function (rune) {
+                                return rune.id === runeId;
+                            });*/
+                        }
+                        return [runeNo, runeSlotNo];
+                    }
+                };
+
+                const drawRune = function (slotNo) {
+
+                    const checkBox = [8112,8124,8128,8126,8143,8005,8008,8010,8437,8242,8429,8214,8472,8229,8210,8014,8439,8237,8232,8021,8230,8465,8410,8473];
+                    const number = {
+                        9103: 10,
+                        9104: 10,
+                        8437: 99,
+                        8451: 999,
+                        8243: 5,
+                        8128: 999,
+                        8138: 20,
+                        8236: 12,
+                        8226: 10
+                    };
+                    const theRuneID = runes[rank][slotNo];
+                    const theRuneObj = getRuneObj(theRuneID, slotNo);
+
+                    let runeImg = document.createElement("img");
+                    runeImg.src = "https://ddragon.leagueoflegends.com/cdn/img/" + theRunes[runePaths[rank]].slots[theRuneObj[1]].runes[theRuneObj[0]].icon;
+                    runeImg.addEventListener("click", function () {
+                        hideHover();
+                        drawRuneSelect(slotNo);
+                    });
+                    runeImg.addEventListener("mouseover", function (e) {
+                        showHover(theRunes[runePaths[rank]].slots[theRuneObj[1]].runes[theRuneObj[0]].name, e.pageX, e.pageY);
+                    });
+                    runeImg.addEventListener("mouseout", hideHover);
+
+                    let singleRuneDiv;
+                    if (runeDiv.childElementCount === (slotNo + 1)) {
+                        singleRuneDiv = document.createElement("div");
+                        singleRuneDiv.classList.add("runeDiv");
+                    } else {
+                        singleRuneDiv = runeDiv.children[slotNo + 1];
+                        while (singleRuneDiv.hasChildNodes()) {
+                            singleRuneDiv.removeChild(singleRuneDiv.lastChild);
+                        }
+                    }
+                    singleRuneDiv.appendChild(runeImg);
+                    singleRuneDiv.appendChild(document.createElement("br"));
+                    if (checkBox.includes(theRuneID)) {
+                        let runeCB = document.createElement("input");
+                        runeCB.type = "checkbox";
+                        runeCB.id = uid + "RCB" + theRuneID;
+                        runeCB.addEventListener("change", update);
+                        singleRuneDiv.appendChild(runeCB);
+                    }
+                    if (number[theRuneID]) {
+                        let runeNUM = document.createElement("input");
+                        runeNUM.type = "number";
+                        runeNUM.value = 0;
+                        runeNUM.min = 0;
+                        runeNUM.max = number[theRuneID];
+                        runeNUM.id = uid + "RNUM" + theRuneID;
+                        runeNUM.addEventListener("change", update);
+                        singleRuneDiv.appendChild(runeNUM);
+                    }
+                    if (runeDiv.childElementCount === (slotNo + 1)) {// add new div
+                        runeDiv.appendChild(singleRuneDiv);
+                    }
+                };
+
+                const drawRuneSelect = function (slotNo) {
+                    let slotsSelect = [];
+                    if (rank === 0) {
+                        slotsSelect.push(slotNo);
+                    } else {
+                        slotsSelect.push(getRuneObj(runes[rank][slotNo])[1]);
+                        const excludeRuneSlot = getRuneObj(runes[rank][1 - slotNo])[1];
+                        let i = 1;
+                        while (slotsSelect.length === 1) {
+                            if (!slotsSelect.includes(i) && i !== excludeRuneSlot) {
+                                slotsSelect.push(i);
+                            }
+                            i += 1;
+                        }
+                    }
+
+                    let runeSelectDiv = document.getElementById(uid).getElementsByClassName("runeSelect")[rank];
+                    while (runeSelectDiv.hasChildNodes()) {
+                        runeSelectDiv.removeChild(runeSelectDiv.lastChild);
+                    }
+
+                    const drawRuneSlot = function (slotObj) {
+                        slotObj.forEach(function (rune) {
+                            let singleRuneDiv = document.createElement("div");
+                            singleRuneDiv.classList.add("runeDiv");
+                            let runeImg = document.createElement("img");
+                            runeImg.src = "https://ddragon.leagueoflegends.com/cdn/img/" + rune.icon;
+                            runeImg.addEventListener("click", function () {
+                                hideHover();
+                                runes[rank][slotNo] = rune.id;
+                                drawRune(slotNo);
+                                runeSelectDiv.style.display = "none";
+                                runeDiv.style.display = "block";
+                                update();
+                            });
+                            runeImg.addEventListener("mouseover", function (e) {
+                                showHover(rune.name, e.pageX, e.pageY);
+                            });
+                            runeImg.addEventListener("mouseout", hideHover);
+                            singleRuneDiv.appendChild(runeImg);
+                            runeSelectDiv.appendChild(singleRuneDiv);
+                        });
+                    };
+
+                    slotsSelect.forEach(function (slot) {
+                        drawRuneSlot(theRunes[runePaths[rank]].slots[slot].runes);
+                    });
+
+                    runeDiv.style.display = "none";
+                    runeSelectDiv.style.display = "block";
+                };
+
+                const drawAllRunes = function (path) {// used when new path is selected
+                    while (runeDiv.hasChildNodes()) {
+                        runeDiv.removeChild(runeDiv.lastChild);
+                    }
+                    let pathDiv = document.createElement("div");
+                    pathDiv.classList.add("runeDiv");
+                    let pathImg = document.createElement("img");
+                    pathImg.addEventListener("click", function () {
+                        if (rank === 1) {
+                            drawPaths(rank, runePaths[0]);
+                        } else {
+                            drawPaths(rank);
+                        }
+                    });
+                    pathImg.src = "https://ddragon.leagueoflegends.com/cdn/img/" + theRunes[path].icon;
+
+                    pathDiv.appendChild(pathImg);
+                    runeDiv.appendChild(pathDiv);
+
+                    runes[rank] = [];
+                    theRunes[path].slots.forEach(function (slot, slotNo) {
+                        if (!(rank === 1 && (slotNo === 0 || slotNo === 3))) {
+                            runes[rank].push(slot.runes[0].id);
+                            if (rank === 1) {
+                                drawRune(slotNo - 1);
+                            } else {
+                                drawRune(slotNo);
+                            }
+                        }
+                    });
+                    if (rank === 0 && (runePaths[1] === undefined || runePaths[1] === path)) {
+
+                        drawPaths(1, path);
+                    }
+                };
+
                 while (runeDiv.hasChildNodes()) {
                     runeDiv.removeChild(runeDiv.lastChild);
                 }
-                theRunes.forEach(function (path, num) {
-                    if (!(exclude && exclude === num)) {
+
+                theRunes.forEach(function (path, pathNo) {
+                    if (!(exclude !== undefined && exclude === pathNo)) {
                         let pathImg = document.createElement("img");
                         let pathDiv = document.createElement("div");
                         pathDiv.classList.add("runeDiv");
                         pathImg.src = "https://ddragon.leagueoflegends.com/cdn/img/" + path.icon;
                         pathImg.addEventListener("click", function () {
-                            runePaths[rank] = num;
-                            drawAllRunes(rank, true);
+                            hideHover();
+                            runePaths[rank] = pathNo;
+                            drawAllRunes(pathNo);
+                            update();
                         });
+                        pathImg.addEventListener("mouseover", function (e) {
+                            showHover(path.name, e.pageX, e.pageY);
+                        });
+                        pathImg.addEventListener("mouseout", hideHover);
                         pathDiv.appendChild(pathImg);
                         runeDiv.appendChild(pathDiv);
                     }
                 });
             };
 
-            const drawRuneOptions = function (rank, runeSlot) {
-                let runeDiv = document.getElementById(uid).getElementsByClassName("runes" + rank)[0];
-                while (runeDiv.hasChildNodes()) {
-                    runeDiv.removeChild(runeDiv.lastChild);
-                }
-                const drawRunes = function (slot, champRuneSlot) {
-                    theRunes[runePaths[rank]].slots[slot].runes.forEach(function (rune) {
-                        let singleRuneDiv = document.createElement("div");
-                        singleRuneDiv.classList.add("runeDiv");
-                        let singleRuneImg = document.createElement("img");
-                        singleRuneImg.addEventListener("click", function () {
-                            runes[rank][champRuneSlot] = rune.id;
-                            drawAllRunes(rank);
-                        });
-                        singleRuneImg.src = "https://ddragon.leagueoflegends.com/cdn/img/" + rune.icon;
-                        singleRuneDiv.appendChild(singleRuneImg);
-                        runeDiv.appendChild(singleRuneDiv);
-                    });
-                };
-                if (rank === 1) {
-                    const runeSlot0 = getRuneObj(runes[1][0], runePaths[rank])[1];
-                    const runeSlot1 = getRuneObj(runes[1][1], runePaths[rank])[1];
-
-                    switch (runeSlot) {
-                        case 0:
-                            drawRunes(runeSlot0, runeSlot);
-                        break;
-                        case 1:
-                            drawRunes(runeSlot1, runeSlot);
-                        break;
-                    }
-                    let extraSlotNum = 1;
-                    while (extraSlotNum === runeSlot0 || extraSlotNum === runeSlot1) {
-                        extraSlotNum += 1;
-                    }
-                    drawRunes(extraSlotNum, runeSlot);
-                } else  {
-                    drawRunes(runeSlot, runeSlot);
-                }
-            };
-
-            const drawAllRunes = function (rank, newPath) {
-               let runeDiv = document.getElementById(uid).getElementsByClassName("runes" + rank)[0];
-                while (runeDiv.hasChildNodes()) {
-                    runeDiv.removeChild(runeDiv.lastChild);
-                }
-                if (newPath){// input fresh set of default runes
-                    runes[rank] = [];
-                    theRunes[runePaths[rank]].slots.forEach(function (slot, num) {
-                        if (!(rank === 1 && (num === 0 || num === 3))) {
-                            runes[rank].push(slot.runes[0].id);
-                        }
-                    });
-                    if (rank === 0 && (runePaths[1] === runePaths[0] || !runePaths[1])) {
-                        drawPaths(1, runePaths[0]);
-                    }
-                }
-                let pathDiv = document.createElement("div");
-                pathDiv.classList.add("runeDiv");
-                let pathImg = document.createElement("img");
-                pathImg.src = "https://ddragon.leagueoflegends.com/cdn/img/" + theRunes[runePaths[rank]].icon;
-                pathImg.addEventListener("click", function () {
-                    if (rank === 1) {
-                        drawPaths(rank, runePaths[0]);
-                    } else {
-                        drawPaths(rank);
-                    }
-                });
-                pathDiv.appendChild(pathImg);
-                runeDiv.appendChild(pathDiv);
-
-                runes[rank].forEach(function (rune, index) {
-                    let runeObj = getRuneObj(rune, runePaths[rank]);
-                    let singleRuneDiv = document.createElement("div");
-                    singleRuneDiv.classList.add("runeDiv");
-                    let singleRuneImg = document.createElement("img");
-                    singleRuneImg.src = "https://ddragon.leagueoflegends.com/cdn/img/" + runeObj[0].icon;
-                    singleRuneImg.addEventListener("click", function () {
-                        drawRuneOptions(rank, index);
-                    });
-                    singleRuneDiv.appendChild(singleRuneImg);
-                    runeDiv.appendChild(singleRuneDiv);
-                });
-            };
-
             drawPaths(0);
-*/
+
             //add enemy select option
 
             let champOpt = document.createElement("option");
@@ -763,8 +1115,9 @@ const champObj = function (obj, side, uid) {// create champion object
             frag.appendChild(theLi);
 
             let statList = [];
+            let theCdr = (cdr[0] > cdr[1]) ? cdr[1] : cdr[0];
             statList.push(
-                [theLang.HealthRegen, hpregen[0] + hpregen[1]],
+                [theLang.HealthRegen, calc(calc(hpregen[0], calc(1, hpregen[2], 0)), hpregen[1], 0)],
                 [theLang.Armor, armor[0] + armor[1]],
                 [theLang.SpellBlock, spellblock[0] + spellblock[1]],
                 [theLang.AttackDamage, attackdamage[0] + attackdamage[1]],
@@ -772,15 +1125,15 @@ const champObj = function (obj, side, uid) {// create champion object
                 [theLang.CriticalStrike, Number(crit + "e2") + "%"],
                 [theLang.LifeSteal, Number(lifeSteal + "e2") + "%"],
                 [theLang.SpellDamage, ap],
-                [theLang.CooldownReduction, cdr + "%"],
+                [theLang.CooldownReduction, Number(theCdr + "e2") + "%"],
                 [theLang.Movement, calcMoveSpeed(move[0], move[1], move[2])]
             );
             if (partype === theLang.Mana) {
                 statList.push(
                     [partype, mp[0] + mp[1]],
-                    [theLang.ManaRegen, mpregen[0]]
+                    [theLang.ManaRegen, calc(calc(mpregen[0], calc(1, mpregen[2], 0)), mpregen[1], 0)]
                 );
-            } else if (mpregen[0] > 0) {
+            } else if (mpregen[0] > 0) {//energy
                 statList.push(
                     [partype, mp[0]],
                     [partype + theLang.Regen, mpregen[0]]
@@ -800,43 +1153,10 @@ const champObj = function (obj, side, uid) {// create champion object
         },
         drawSkillTxt = function () {
             const refineTtip = function (spellNo) {
-                let riotObj, spellLvl;
-                const myObj = myChamps[uid]["sInfo" + spellNo];
-
                 var enemyUID;
-
                 if (document.getElementById("enemy" + side).length > 0){
                     enemyUID = document.getElementById("enemy" + side).value;
                 }
-
-                if (spellNo !== "P") {
-                    riotObj = spells[spellNo];
-                    spellLvl = document.getElementById(uid).getElementsByClassName("spellLvl")[spellNo].value;
-                    spellLvl = (spellLvl < 1)
-                        ? 0
-                        : spellLvl - 1;
-                }
-                let tooltip = (spellNo === "P")
-                    ? passive.description
-                    : spells[spellNo].tooltip;
-
-                if (myObj && myObj.txt) {
-                    tooltip += myObj.txt;
-                }
-
-                if (myObj && spellNo === "P") {
-                    Object.keys(myObj).forEach(function (id) {
-                        if (id.length < 3) {
-                            tooltip += "<br>" + theLang[myObj[id].info] + ": {{ " + id + " }}";
-                        }
-                    });
-                }
-
-                tooltip = tooltip.replace(/<span.class="\w*\d*.?color......">/g, "");
-                tooltip = tooltip.replace(/<\/span>/g, "");
-                tooltip = tooltip.replace(/[*][\d.]*/g, "");
-
-                const keys = tooltip.match(/\{\{[^}]*\}\}/g);
 
                 const getVar = function (theVar) {
                     let theCoeff, stat;
@@ -865,6 +1185,9 @@ const champObj = function (obj, side, uid) {// create champion object
                     case "bonusattackdamage":
                         stat = attackdamage[1];
                         break;
+                    case "bonusCritDamage":
+                        stat = (items.includes(3031) || items.includes(3371)) ? 50 : 0;
+                        break;
                     case "bonusHp":
                         stat = hp[1];
                         break;
@@ -891,6 +1214,9 @@ const champObj = function (obj, side, uid) {// create champion object
                             stat = 0;
                         }
                         break;
+                    case "mana":
+                        stat = mp[0] + mp[1];
+                        break;
                     case "mr":
                         stat = spellblock[0] + spellblock[1];
                         break;
@@ -914,9 +1240,6 @@ break;
 case "bonusmovespeed":
 stat = Number(this.getMoveSpeed() - this.movespeed[0] + "e1");
 break;
-case "mana":
-stat = Number(this.mp[0] + "e1") + Number(this.mp[1] + "e1");
-break;
 case "percentMissingHp":
 let missHp;
 if (document.getElementById(this.uid + "currHp")) {
@@ -931,13 +1254,6 @@ stat = (this.cdr[0] > this.cdr[1]) ? 100 - this.cdr[1]:100 - this.cdr[0];
 break;
 case "critChance":
 stat = (this.crit > 1)? 1000:Number(this.crit + "e3");
-break;
-case "bonusCritDamage":
-if (this.myItems.includes(3031) || this.myItems.includes(3371)) {//I Edge
-stat = 500;
-} else {
-stat = 0;
-}
 break;
 case "ashePassive":
 let asheMulti = Number(this.crit + "e2");
@@ -1017,7 +1333,7 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                     //put exemption for pre calculated buffs
 
                     if (theKey.charAt(0) === "e" && (theKey.length === 2 || (theKey.length === 3 && theKey.charAt(2) === "a"))) {
-                        value = (theKey.charAt(1) === 0)
+                        value = (theKey.charAt(1) === "0")
                             ? riotObj.effect[10][spellLvl]
                             : riotObj.effect[theKey.charAt(1)][spellLvl];
                     }
@@ -1065,6 +1381,10 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                                 value = calc(value, Number(keyObj.multiplier + "e-2"));
                             }
                         }
+                        if (keyObj.critChanceMulti) {// Xayah E
+                            const myCritChance = (crit > 1) ? 0.5 : crit;
+                            value = calc(value, calc(calc(keyObj.critChanceMulti, myCritChance), 1, 0));
+                        }
                         if (keyObj.apply) {
                             if (keyObj.type === "heal") {
                                 value = 0;
@@ -1080,111 +1400,458 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                     return value;
                 };
 
-                const getDmg = function (rawDmg, spellObj, crit = false) {
-                    let magDmg = 0, physDmg = 0, truDmg = 0, resistedDmg;
-                    
-                    let myDmg = (spellObj.basicAttack && enemyUID) ? myChamps[enemyUID].takeBasicAtk(rawDmg) : rawDmg;// Ninja Tabi
-                    
-                    switch (spellObj.type) {
+                let riotObj, spellLvl;
+                if (spellNo !== "P" && spellNo !== "Attack") {
+                    riotObj = spells[spellNo];
+                    spellLvl = document.getElementById(uid).getElementsByClassName("spellLvl")[spellNo].value;
+                    spellLvl = (spellLvl < 1)
+                        ? 0
+                        : spellLvl - 1;
+                }
+
+                const getCrit = function (dmg, critArr) {
+                    let critMulti = (items.includes(3031) || items.includes(3371)) ? critArr[1] : critArr[0];
+                    critMulti = Number(critMulti + "e-2");
+                    if (enemyUID) {
+                        critMulti = myChamps[enemyUID].takeCritMulti(critMulti);
+                    }
+                    return calc(dmg, calc(dmg, critMulti), 0);
+                };
+                const sortDmg = function (dmg, type) {
+                    let magDmg = 0, physDmg = 0, truDmg = 0;
+                    switch (type) {
                     case "phys":
-                        physDmg = myDmg;
+                        physDmg = dmg;
                         break;
                     case "mag":
-                        magDmg = myDmg;
+                        magDmg = dmg;
                         break;
                     case "tru":
-                        truDmg = myDmg;
+                        truDmg = dmg;
                         break;
                     case "hybrid":
-                        physDmg = calc(myDmg, 0.5);
-                        magDmg = calc(myDmg, 0.5);
+                        physDmg = calc(dmg, 0.5);
+                        magDmg = calc(dmg, 0.5);
                         break;
                     case "corkiAuto":
-                        physDmg = calc(myDmg, 0.2);
-                        magDmg = calc(myDmg, 0.8);
+                        physDmg = calc(dmg, 0.2);
+                        magDmg = calc(dmg, 0.8);
                     break;
                     }
-                    
+                    return [physDmg, magDmg, truDmg];
+                };
+                const getDmg = function (rawDmg, spellObj, isCrit = false) {
+                    const adaptTyp = getAdapt();
+                    let resistedDmg;
+                    let myDmg = (spellObj.basicAttack && enemyUID) ? myChamps[enemyUID].takeBasicAtk(rawDmg) : rawDmg;// Ninja Tabi
+
+                    const sortedDmg = sortDmg(myDmg, spellObj.type);
+                    let physDmg = sortedDmg[0];
+                    let magDmg = sortedDmg[1];
+                    let truDmg = sortedDmg[2];
+
+                    if(itemCheck(3092, true) ||// FQC etc
+                    itemCheck(3098, true)) {
+                        magDmg = calc(magDmg, 18, 0);
+                    } else if(itemCheck(3303, true)) {
+                        magDmg = calc(magDmg, 13, 0);
+                    }
+
+                    if(itemCheck(2033, true)) {// Corrupted potion
+                        let corruptDmg = [15,16,17,18,19,19,20,21,22,23,24,25,26,26,27,28,29,30];
+                        magDmg = calc(magDmg, corruptDmg[level], 0);
+                    }
+
+                    if(document.getElementById(uid).querySelector(".slctElix").value === "2139") {// elixir of sorcery
+                        truDmg = calc(truDmg, 25, 0);
+                    }
+
+                    //Runes added dmg
+                    if (runeCheck(8112, true)) {//electrocute
+                        const theDmg =  calc(40 + (10 * level), calc(calc(ap, 0.3), calc(attackdamage[1], 0.5), 0), 0);
+                        if(adaptTyp === "phys") {
+                            physDmg = calc(theDmg, physDmg, 0);
+                        } else {
+                            magDmg = calc(theDmg, magDmg, 0);
+                        }
+                    }
+                    if (runeCheck(8124, true)) {// Predator
+                        let predBase = [60,67,74,81,88,95,102,109,116,124,131,138,145,152,159,166,173,180];
+                        const theDmg =  calc(predBase[level - 1], calc(calc(ap, 0.25), calc(attackdamage[1], 0.4), 0), 0);
+                        if(adaptTyp === "phys") {
+                            physDmg = calc(theDmg, physDmg, 0);
+                        } else {
+                            magDmg = calc(theDmg, magDmg, 0);
+                        }
+                    }
+                    if (runeCheck(8214, true)) {// Aery
+                        let aeryBase = [15,16,18,19,21,22,24,25,27,28,30,31,33,34,36,37,39,40];
+                        const theDmg =  calc(aeryBase[level - 1], calc(calc(ap, 0.1), calc(attackdamage[1], 0.15), 0), 0);
+                        if(adaptTyp === "phys") {
+                            physDmg = calc(theDmg, physDmg, 0);
+                        } else {
+                            magDmg = calc(theDmg, magDmg, 0);
+                        }
+                    }
+                    if (runeCheck(8126, true)) {// Cheap Shot
+                        let chpShotBase = [15, 16, 18, 19, 21, 22, 24, 25, 27, 28, 30, 31, 33, 34, 36, 37, 39, 40];
+                        truDmg = calc(truDmg, chpShotBase[level - 1], 0);
+                    }
+
+                    //spell effects
+                    if(spellObj.spell) {
+                        if(itemCheck(3285, true)) { //Luden's Echo
+                            magDmg = calc(magDmg, calc(100, calc(ap, 0.1), 0), 0);
+                        } else if(itemCheck(1402, true) || //Runic Echoes
+                            itemCheck(1414, true)) {
+                            magDmg = calc(magDmg, calc(60, calc(ap, 0.1), 0), 0);
+                        }
+                        if(items.includes(3151) && enemyUID) {//Liandry, only grants one tick
+                            if(myChamps[enemyUID].isSlowed() || items.includes(3116)) {
+                                magDmg = calc(magDmg, myChamps[enemyUID].getPercentHP(0.02), 0);
+                            } else {
+                                magDmg = calc(magDmg, myChamps[enemyUID].getPercentHP(0.01), 0);
+                            }
+                        }
+                        if (itemCheck(3134, true) ||
+                        itemCheck(3252, true)) { //Serated Dirk ***add poachers dirk
+                            physDmg = calc(physDmg, 40, 0);
+                        }
+                        if (runeCheck(8229, true)) {// Comet
+                            const cometBase = [30,34,38,42,46,51,55,59,62,67,71,75,79,84,88,92,96,100];
+                            const cometDmg = calc(cometBase[level - 1], calc(calc(ap, 0.2), calc(attackdamage[1], 0.35), 0), 0);
+                            if(adaptTyp === "phys") {
+                                physDmg = calc(physDmg, cometDmg, 0);
+                            } else {
+                                magDmg = calc(magDmg, cometDmg, 0);
+                            }
+                        }
+                        if (runeCheck(8237, true)) {// Scorch
+                            let scorchBase = [20, 22, 25, 27, 29, 32, 34, 36, 39, 41, 44, 46, 48, 51, 53, 55, 58, 60];
+                            magDmg = calc(magDmg, scorchBase[level - 1], 0);
+                        }
+                    }
+
+                    if(spellObj.onHit) {
+
+                        let onHitMulti = (spellObj.onHit < 1)
+                            ? spellObj.onHit
+                            : 1;
+                        if (itemCheck(3145, true)) {//Hex Revolver
+                            let boltDmg = [50,54,58,63,67,72,76,81,85,90,94,99,103,107,112,116,121,125];
+                            magDmg = calc(magDmg, calc(boltDmg[level - 1], onHitMulti), 0);
+                        }
+                        if (itemCheck(3147, true)) {//Duskblade
+                            physDmg = calc(physDmg, calc((20 + 10 * level), onHitMulti), 0);
+                        }
+                        if (itemCheck(3100, true)) {//lichbane
+                            magDmg = calc(magDmg, calc(calc(attackdamage[0], 0.75), calc(ap, 0.5), 0), 0);
+                        } else if (
+                            (itemCheck(3078, true)) ||//triforce
+                            (itemCheck(3384, true))
+                        ) {
+                            let triDmg = calc(attackdamage[0], 2);
+                            if (spellObj.type === "corkiAuto") {
+                                physDmg = calc(physDmg, calc(triDmg, 0.2), 0);
+                                magDmg = calc(magDmg, calc(triDmg, 0.8), 0);
+                            } else {
+                                physDmg = calc(physDmg, calc(triDmg, onHitMulti), 0);
+                            }
+                        } else if (
+                            (itemCheck(3025, true)) ||//iceborn/sheen
+                            (itemCheck(3057, true))//sheen
+                        ) {
+                            if (spellObj.type === "corkiAuto") {
+                                physDmg = calc(physDmg, calc(attackdamage[0], 0.2), 0);
+                                magDmg = calc(magDmg, calc(attackdamage[0], 0.8), 0);
+                            } else {
+                                physDmg = calc(physDmg, calc(attackdamage[0], onHitMulti), 0);
+                            }
+                        }
+                        if(itemCheck(3742, true)) {//dead mans
+                            magDmg = calc(calc(100, onHitMulti), magDmg, 0);
+                        }
+                        if(itemCheck(2015, true)) {//Kircheis Shard
+                            magDmg = calc(calc(50, onHitMulti), magDmg, 0);
+                        }
+                        if (itemCheck(3087, true)) {// Static Shiv
+                            const shivLvlDmg = [60,60,60,60,60,67,73,79,85,91,97,104,110,116,122,128,134,140];
+                            let shivDmg = calc(shivLvlDmg[level - 1], onHitMulti);
+                            if (isCrit) {
+                                shivDmg = getCrit(shivDmg, spellObj.crit);
+                            }
+                            magDmg = calc(magDmg, shivDmg, 0);
+                        }
+                        if(itemCheck(3094, true)) {//Rapidfire
+                            let rfLvlDmg = [60,60,60,60,60,67,73,79,85,91,97,104,110,116,122,128,134,140];
+                            magDmg = calc(magDmg, calc(rfLvlDmg[level - 1], onHitMulti), 0);
+                        }
+                        //Runes
+                        if (runeCheck(8128, true)) {//dark harvest
+                            const
+                                dhLvl = [40,42,45,47,49,52,54,56,59,61,64,66,68,71,73,75,78,80],
+                                soulStacks = parseInt(document.getElementById(uid + "RNUM8128").value);
+                            let dhDmg = calc(soulStacks, calc(dhLvl[level - 1], calc(calc(ap, 0.2), calc(attackdamage[1], 0.25), 0), 0), 0);;
+                            if(adaptTyp === "phys") {
+                                physDmg = calc(physDmg, dhDmg, 0);
+                            } else {
+                                magDmg = calc(magDmg, dhDmg, 0);
+                            }
+                        }
+                        if (runeCheck(8005, true)) {//press the attack
+                            const ptaPerLvl = [40,48,56,65,73,81,89,98,106,114,122,131,139,147,155,164,172,180];
+                            if(adaptTyp === "phys") {
+                                physDmg = calc(physDmg, ptaPerLvl[level - 1], 0);
+                            } else {
+                                magDmg = calc(magDmg, ptaPerLvl[level - 1], 0);
+                            }
+                        }
+                        if (runeCheck(8437, true)) {//graps of the undying
+                            if(stats.attackrange > 200) {
+                                magDmg = calc(getPercentHP(0.02), magDmg, 0);
+                            } else {
+                                magDmg = calc(getPercentHP(0.04), magDmg, 0);
+                            }
+                        }
+
+                        onHitMulti = spellObj.onHit;
+                        if(items.includes(1043)) {//Recurve Bow
+                            physDmg = calc(calc(15, onHitMulti), physDmg, 0);
+                        }
+                        if(items.includes(3091)) {//Wits End
+                            magDmg = calc(calc(42, onHitMulti), magDmg, 0);
+                        }
+                        if(items.includes(3124)) {//Guinsoo
+                            magDmg = calc(calc(calc(Number(ap + "e-1"), 5, 0), onHitMulti), magDmg, 0);
+                            physDmg = calc(calc(calc(Number(attackdamage[1] + "e-1"), 5, 0), onHitMulti), physDmg, 0);
+                        }
+                        if(items.includes(3115)) {//Nashor
+                            magDmg = calc(magDmg, calc(calc(15, calc(0.15, ap), 0), onHitMulti), 0);
+                        }
+                        if(items.includes(3153) && enemyUID) {//Botrk
+                            physDmg = calc(calc(myChamps[enemyUID].getPercentHP(0.08, "currHp"), onHitMulti), physDmg, 0);
+                        }
+                        if((items.includes(1416) || items.includes(1419)) && enemyUID) {//Bloodrazer
+                            physDmg = calc(calc(myChamps[enemyUID].getPercentHP(0.04), onHitMulti, 0), physDmg, 0);
+                        }
+                        if(items.includes(3748)) {//Titanic Hydra
+                            physDmg = calc(calc(calc(5, calc(hp[0] + hp[1], 0.01), 0), onHitMulti), physDmg, 0);
+                        }
+                        if(items.includes(3042) && partype === theLang.Mana) {//Muramana
+                            physDmg = calc(calc(mp[0] + mp[1], 0.06), physDmg, 0);
+                        }
+                    }
+
+                    if (items.includes(3151)) {// Liandrys Multiplier
+                        let dmgMulti = parseInt(document.getElementById(uid + 3151).value);
+                        if (dmgMulti > 0) {
+                            magDmg = calc(magDmg, calc(1, calc(dmgMulti, 0.02), 0));
+                            physDmg = calc(physDmg, calc(1, calc(dmgMulti, 0.02), 0));
+                        }
+                    }
+                    if (// abyssal mask
+                        (itemCheck(3001, true)) ||
+                        (itemCheck(3379, true))
+                    ) {
+                        magDmg = calc(magDmg, 1.15);
+                    }
+
+                    // calculate damage through resistances
                     if (enemyUID) {
-                        resistedDmg = takeDmg([physDmg, magDmg], aPen, mPen);
+                        resistedDmg = myChamps[enemyUID].takeDmg([physDmg, magDmg], aPen, mPen);
                         physDmg = resistedDmg[0];
                         magDmg = resistedDmg[1];
+                        truDmg = calc(truDmg, resistedDmg[2], 0);
+                    } else {
+                        physDmg = round(physDmg, 1);
+                        magDmg = round(magDmg, 1);
+                        truDmg = round(truDmg, 1);
                     }
 
                     return [physDmg, magDmg, truDmg];
                 };
+                const styleDigits = function (digits, type) {// format key values
+                    let theStr = "";
+                    switch (type) {
+                    case "heal":
+                    case "shield":
+                        break;
+                    default:
+                        if (type === "phys") {
+                            theStr = "<span class='phys'>" + digits[0] + "</span>";
+                            if (digits[1] > 0) {
+                                theStr += "<span class='mag'>[" + digits[1] + "]</span>";
+                            }
+                            if (digits[2] > 0) {
+                                theStr += "<span class='tru'>[" + digits[2] + "]</span>";
+                            }
+                        } else if (type === "tru") {
+                            theStr = "<span class='tru'>" + digits[2] + "</span>";
+                            if (digits[1] > 0) {
+                                theStr += "<span class='mag'>[" + digits[1] + "]</span>";
+                            }
+                            if (digits[0] > 0) {
+                                theStr += "<span class='phys'>[" + digits[0] + "]</span>";
+                            }
+                        } else {
+                            theStr = "<span class='mag'>" + digits[1] + "</span>";
+                            if (digits[0] > 0) {
+                                theStr += "<span class='phys'>[" + digits[0] + "]</span>";
+                            }
+                            if (digits[2] > 0) {
+                                theStr += "<span class='tru'>[" + digits[2] + "]</span>";
+                            }
+                        }
+                    }
+                    return theStr;
+                };
 
+                if (spellNo === "Attack") {
+                    let
+                        totalAD = calc(attackdamage[0], attackdamage[1], 0),
+                        attackObj = {type: "phys", onHit: 1, basicAttack: true, crit:[100,150]};
+                    let tooltip = theLang.Attack + ": ";
+                    switch (id) {
+                    case "Ashe":
+                        attackObj = {type: "phys", onHit: 1, basicAttack: true, crit:[Number(crit + "e2") + 10,Number(crit + "e2") + 60]};
+                        //critChance += 99;
+                        break;
+                    case "Graves":
+                        let autoDmg = [0.7, 0.71, 0.72, 0.74, 0.75, 0.76, 0.78, 0.8, 0.81, 0.83, 0.85, 0.87, 0.89, 0.91, 0.95, 0.96, 0.97, 1];
+                        totalAD = calc(totalAD, autoDmg[level - 1]);
+                        attackObj = {type: "phys", onHit: 1, basicAttack: true, crit:[40,60]};
+                        break;
+                    case "Corki":
+                        attackObj = {type: "corkiAuto", onHit: 1, basicAttack: true, crit:[100,150]};
+                        break;
+                    case "Jhin":
+                        attackObj = {type: "phys", onHit: 1, basicAttack: true, crit:[50,88]};
+                        //critChance = Math.round(Number(critChance * 75 + "e-2")) + 25;
+                        break;
+                    case "Kalista":
+                        totalAD = calc(totalAD, 0.9);
+                        break;
+                    case "Kled":
+                        if(document.getElementById(uid + "InputP").checked) {
+                            totalAD = calc(totalAD, 0.8);
+                        }
+                        break;
+                    case "Yasuo":
+                        attackObj = {type: "phys", onHit: 1, basicAttack: true, crit:[80,125]};
+                        //critChance *= 2;
+                        break;
+                    default:
+
+                    }
+                    tooltip += styleDigits(getDmg(totalAD, attackObj), attackObj.type) + "<br>";
+                    if (crit > 0 || id === "Ashe") {
+                        tooltip += theLang.CriticalStrike + " " + theLang.Damage + ": ";
+                        tooltip += styleDigits(getDmg(getCrit(totalAD, attackObj.crit), attackObj, true), attackObj.type) + "<br>";
+                    }
+                    return tooltip;
+                }
+
+                const myObj = myChamps[uid]["sInfo" + spellNo];
+
+                let tooltip = (spellNo === "P")
+                    ? passive.description
+                    : spells[spellNo].tooltip;
+                if (myObj && myObj.txt) {
+                    tooltip += myObj.txt;
+                }
+                if (myObj && spellNo === "P") {
+                    Object.keys(myObj).forEach(function (id) {
+                        if (theLang[myObj[id].info]) {
+                            tooltip += "<br>" + theLang[myObj[id].info] + ": {{ " + id + " }}";
+                        }
+                    });
+                }
+                tooltip = tooltip.replace(/<span.class="\w*\d*.?color......">/g, "");
+                tooltip = tooltip.replace(/<\/span>/g, "");
+                tooltip = tooltip.replace(/[*][\d.]*/g, "");
+                const keys = tooltip.match(/\{\{[^}]*\}\}/g);
                 if (keys !== null) {
+                    let altKey = [];
                     keys.forEach(function (key) {
                         let rawKey = key.replace(/\{\{./, "");
                         rawKey = rawKey.replace(/.\}\}/, "");
-
+                        if (altKey.includes(rawKey)) {
+                            rawKey += "a";
+                        }
                         let keyValue = getValue(rawKey);
-
                         const replaceRegEx = new RegExp(key);
-
-//use map() for array sums
-
+                        let placeHoldStr = keyValue;
                         if (myChamps[uid]["sInfo" + spellNo] && myChamps[uid]["sInfo" + spellNo][rawKey]) {
                             let keyObj = myChamps[uid]["sInfo" + spellNo][rawKey];
                             if (keyObj.apply) {// Remove Percent Sign from jp scaling variables
                                 let percentLoc = tooltip.indexOf("%",tooltip.indexOf(rawKey));
                                 tooltip = tooltip.slice(0, percentLoc) + tooltip.slice(percentLoc + 1);
                             }
-                            if (keyObj.type) {
-                                switch (keyObj.type) {
-                                case "heal":
-                                case "shield":
-                                    break;
-                                default:
-                                    let dmgArray = getDmg(keyValue, keyObj);
+                            if (keyObj.type === "heal" || keyObj.type === "shield") {
+                                //put heal and shield calculations here...
+                            } else if (keyObj.type) {
+                                const addDmg = function (dmg1, dmg2) {
+                                    const physDmg = calc(dmg1[0], dmg2[0], 0);
+                                    const magDmg = calc(dmg1[1], dmg2[1], 0);
+                                    const truDmg = calc(dmg1[2], dmg2[2], 0);
+                                    return [physDmg, magDmg, truDmg];
+                                };
+                                const getTickDmg = function (tickDmg) {
+                                    let tickCount = (typeof keyObj.ticks === "object") ? keyObj.ticks[spellLvl] - 1 : keyObj.ticks - 1;
+                                    let currentTickDmg = sortDmg(tickDmg, keyObj.type);
+                                    currentTickDmg.push(0);
+                                    let totalDmg = [0, 0, 0];
 
-                                    //calculate channel spells here....
-
-                                    if (keyObj.type === "phys") {
-                                        keyValue = "<span class='phys'>" + dmgArray[0] + "</span>";
-                                        if (dmgArray[1] > 0) {
-                                            keyValue += "<span class='mag'>[" + dmgArray[1] + "]</span>";
+                                    while (tickCount !== 0) {
+                                        totalDmg = addDmg(totalDmg, currentTickDmg);
+                                        tickCount -= 1;
+                                        if (items.includes(3151)) {
                                         }
-                                        if (dmgArray[2] > 0) {
-                                            keyValue += "<span class='tru'>[" + dmgArray[2] + "]</span>";
+                                        if (enemyUID) {
                                         }
-                                    } else if (keyObj.type === "tru") {
-                                        keyValue = "<span class='tru'>" + dmgArray[2] + "</span>";
-                                        if (dmgArray[1] > 0) {
-                                            keyValue += "<span class='mag'>[" + dmgArray[1] + "]</span>";
-                                        }
-                                        if (dmgArray[0] > 0) {
-                                            keyValue += "<span class='phys'>[" + dmgArray[0] + "]</span>";
-                                        }
-                                    } else {
-                                        keyValue = "<span class='mag'>" + dmgArray[1] + "</span>";
-                                        if (dmgArray[0] > 0) {
-                                            keyValue += "<span class='phys'>[" + dmgArray[0] + "]</span>";
-                                        }
-                                        if (dmgArray[2] > 0) {
-                                            keyValue += "<span class='tru'>[" + dmgArray[2] + "]</span>";
+                                        if (items.includes(3071) || items.includes(3380)) {
                                         }
                                     }
+                                    return totalDmg;
+                                };
+                                let theDmg = getDmg(keyValue, keyObj);
+                                if (keyObj.ticks) {
+                                    theDmg = addDmg(theDmg, getTickDmg(keyValue));
                                 }
-                            }
+                                placeHoldStr = styleDigits(theDmg, keyObj.type);
+                                if (keyObj.crit && (crit > 0 || keyObj.crit[2])) {
+                                    const theCritDmg = getDmg(getCrit(keyValue, keyObj.crit), keyObj, true);
+                                    if (keyObj.ticks) {
+                                        let avgDmg = calc(calc(keyValue, calc(1, crit, 1)), calc(getCrit(keyValue, keyObj.crit), crit), 0);
+                                        const avgCritTickDmg = addDmg(theCritDmg, getTickDmg(avgDmg));//change crit damage based on crit chance?
+                                        placeHoldStr += " [AVG " + theLang.Damage + ": " + styleDigits(avgCritTickDmg, keyObj.type) + "]";
+                                    } else {
+                                        placeHoldStr += " [" + theLang.FlatCritDamageMod + ": " + styleDigits(theCritDmg, keyObj.type) + "]";
+                                    }
 
-                            //add exception for vars with alternate values
+                                }
+                            } else {
+                                placeHoldStr = "<span class='statValue'>" + keyValue + "</span>";
+                            }
                         }
-                        tooltip = tooltip.replace(replaceRegEx, keyValue);
+                        tooltip = tooltip.replace(replaceRegEx, placeHoldStr);
+
+                        if (myChamps[uid]["sInfo" + spellNo] && myChamps[uid]["sInfo" + spellNo][rawKey + "a"]) {// alternate spell vars
+                            altKey.push(rawKey);
+                        }
+
                     });
                 }
                 tooltip = tooltip.replace(/\(\+%?\)/g, "");
                 tooltip = tooltip.replace(/<font.color\='#......'.?size\='..'>/g, "");
                 tooltip = tooltip.replace(/\(\+%.Missing.Health\)/g, "");
-
                 return tooltip;
             };
             let skillDivs = document.getElementById(uid).getElementsByClassName("skillTxt");
             Array.from(skillDivs).forEach(function (div, count) {
                 switch (count) {
                 case 0:
-                    div.innerText = count;
+                    div.innerHTML = refineTtip("Attack");
                     break;
                 case 1:
                     div.innerHTML = refineTtip("P");
@@ -1195,6 +1862,8 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
             });
         },
         takeDmg = function (dmg, eAPen, eMPen) {
+            
+            //put in amumu passive and e passive?
             const calcResist = function (resistance, pen) {
                 if (resistance >= 0) {
                     return calc(100, calc(100, resistance, 0), 3);
@@ -1202,23 +1871,38 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                     return calc(2, calc(100, calc(100, resistance, 1), 3), 1);
                 }
             };
-            
+
             const totalArmor = armor[0] + armor[1];
             const totalSBlock = spellblock[0] + spellblock[1];
-            
+
             const physDmg = round(calc(dmg[0], calcResist(totalArmor)), 1);
             const magDmg = round(calc(dmg[1], calcResist(totalSBlock)), 1);
-            
-            return [physDmg, magDmg];
+            const truDmg = 0;
+
+            return [physDmg, magDmg, truDmg];
         },
         takeBasicAtk = function (dmg) {
-            return (items.includes(3047) ? calc(dmg, 0.88) : dmg);
+            let theDmg = dmg;
+            if (id === "Fizz") {
+                theDmg = calc(theDmg, sInfoP.p1.valuePerLvl[level - 1], 1);
+            }
+            if (items.includes(3047)) {
+                theDmg = calc(theDmg, 0.88)
+            }
+            return (theDmg);
         },
-        takeCrit = function (dmg) {
+        takeCritMulti = function (multi) {// Process randuins
+            return (items.includes(3143)) ? calc(multi, 0.8) : multi;
         },
         takeTickDmg = function (dmg, enemyPen, cleaverStacks) {
         },
-        getPercentHP = function (amount, type) {
+        isSlowed = function () {
+            if (move[3] > 0) {
+                return true;
+            }
+            return false;
+        },
+        getPercentHP = function (amount, type = "maxHp") {
             const
                 maxHp = hp[0] + hp[1],
                 currentHP = document.getElementById(uid + "HP").value;
@@ -1234,7 +1918,6 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                 return 0;
             }
         };
-
     return {
         attackdamage,
         ap,
@@ -1274,15 +1957,19 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
         spells,
         stats,
         uid,
-        setBaseStats,
-        setItemStats,
+        getAdapt,
+        itemCheck,
+        runeCheck,
+        setStats,
         drawChampDOM,
         drawStats,
         drawSkillTxt,
         addItem,
         takeDmg,
         takeBasicAtk,
+        takeCritMulti,
         takeTickDmg,
+        isSlowed,
         getPercentHP
     };
 };
