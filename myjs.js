@@ -275,7 +275,7 @@ const champObj = function (obj, side, uid) {// create champion object
                 mpregen[1] = 0;
                 mpregen[2] = 0;
 
-                if (items.length > 0) {
+                if (items.length > 0) {// non unique stats
                     items.forEach(function (itemNo) {
                         const// base hp regen items
                         hp50 = [3801,3096,3107,1006,3097,3077,3305],
@@ -340,7 +340,6 @@ const champObj = function (obj, side, uid) {// create champion object
                         });
                     });
                 }
-
                 const setStat = function (modStr) {
                     return statObj.hasOwnProperty(modStr)
                         ? statObj[modStr]
@@ -363,76 +362,184 @@ const champObj = function (obj, side, uid) {// create champion object
                 if (partype === theLang.Mana) {
                     mp[1] = setStat("FlatMPPoolMod");
                 }
+                aPen = [0, 0, 0, 0];
+                mPen = [0, 0, 0, 0];
 
-                // ** UNIQUE STATS **
-                if (itemCheck(3211, true)) {// spectre cowl active
-                    hpregen[2] = calc(1.5, hpregen[2], 0);
-                }
-                if (itemCheck(3742, true)) {// deadmans
-                    move[1] = calc(60, move[1], 0);
-                }
-                // unique cdr
-                const
-                    uniqCdr10 = [2065,3133,3108,3114,3024,3158,3067,3101,3083,3508],
-                    uniqCdr20 = [3115];
-                uniqCdr10.forEach(function (cdrItemNo) {
-                    if (items.includes(cdrItemNo)) {
+                if (items.length > 0) {// unique stats
+                    // ** UNIQUE STATS **
+                    if (itemCheck(3211, true)) {// spectre cowl active
+                        hpregen[2] = calc(1.5, hpregen[2], 0);
+                    }
+                    if (itemCheck(1054, true)) {// dorans shield active
+                        hpregen[1] = calc(10, hpregen[1], 0);
+                    }
+                    if (itemCheck(3742, true)) {// deadmans
+                        move[1] = calc(60, move[1], 0);
+                    }
+                    if (itemCheck(3072)) {// bloodthirster
+                        lifeSteal = calc(0.2, lifeSteal, 0);
+                    }
+                    if (itemCheck(3053)) {// sterak
+                        attackdamage[0] = calc(attackdamage[0], 1.5);
+                    }
+                    if (itemCheck(3041)) {// mejai
+                        const stacks = parseInt(document.getElementById(uid + "3041").value);
+                        ap = calc(ap, (stacks * 5), 0);
+                        if (stacks > 9) {
+                            move[2] = calc(move[2], 0.1, 0,);
+                        }
+                    } else if (itemCheck(1082)) {// dark seal
+                        const stacks = parseInt(document.getElementById(uid + "1082").value);
+                        ap = calc(ap, (stacks * 3), 0);
+                    }
+                    if(id === "Viktor") {//viktor Items
+                        if(itemCheck(3200)) {
+                            ap += level * 1 + ap;
+                            mp[1] += 10 * level;
+                        } else if(itemCheck(3196)) {
+                            ap += level * 3 + ap;
+                            mp[1] += 15 * level;
+                        } else if(itemCheck(3197)) {
+                            ap += level * 6 + ap;
+                            mp[1] += 20 * level;
+                        } else if(itemCheck(3198)) {
+                            ap += level * 10 + ap;
+                            mp[1] += 25 * level;
+                        }
+                    }
+                    if(itemCheck(3027)) {//rod of ages
+                        const roaStacks = parseInt(document.getElementById(uid + "3027").value);
+                        ap += roaStacks * 4;
+                        hp[1] += roaStacks * 20;
+                        mp[1] += roaStacks * 10;
+                    }
+                    if(itemCheck(3907)) {//spellbinder
+                        const sbStacks = parseInt(document.getElementById(uid + "3907").value);
+                        ap += round(calc(0.8, sbStacks));
+                        move[2] = calc(move[2], calc(0.005, sbStacks), 0);
+                    }
+                    if(itemCheck(3091)) {//wits end
+                        const witsEndsStacks = parseInt(document.getElementById(uid + "3091").value);
+                        spellblock[1] += witsEndsStacks * 6;
+                    }
+                    if(itemCheck(3042) || itemCheck(3004)) {//manamune
+                        attackdamage[1] += round(calc(mp[0] + mp[1], 0.02));
+                    }
+                    if(itemCheck(3003)) {//archangels
+                        ap += round(calc(mp[0] + mp[1], 0.01));
+                    } else if(itemCheck(3040)) {//archangels
+                        ap += round(calc(mp[0] + mp[1], 0.03));
+                    }
+                    
+                    // unique cdr
+                    const
+                        uniqCdr10 = [2065,3133,3108,3114,3024,3158,3067,3101,3083,3508],
+                        uniqCdr20 = [3115];
+                    uniqCdr10.forEach(function (cdrItemNo) {
+                        if (items.includes(cdrItemNo)) {
+                            cdr[0] = calc(0.1, cdr[0], 0);
+                        }
+                    });
+                    uniqCdr20.forEach(function (cdrItemNo) {
+                        if (items.includes(cdrItemNo)) {
+                            cdr[0] = calc(0.2, cdr[0], 0);
+                        }
+                    });
+                    if(//haste cdr
+                        items.includes(3285)||
+                        items.includes(3802)||
+                        items.includes(3030)||
+                        items.includes(3003)||
+                        items.includes(3040)
+                    ) {
                         cdr[0] = calc(0.1, cdr[0], 0);
                     }
-                });
-                uniqCdr20.forEach(function (cdrItemNo) {
-                    if (items.includes(cdrItemNo)) {
-                        cdr[0] = calc(0.2, cdr[0], 0);
+                    if(items.includes(3174)) {//harmony passive, chalice etc.
+                        ap += calc(calc(mpregen[2], 25, 3), 500);
+                    } else if(items.includes(3028) || items.includes(3222)) {
+                        hpregen[2] = calc(hpregen[2], mpregen[2], 0);
                     }
-                });
-                if(//haste cdr
-                    items.includes(3285)||
-                    items.includes(3802)||
-                    items.includes(3030)||
-                    items.includes(3003)||
-                    items.includes(3040)
-                ) {
-                    cdr[0] = calc(0.1, cdr[0], 0);
+                    
+                    // Armour Penetration
+                    
+                    if (items.includes(3036)) {// Lord Dominick's Regards
+                        aPen[2] = 35;
+                    } else if (items.includes(3033)) {// Mortal Reminder
+                        aPen[2] = 25;
+                    } else if (items.includes(3035)) {// Last Whisper
+                        aPen[2] = 10;
+                    }
+                    // Lethality Items
+                    let lethality = 0;
+                    if (items.includes(3134)) {// Serrated Dirk
+                        lethality += 10;
+                    }
+                    if (items.includes(3142)) {// Youmuu
+                        lethality += 18;
+                    }
+                    if (items.includes(3147)) {// Duskblade
+                        lethality += 18;
+                    }
+                    if (items.includes(3814)) {// Edge of Night
+                        lethality += 18;
+                    }
+                    aPen[3] = round(calc(lethality, calc(0.6, calc(calc(0.4, level), 18, 3), 0)));
+                    //Magic Penetration
+                    if (items.includes(3135)) {// Void Staff
+                        mPen[2] = calc(40, mPen[2], 0);
+                    }
+                    if (items.includes(3916) || items.includes(3165)) {// Cursed Strike
+                        mPen[3] = calc(15, mPen[3], 0);
+                    }
+                    if (items.includes(3020)) {// Sorc Shoes
+                        mPen[3] = calc(18, mPen[3], 0);
+                    }
+                    //Slow Resist
+                    if(items.includes(3009)) {//swift boots
+                        move[3] += 25;
+                    }
+                    // *** POTIONS ***
+                    const drinkHPPotion = function (amount) {
+                        if (itemCheck(1082)) {// dark seal
+                            let darkSealCount = 0
+                            items.forEach(function (itemNo) {
+                                if (itemNo === 1082) {
+                                    darkSealCount += 1;
+                                }
+                            });
+                            hpregen[1] += round(calc(amount, calc(1, calc(darkSealCount, 0.25), 0)));
+                        } else {
+                            hpregen[1] += amount;
+                        }
+                    }
+                    if (itemCheck(2003, true)) {
+                        drinkHPPotion(50);
+                    }                    
+                    if (itemCheck(2031, true)) {
+                        drinkHPPotion(52);
+                    }
+                    if (itemCheck(2032, true)) {
+                        drinkHPPotion(37);
+                        mpregen[1] += 22;
+                    }
+                    if (itemCheck(2033, true)) {
+                        drinkHPPotion(52);
+                        mpregen[1] += 31;
+                    }  
                 }
-                
-                // Armour Penetration
-                aPen = [0, 0, 0, 0];
-                if (items.includes(3036)) {// Lord Dominick's Regards
-                    aPen[2] = 35;
-                } else if (items.includes(3033)) {// Mortal Reminder
-                    aPen[2] = 25;
-                } else if (items.includes(3035)) {// Last Whisper
-                    aPen[2] = 10;
-                }
-                // Lethality Items
-                let lethality = 0;
-                if (items.includes(3134)) {// Serrated Dirk
-                    lethality += 10;
-                }
-                if (items.includes(3142)) {// Youmuu
-                    lethality += 18;
-                }
-                if (items.includes(3147)) {// Duskblade
-                    lethality += 18;
-                }
-                if (items.includes(3814)) {// Edge of Night
-                    lethality += 18;
-                }
-                aPen[3] = round(calc(lethality, calc(0.6, calc(calc(0.4, level), 18, 3), 0)));
-                //Magic Penetration
-                mPen = [0, 0, 0, 0];
-                if (items.includes(3135)) {// Void Staff
-                    mPen[2] = calc(40, mPen[2], 0);
-                }
-                if (items.includes(3916) || items.includes(3165)) {// Cursed Strike
-                    mPen[3] = calc(15, mPen[3], 0);
-                }
-                if (items.includes(3020)) {// Sorc Shoes
-                    mPen[3] = calc(18, mPen[3], 0);
-                }
-                //Slow Resist
-                if(items.includes(3009)) {//swift boots
-                    move[3] += 25;
+                if(document.getElementById(uid).querySelector(".slctElix").value !== "") {//elixirs
+                    switch(document.getElementById(uid).querySelector(".slctElix").value) {
+                    case "2138"://Elixir of Iron
+                        hp[1] += 300;
+                        break;
+                    case "2139"://Elixir of Sorcery
+                        ap += 50;
+                        mpregen[1] += 15;
+                        break;
+                    case "2140"://Elixir of Wrath
+                        attackdamage[1] += 30;
+                        break;
+                    }
                 }
             };
             const setLevel = function () {
@@ -545,7 +652,8 @@ const champObj = function (obj, side, uid) {// create champion object
                     3194,
                     3174,
                     3252,
-                    3211
+                    3211,
+                    1054
                 ];
                 const maxValue = {//items that require number inputs
                     1082 : 10,
@@ -1143,7 +1251,6 @@ const champObj = function (obj, side, uid) {// create champion object
                     [partype, mp[0]]
                 );
             }
-
             statList.forEach(function (stat) {
                 theLi = document.createElement("li");
                 theLi.innerText = stat[0] + ": " + stat[1];
@@ -1582,7 +1689,7 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                             }
                             magDmg = calc(magDmg, shivDmg, 0);
                         }
-                        if(itemCheck(3094, true)) {//Rapidfire
+                        if (itemCheck(3094, true)) {//Rapidfire
                             let rfLvlDmg = [60,60,60,60,60,67,73,79,85,91,97,104,110,116,122,128,134,140];
                             magDmg = calc(magDmg, calc(rfLvlDmg[level - 1], onHitMulti), 0);
                         }
@@ -1615,30 +1722,34 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                         }
 
                         onHitMulti = spellObj.onHit;
-                        if(items.includes(1043)) {//Recurve Bow
+                        if (items.includes(1043)) {//Recurve Bow
                             physDmg = calc(calc(15, onHitMulti), physDmg, 0);
                         }
-                        if(items.includes(3091)) {//Wits End
+                        if (items.includes(3091)) {//Wits End
                             magDmg = calc(calc(42, onHitMulti), magDmg, 0);
                         }
-                        if(items.includes(3124)) {//Guinsoo
+                        if (items.includes(3124)) {//Guinsoo
                             magDmg = calc(calc(calc(Number(ap + "e-1"), 5, 0), onHitMulti), magDmg, 0);
                             physDmg = calc(calc(calc(Number(attackdamage[1] + "e-1"), 5, 0), onHitMulti), physDmg, 0);
                         }
-                        if(items.includes(3115)) {//Nashor
+                        if (items.includes(3115)) {//Nashor
                             magDmg = calc(magDmg, calc(calc(15, calc(0.15, ap), 0), onHitMulti), 0);
                         }
-                        if(items.includes(3153) && enemyUID) {//Botrk
+                        if (items.includes(3153) && enemyUID) {//Botrk
                             physDmg = calc(calc(myChamps[enemyUID].getPercentHP(0.08, "currHp"), onHitMulti), physDmg, 0);
                         }
-                        if((items.includes(1416) || items.includes(1419)) && enemyUID) {//Bloodrazer
+                        if ((items.includes(1416) || items.includes(1419)) && enemyUID) {//Bloodrazer
                             physDmg = calc(calc(myChamps[enemyUID].getPercentHP(0.04), onHitMulti, 0), physDmg, 0);
                         }
-                        if(items.includes(3748)) {//Titanic Hydra
+                        if (items.includes(3748)) {//Titanic Hydra
                             physDmg = calc(calc(calc(5, calc(hp[0] + hp[1], 0.01), 0), onHitMulti), physDmg, 0);
                         }
-                        if(items.includes(3042) && partype === theLang.Mana) {//Muramana
+                        if (items.includes(3042) && partype === theLang.Mana) {//Muramana
                             physDmg = calc(calc(mp[0] + mp[1], 0.06), physDmg, 0);
+                        }
+                        if (document.getElementById(uid).querySelector(".ardent").value > 0) {// ardent censor
+                            const ardent = [5,6,7,8,9,9,10,11,12,13,14,15,16,16,17,18,19,20];
+                            magDmg = calc(ardent[document.getElementById(uid).querySelector(".ardent").value -1], magDmg, 0);
                         }
                     }
 
@@ -1862,7 +1973,6 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
             });
         },
         takeDmg = function (dmg, eAPen, eMPen) {
-            
             //put in amumu passive and e passive?
             const calcResist = function (resistance, pen) {
                 if (resistance >= 0) {
