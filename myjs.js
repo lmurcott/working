@@ -2,7 +2,7 @@
 // Created by Logan Murcott
 // github.com/lmurcott
 
-const patch = "8.9.1";
+const patch = "8.11.1";
 var lang = "en_US", theLang, myChamps = {}, theRunes, theItems, sortedItems;
 
 const loadJSON = function (file, callback, args = "") {// Load riot JSON files
@@ -12,7 +12,7 @@ const loadJSON = function (file, callback, args = "") {// Load riot JSON files
             callback(JSON.parse(xhttp.responseText), args);
         }
     };
-    xhttp.open("GET", `http://ddragon.leagueoflegends.com/cdn/${patch}/data/${lang}/${file}.json`, true);
+    xhttp.open("GET", "http://ddragon.leagueoflegends.com/cdn/" +  patch + "/data/" + lang + "/" + file + ".json", true);
     xhttp.send();
 };
 
@@ -41,6 +41,9 @@ const calc = function (num1, num2, o = 2) {// Calculate decimal equations
     case 2:// Multiplication
         return Number(`${num1Int * num2Int}e-${num1DP + num2DP}`);
     case 3:// Division
+        if (num1 === 0 || num2 === 0) {
+            return 0;
+        }
         return num1Int / num2Int;
     }
 };
@@ -59,16 +62,6 @@ const calcBaseAspd = function (delay) {
     return round(calc(0.625, calc(1, delay, 0), 3),3);
 };
 
-const calcMoveSpeed = function (base, flat, percent = 0) {//add slow ratio and Multiplicative MS bonus
-    //(Base MS + Flat MS bonuses) × (1 + Sum of all Additive Percent MS bonuses) × (1 - Highest Slow ratio) × Product of (1 + any Multiplicative MS bonus)
-    var speed = calc((base + flat), calc(1, percent, 0));
-
-    if (speed > 490) {
-        speed = calc(calc(calc(speed, 490, 1), 0.5), 475, 0);
-    }
-    return speed;
-};
-
 // *** UI ***
 
 const showHover = function (txt, x, y) {
@@ -76,12 +69,12 @@ const showHover = function (txt, x, y) {
   hoverDiv = document.getElementById("hoverDiv");
   hoverDiv.innerHTML = txt;
   hoverDiv.style.display = "block";
-  if((x + 285) > (window.outerWidth)) {
+  if ((x + 285) > (window.outerWidth)) {
     hoverDiv.style.left = (x - hoverDiv.scrollWidth - 5) + "px";
   } else {
     hoverDiv.style.left = (x + 5) + "px";
   }
-  if((y + hoverDiv.scrollHeight) > (window.outerHeight - 125)) {
+  if ((y + hoverDiv.scrollHeight) > (window.outerHeight - 125)) {
     hoverDiv.style.top = (y - hoverDiv.scrollHeight - 5) + "px";
   } else {
     hoverDiv.style.top = (y + 5) + "px";
@@ -107,10 +100,10 @@ const setLang = function (json) {
     // Custom Language
     const findReduction = theLang.rPercentCooldownMod.replace("%", "");
     theLang.Cooldown = findReduction.replace(" ", "");
-    theLang.Reduction = theLang.CooldownReduction.replace(theLang.Cooldown, "");
+    theLang.reduction = theLang.CooldownReduction.replace(theLang.Cooldown, "");
     theLang.Regen = theLang.HealthRegen.replace(theLang.Health, "");
     theLang.AttackDamage = theLang.Attack + " " + theLang.Damage;
-    theLang.MagicDamage = theLang.Magic + " " + theLang.Damage;
+    theLang.magicDamage = theLang.Magic + " " + theLang.Damage;
     //theLang.Cost = theLang.Cost_.replace(":", "");
 };
 
@@ -194,6 +187,7 @@ const champObj = function (obj, side, uid) {// create champion object
     "use strict";
     let {aSpdBonus, buffs, debuffs, sInfoP, sInfo0, sInfo1, sInfo2, sInfo3} = champVars[obj.id],
         {id, image, name, partype, passive, spells, stats} = obj,
+        adaptTyp = "phys",
         attackdamage = [],
         ap = 0,
         aPen = [],// flat reduction, percent reduction, percent pen, flat pen
@@ -214,24 +208,209 @@ const champObj = function (obj, side, uid) {// create champion object
         mpregen = [stats.mpregen, 0, 0],
         spellblock = [],
         runePaths = [],
-        runes = [[],[]],
+        runes = [[], []],
         getAdapt = function () {
-            if(ap === attackdamage[1]) {
+            if (ap === attackdamage[1]) {
                 const magChamps = ["Ahri","AurelionSol","Alistar","Amumu","Anivia","Annie","Azir","Bard","Brand","Cassiopeia","Chogath",
                 "Diana","Ekko","Elise","Evelynn","Fiddlesticks","Fizz","Galio","Gragas","Heimerdinger","Ivern","Janna","Karma","Karthus",
                 "Kassadin","Katarina","Kayle","Kennen","Leblanc","Lissandra","Lulu","Lux","Malphite","Malzahar","Maokai","Mordekaiser",
                 "Morgana","Nami","Nautilus","Nidalee","Nunu","Orianna","Rakan","Rumble","Ryze","Singed","Sona","Soraka","Swain","Syndra","Taliyah",
                 "Taric","TwistedFate","Veigar","Velkoz","Viktor","Vladimir","Xerath","Zac","Ziggs","Zilean","Zoe","Zyra"];
-                if(magChamps.includes(id)) {
+                if (magChamps.includes(id)) {
                     return "mag";
                 } else {
                     return "phys";
                 }
-            } else if(ap > attackdamage[1]) {
+            } else if (ap > attackdamage[1]) {
                 return "mag";
-            } else if(ap < attackdamage[1]) {
+            } else if (ap < attackdamage[1]) {
                 return "phys";
             }
+        },
+        getValue = function (theKey, no = spellNo) {
+            let riotObj, spellLvl, value = "";
+            if (no !== "P" && no !== "Attack") {
+                riotObj = spells[no];
+                spellLvl = document.getElementById(uid).getElementsByClassName("spellLvl")[no].value;
+                spellLvl = (spellLvl < 1)
+                    ? 0
+                    : spellLvl - 1;
+            }
+            const getVar = function (theVar) {
+                let theCoeff, stat;
+                if (typeof theVar.coeff === "object") {
+                    if (theVar.coeff.length > 6) {
+                        theCoeff = theVar.coeff[level - 1];
+                    } else {
+                        theCoeff = theVar.coeff[spellLvl];
+                    }
+                } else {
+                    theCoeff = theVar.coeff;
+                }
+                switch (theVar.link) {
+                case "@cooldownchampion":
+                    stat = (cdr[0] > cdr[1]) ? calc(1, cdr[1], 1) : calc(1, cdr[0], 1);
+                    break;
+                case "armor":
+                    stat = armor[0] + armor[1];
+                    break;
+                case "attackdamage":
+                    stat = attackdamage[0] + attackdamage[1];
+                    break;
+                case "baseAd":
+                    stat = attackdamage[0];
+                    break;
+                case "bonusarmor":
+                    stat = armor[1];
+                    break;
+                case "bonusattackdamage":
+                    stat = attackdamage[1];
+                    break;
+                case "bonusattackspeed"://for jhin, kaisa, and varus
+                    stat = Number(attackspeed[1] + "e2");
+                break;
+                case "bonusHp":
+                    stat = hp[1];
+                    break;
+                case "bonusmovespeed":
+                    stat = move[1];
+                break;
+                case "bonusmr":
+                    stat = spellblock[1];
+                    break;
+                case "caitPassive":
+                    const caitMulti = (crit > 1) ? 1 : crit;
+                    stat = calc(attackdamage[1], caitMulti);
+                    break;
+                case "champLevel":
+                    stat = level;
+                    break;
+                case "input":
+                    if (theVar.inputId === "P" || document.getElementById(uid).getElementsByClassName("spellLvl")[theVar.inputId].value > 0) {
+                        stat = document.getElementById(uid + "Input" + theVar.inputId).value;
+                    } else {
+                        stat = 0;
+                    }
+                    break;
+                case "jhinPassive":
+                    const jhinCrit = (crit > 1) ? 1 : crit;
+                    stat = round(calc(calc(attackdamage[0], attackdamage[1], 0), calc(calc(jhinCrit, 0.4), calc(attackspeed[1], 0.25), 0)), 1);
+                    break;
+                case "maxHp":
+                    stat = getPercentHP(1);
+                    break;
+                case "missingHp":
+                    if (document.getElementById(uid + "HP")) {
+                        stat = Number((getPercentHP(1)) - parseInt(document.getElementById(uid + "HP").value) + "e-2");
+                    } else {
+                        stat = 0;
+                    }
+                    break;
+                case "mana":
+                    stat = mp[0] + mp[1];
+                    break;
+                case "mr":
+                    stat = spellblock[0] + spellblock[1];
+                    break;
+                case "percentMissingHp":
+                    stat = round(Number(calc(getPercentHP(1) - parseInt(document.getElementById(uid + "HP").value), getPercentHP(1), 3) + "e2"));
+                break;
+                case "rengarPassive":
+                    const adRatio = {
+                        "0": 0,
+                        "1": 0.01,
+                        "2": 0.04,
+                        "3": 0.09,
+                        "4": 0.16,
+                        "5": 0.25,
+                        "6": 0.36,
+                    };
+                    stat = calc(attackdamage[1], adRatio[document.getElementById(uid + "InputP").value]);
+                break;
+                case "spelldamage":
+                    stat = ap;
+                    break;
+                case "swainFragments":
+                    const perFragDmg = calc(calc(ap, 0.27), spells[3].effect[10][spellLvl], 0);
+                    stat = calc(perFragDmg, document.getElementById(uid + "InputP").value);
+                break;
+                default:
+                    console.log(theVar.link);
+                    stat = 0;
+                }
+                return calc(theCoeff, stat);
+            };
+            const keyObj = (myChamps[uid]["sInfo" + no])
+                ? myChamps[uid]["sInfo" + no][theKey]
+                : undefined;
+            //put exemption for pre calculated buffs
+
+            if (theKey.charAt(0) === "e" && (theKey.length === 2 || (theKey.length === 3 && theKey.charAt(2) === "a"))) {
+                value = (theKey.charAt(1) === "0")
+                    ? riotObj.effect[10][spellLvl]
+                    : riotObj.effect[theKey.charAt(1)][spellLvl];
+            }
+            if (myChamps[uid]["sInfo" + no] && keyObj) {
+                if (keyObj.empty) {
+                    return "";
+                }
+                value = (value === "")
+                    ? 0
+                    : value;
+                if (keyObj.effectNo) {
+                    value = calc(value, riotObj.effect[keyObj.effectNo][spellLvl], 0);
+                }
+                if (keyObj.value) {
+                    if (typeof keyObj.value === "object") {
+                        value = calc(value, keyObj.value[spellLvl], 0);
+                    } else {
+                        value = calc(value, keyObj.value, 0);
+                    }
+                }
+                if (keyObj.valuePerLvl) {
+                    value = calc(value, keyObj.valuePerLvl[level - 1], 0);
+                }
+                if (keyObj.valuePair) {
+                    value = calc(value, getValue(keyObj.valuePair[1], keyObj.valuePair[0]), 0);
+                }
+                if (keyObj.child) {
+                    keyObj.child.forEach(function (varKey) {
+                        let varObj;
+                        if (no !== "P") {
+                            varObj = spells[no].vars.find(function (theVar) {
+                                return theVar.key === varKey;
+                            });
+                        }
+                        if (!varObj) {
+                            varObj = myChamps[uid]["sInfo" + no][varKey];
+                        }
+                        value = calc(value, getVar(varObj), 0);
+                    });
+                }
+                if (keyObj.multiplier) {
+                    if (typeof keyObj.value === "object") {
+                        value = calc(value, Number(keyObj.multiplier[spellLvl] + "e-2"));
+                    } else {
+                        value = calc(value, Number(keyObj.multiplier + "e-2"));
+                    }
+                }
+                if (keyObj.critChanceMulti) {// Xayah E
+                    const myCritChance = (crit > 1) ? 0.5 : crit;
+                    value = calc(value, calc(calc(keyObj.critChanceMulti, myCritChance), 1, 0));
+                }
+                if (keyObj.apply) {
+                    if (keyObj.type === "heal") {
+                        value = 0;
+                    } else {
+                        if (enemyUID) {
+                            value = myChamps[enemyUID].getPercentHP(Number(value + "e-2"), keyObj.apply);
+                        } else {
+                            value = 0;
+                        }
+                    }
+                }
+            }
+            return value;
         },
         itemCheck = function (itemID, status) {
             if (items.includes(itemID)) {
@@ -253,11 +432,21 @@ const champObj = function (obj, side, uid) {// create champion object
         },
         setStats = function () {
             const setBaseStats = function () {
+                adaptTyp = getAdapt();
                 attackdamage[0] = round(calcBaseStats(stats.attackdamage, stats.attackdamageperlevel, level));
                 armor[0] = round(calcBaseStats(stats.armor, stats.armorperlevel, level));
                 attackspeed[1] = Number(round(calcBaseStats(0, stats.attackspeedperlevel, level)) + "e-2");
+                if (aSpdBonus) {
+                    attackspeed[1] = calc(attackspeed[1], Number(aSpdBonus + "e-2"), 0);
+                }
+                attackspeed[2] = 2.5;
                 hp[0] = round(calcBaseStats(stats.hp, stats.hpperlevel, level));
                 hpregen[0] = round(calcBaseStats(stats.hpregen, stats.hpregenperlevel, level), 1);
+                hpregen[2] = 0;
+                mpregen[1] = 0;
+                mpregen[2] = 0;
+                aPen = [0, 0, 0];// percent, flat, lethality
+                mPen = [0, 0];
                 if (stats.mpperlevel !== 0) {
                     mp[0] = round(calcBaseStats(stats.mp, stats.mpperlevel, level));
                 }
@@ -271,9 +460,6 @@ const champObj = function (obj, side, uid) {// create champion object
             };
             const setItemStats = function () {
                 let statObj = {};
-                hpregen[2] = 0;
-                mpregen[1] = 0;
-                mpregen[2] = 0;
 
                 if (items.length > 0) {// non unique stats
                     items.forEach(function (itemNo) {
@@ -297,10 +483,10 @@ const champObj = function (obj, side, uid) {// create champion object
                         } else if (hp200.includes(itemNo)) {
                             hpregen[2] = calc(2, hpregen[2], 0);
                         }
-                        const// base mp regen items                        
+                        const// base mp regen items
                             regen25 = [1004, 3303],
                             regen50 = [3504, 3028, 3092, 3098, 3114,3312],
-                            regen100 = [3174, 3222],
+                            regen100 = [3174, 3222, 2065],
                             regen150 = [3107],
                             regen200 = [3382];
                         if (regen25.includes(itemNo)) {
@@ -317,18 +503,18 @@ const champObj = function (obj, side, uid) {// create champion object
                         if (itemNo === 1056) {// Dorans Ring
                             mpregen[1] = calc(5, mpregen[1], 0);
                         }
-                        
+
                         const//non unique cdr
                             cdr5 = [3301],
                             cdr10  = [3001,3194,3504,3174,3060,3102,3812,3147,3401,3092,3098,3152,3379,3109,3100,3104,3156,3222,3096,3056,3107,3800,3382,3057,3065,3069,1400,1408,1412,3142,3050,3157,3386,3285,3030,3003,3040,3905,1402,1414],
-                            cdr20 = [3025,3110,3071,3380,3384,3078];
+                            cdr20 = [3025,3110,3071,3380,3384,3078,3508];
                         if (cdr5.includes(itemNo)) {
                             cdr[0] = calc(0.05, cdr[0], 0);
                         } else if (cdr10.includes(itemNo)) {
                             cdr[0] = calc(0.1, cdr[0], 0);
                         } else if (cdr20.includes(itemNo)) {
                             cdr[0] = calc(0.2, cdr[0], 0);
-                        } 
+                        }
 
                         //get items stats from object
                         Object.keys(theItems[itemNo].stats).forEach(function (key) {
@@ -362,11 +548,11 @@ const champObj = function (obj, side, uid) {// create champion object
                 if (partype === theLang.Mana) {
                     mp[1] = setStat("FlatMPPoolMod");
                 }
-                aPen = [0, 0, 0, 0];
-                mPen = [0, 0, 0, 0];
-
                 if (items.length > 0) {// unique stats
                     // ** UNIQUE STATS **
+                    if (itemCheck(1051)) {// brawlers gloves
+                        crit = calc(0.1, crit, 0);
+                    }
                     if (itemCheck(3211, true)) {// spectre cowl active
                         hpregen[2] = calc(1.5, hpregen[2], 0);
                     }
@@ -386,54 +572,78 @@ const champObj = function (obj, side, uid) {// create champion object
                         const stacks = parseInt(document.getElementById(uid + "3041").value);
                         ap = calc(ap, (stacks * 5), 0);
                         if (stacks > 9) {
-                            move[2] = calc(move[2], 0.1, 0,);
+                            move[2] = calc(move[2], 0.1, 0);
                         }
                     } else if (itemCheck(1082)) {// dark seal
                         const stacks = parseInt(document.getElementById(uid + "1082").value);
                         ap = calc(ap, (stacks * 3), 0);
                     }
-                    if(id === "Viktor") {//viktor Items
-                        if(itemCheck(3200)) {
+                    if (id === "Viktor") {//viktor Items
+                        if (itemCheck(3200)) {
                             ap += level * 1 + ap;
                             mp[1] += 10 * level;
-                        } else if(itemCheck(3196)) {
+                        } else if (itemCheck(3196)) {
                             ap += level * 3 + ap;
                             mp[1] += 15 * level;
-                        } else if(itemCheck(3197)) {
+                        } else if (itemCheck(3197)) {
                             ap += level * 6 + ap;
                             mp[1] += 20 * level;
-                        } else if(itemCheck(3198)) {
+                        } else if (itemCheck(3198)) {
                             ap += level * 10 + ap;
                             mp[1] += 25 * level;
                         }
                     }
-                    if(itemCheck(3027)) {//rod of ages
+                    if (itemCheck(3027)) {//rod of ages
                         const roaStacks = parseInt(document.getElementById(uid + "3027").value);
                         ap += roaStacks * 4;
                         hp[1] += roaStacks * 20;
                         mp[1] += roaStacks * 10;
                     }
-                    if(itemCheck(3907)) {//spellbinder
+                    if (itemCheck(3907)) {//spellbinder
                         const sbStacks = parseInt(document.getElementById(uid + "3907").value);
                         ap += round(calc(0.8, sbStacks));
                         move[2] = calc(move[2], calc(0.005, sbStacks), 0);
                     }
-                    if(itemCheck(3091)) {//wits end
+                    if (itemCheck(3091)) {//wits end
                         const witsEndsStacks = parseInt(document.getElementById(uid + "3091").value);
                         spellblock[1] += witsEndsStacks * 6;
                     }
-                    if(itemCheck(3042) || itemCheck(3004)) {//manamune
+                    if (itemCheck(3042) || itemCheck(3004)) {//manamune
                         attackdamage[1] += round(calc(mp[0] + mp[1], 0.02));
                     }
-                    if(itemCheck(3003)) {//archangels
+                    if (itemCheck(3003)) {//archangels
                         ap += round(calc(mp[0] + mp[1], 0.01));
-                    } else if(itemCheck(3040)) {//archangels
+                    } else if (itemCheck(3040)) {//archangels
                         ap += round(calc(mp[0] + mp[1], 0.03));
                     }
-                    
+                    if (itemCheck(3009)) {//swift boots
+                        move[3] += 25;
+                    }
+                    if (itemCheck(3508, true)) {// essence reaver
+                        attackspeed[1] = calc(attackspeed[1], 0.3, 0);
+                    }
+                    //Movement Items
+                    if (itemCheck(3113)) {// Aether Wisp
+                        move[2] = calc(move[2], 0.05, 0);
+                    }
+                    if (itemCheck(2065)) {// Shurelya
+                        move[2] = calc(move[2], 0.05, 0);
+                    }
+                    if (itemCheck(2065, true)) {// Shurelya Active
+                        move[2] = calc(move[2], 0.4, 0);
+                    }
+                    if (itemCheck(3800, true)) {// Righteous Glory
+                        move[2] = calc(move[2], 0.75, 0);
+                    }
+                    if (itemCheck(3504)) {// Ardent Censor
+                        move[2] = calc(move[2], 0.08, 0);
+                    }
+                    if (itemCheck(3086)) {// Zeal
+                        move[2] = calc(move[2], 0.05, 0);
+                    }
                     // unique cdr
                     const
-                        uniqCdr10 = [2065,3133,3108,3114,3024,3158,3067,3101,3083,3508],
+                        uniqCdr10 = [2065,3133,3108,3114,3024,3158,3067,3101,3083],
                         uniqCdr20 = [3115];
                     uniqCdr10.forEach(function (cdrItemNo) {
                         if (items.includes(cdrItemNo)) {
@@ -445,7 +655,7 @@ const champObj = function (obj, side, uid) {// create champion object
                             cdr[0] = calc(0.2, cdr[0], 0);
                         }
                     });
-                    if(//haste cdr
+                    if (//haste cdr
                         items.includes(3285)||
                         items.includes(3802)||
                         items.includes(3030)||
@@ -454,54 +664,48 @@ const champObj = function (obj, side, uid) {// create champion object
                     ) {
                         cdr[0] = calc(0.1, cdr[0], 0);
                     }
-                    if(items.includes(3174)) {//harmony passive, chalice etc.
+                    if (items.includes(3174)) {//harmony passive, chalice etc.
                         ap += calc(calc(mpregen[2], 25, 3), 500);
-                    } else if(items.includes(3028) || items.includes(3222)) {
+                    } else if (items.includes(3028) || items.includes(3222)) {
                         hpregen[2] = calc(hpregen[2], mpregen[2], 0);
                     }
-                    
+
                     // Armour Penetration
-                    
+
                     if (items.includes(3036)) {// Lord Dominick's Regards
-                        aPen[2] = 35;
+                        aPen[0] = 35;
                     } else if (items.includes(3033)) {// Mortal Reminder
-                        aPen[2] = 25;
+                        aPen[0] = 25;
                     } else if (items.includes(3035)) {// Last Whisper
-                        aPen[2] = 10;
+                        aPen[0] = 10;
                     }
                     // Lethality Items
-                    let lethality = 0;
                     if (items.includes(3134)) {// Serrated Dirk
-                        lethality += 10;
+                        aPen[2] += 10;
                     }
                     if (items.includes(3142)) {// Youmuu
-                        lethality += 18;
+                        aPen[2] += 18;
                     }
                     if (items.includes(3147)) {// Duskblade
-                        lethality += 18;
+                        aPen[2] += 18;
                     }
                     if (items.includes(3814)) {// Edge of Night
-                        lethality += 18;
+                        aPen[2] += 18;
                     }
-                    aPen[3] = round(calc(lethality, calc(0.6, calc(calc(0.4, level), 18, 3), 0)));
                     //Magic Penetration
                     if (items.includes(3135)) {// Void Staff
-                        mPen[2] = calc(40, mPen[2], 0);
+                        mPen[0] = calc(40, mPen[0], 0);
                     }
                     if (items.includes(3916) || items.includes(3165)) {// Cursed Strike
-                        mPen[3] = calc(15, mPen[3], 0);
+                        mPen[1] = calc(15, mPen[1], 0);
                     }
                     if (items.includes(3020)) {// Sorc Shoes
-                        mPen[3] = calc(18, mPen[3], 0);
-                    }
-                    //Slow Resist
-                    if(items.includes(3009)) {//swift boots
-                        move[3] += 25;
+                        mPen[1] = calc(18, mPen[1], 0);
                     }
                     // *** POTIONS ***
                     const drinkHPPotion = function (amount) {
                         if (itemCheck(1082)) {// dark seal
-                            let darkSealCount = 0
+                            let darkSealCount = 0;
                             items.forEach(function (itemNo) {
                                 if (itemNo === 1082) {
                                     darkSealCount += 1;
@@ -511,10 +715,10 @@ const champObj = function (obj, side, uid) {// create champion object
                         } else {
                             hpregen[1] += amount;
                         }
-                    }
+                    };
                     if (itemCheck(2003, true)) {
                         drinkHPPotion(50);
-                    }                    
+                    }
                     if (itemCheck(2031, true)) {
                         drinkHPPotion(52);
                     }
@@ -525,9 +729,13 @@ const champObj = function (obj, side, uid) {// create champion object
                     if (itemCheck(2033, true)) {
                         drinkHPPotion(52);
                         mpregen[1] += 31;
-                    }  
+                    }
                 }
-                if(document.getElementById(uid).querySelector(".slctElix").value !== "") {//elixirs
+                if (document.getElementById(uid).querySelector(".ardent").value > 0) {// ardent censor
+                    const ardent = [0.1, 0.11, 0.12, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.21, 0.22, 0.23, 0.24, 0.25, 0.26, 0.28, 0.29, 0.3];
+                    attackspeed[1] = calc(attackspeed[1], ardent[document.getElementById(uid).querySelector(".ardent").value - 1], 0);
+                }
+                if (document.getElementById(uid).querySelector(".slctElix").value !== "") {//elixirs
                     switch(document.getElementById(uid).querySelector(".slctElix").value) {
                     case "2138"://Elixir of Iron
                         hp[1] += 300;
@@ -579,7 +787,7 @@ const champObj = function (obj, side, uid) {// create champion object
                         }
                     };
                     Array.from(abilityLvls).forEach(function (theDOM) {
-                        if(theDOM.value !== "0") {
+                        if (theDOM.value !== "0") {
                             let theLvl = rquiredSkillLvl[theDOM.max][parseInt(theDOM.value)];
                             if (theLvl > lvlRquired) {
                                 lvlRquired = theLvl;
@@ -591,34 +799,399 @@ const champObj = function (obj, side, uid) {// create champion object
                 level = lvlRquired;
             };
             const setRuneStats = function () {
-                /*
-                if(this.myRunes[0].includes(8230) && document.getElementById(this.uid + "cb8230").checked) {//phase rush
-                slowResist += 75;
+                if (runeCheck(8230, true)) {//phase rush
+                    move[3] += 75;
+                    const perLvl = [0.25, 0.26, 0.27, 0.28, 0.29, 0.29, 0.3, 0.31, 0.32, 0.33, 0.34, 0.35, 0.36, 0.36, 0.37, 0.38, 0.39, 0.4];
+                    move[2] = calc(move[2], perLvl[level - 1], 0);
                 }
-                if((this.myRunes[0].includes(8242) || this.myRunes[1].includes(8242)) && document.getElementById(this.uid + "cb8242").checked) {//unflinching
-                slowResist += 15;
+                if (runeCheck(8242, true)) {//unflinching
+                    move[3] += 15;
                 }
-                */
+                if (runeCheck(8138)) {//eyeball collection
+                    const stacks = document.getElementById(uid + "RNUM8138").value;
+                    if (adaptTyp === "phys") {
+                        attackdamage[1] += (stacks < 20) ? round(calc(0.6, stacks)) : 18;
+                    } else {
+                        ap += (stacks < 20) ? stacks : 30;
+                    }
+                }
+                if (runeCheck(8014, true)) {//coup de grace
+                    if (adaptTyp === "phys") {
+                        attackdamage[1] += 9;
+                    } else {
+                        ap += 15;
+                    }
+                }
+                if (runeCheck(8347)) {//cosmic insight
+                    cdr[0] = calc(cdr[0], 0.05, 0);
+                    cdr[1] = 0.45;
+                }
+                if (runeCheck(8210)) {//transcendence
+                    if (runeCheck(8210, true)) {
+                        cdr[0] = calc(cdr[0], 0.1, 0);
+                    }
+                    if (cdr[0] > cdr[1]) {
+                        const excessCdr = Number(calc(cdr[0], cdr[1], 1) + "e2");
+                        if (adaptTyp === "phys") {
+                          attackdamage[1] += round(calc(excessCdr, 1.2));
+                        } else {
+                          ap += round(excessCdr, 2);
+                        }
+                    }
+                }
+                if (runeCheck(8233)) {//absolute focus
+                    if (getPercentHP(1, "currHp") > getPercentHP(0.7)) {
+                        if (adaptTyp === "phys") {
+                            const perLvlStat = [3,4,5,7,8,9,10,12,13,14,15,17,18,19,20,22,23,24];
+                            attackdamage[1] += perLvlStat[level - 1];
+                        } else {
+                            const perLvlStat = [5,7,9,11,13,15,17,19,21,24,26,28,30,32,34,36,38,40];
+                            ap += perLvlStat[level - 1];
+                        }
+                    }
+                }
+                if (runeCheck(8232, true)) {//waterwalking
+                    move[1] += 25;
+                    if (adaptTyp === "phys") {
+                        const perLvlStat = [3,3,4,5,6,7,8,9,10,10,11,12,13,14,15,16,17,18];
+                        attackdamage[1] += perLvlStat[level - 1];
+                    } else {
+                        const perLvlStat = [5,6,7,9,10,12,13,15,16,18,19,21,22,24,25,27,28,30];
+                        ap += perLvlStat[level - 1];
+                    }
+                }
+                if (runeCheck(8275, true)) {//Nimbus Cloak
+                    move[1] += 100;
+                }
+                if (runeCheck(8236)) {//gathering storm
+                    let stacks = parseInt(document.getElementById(uid + "RNUM8236").value);
+                    let totalStacks = 0;
+                    if (stacks > 0) {
+                        while(stacks !== 0) {
+                            totalStacks += stacks;
+                            stacks -= 1;
+                        }
+                    }
+                    if (adaptTyp === "phys") {
+                        attackdamage[1] += calc(totalStacks, 4.8);
+                    } else {
+                        ap += totalStacks * 8;
+                    }
+                }
+                if (runeCheck(8021, true)) {//fleet footwork
+                    move[2] = calc(0.2, move[2], 0);
+                }
+                if (runeCheck(8008, true)) {//lethal tempo
+                    attackspeed[2] = 999;//uncap atk spd
+                    attackspeed[1] = calc(attackspeed[1], Number((4 * level) + 36 + "e-2"), 0);
+                }
+                if (runeCheck(9923, true)) {//Hail of Blades
+                    attackspeed[2] = 999;//uncap atk spd
+                    const hobPLvl = [0.5,0.53,0.56,0.59,0.62,0.65,0.68,0.71,0.74,0.76,0.79,0.82,0.85,0.88,0.91,0.94,0.97,1];
+                    attackspeed[1] = calc(attackspeed[1], hobPLvl[level - 1], 0);
+                }
+                if (runeCheck(9104)) {//legend alacrity
+                    let legend = parseInt(document.getElementById(uid + "RNUM9104").value);
+                    attackspeed[1] = calc(attackspeed[1], calc(calc(legend, 0.015), 0.03, 0), 0);
+                }
+                if (runeCheck(9103)) {//legend bloodline
+                    let legend = parseInt(document.getElementById(uid + "RNUM9103").value);
+                    lifeSteal = calc(lifeSteal, calc(legend, 0.008), 0);
+                }
+                if (runeCheck(8465, true)) {//guardian
+                    move[2] = calc(move[2], 0.2, 0);
+                }
+                if (runeCheck(8143, true)) {//sudden impact
+                    if (adaptTyp === "phys") {
+                        aPen[2] += 10;
+                    } else {
+                        mPen[1] += 8;
+                    }
+                }
+                if (runeCheck(8439, true)) {//aftershock
+                    const afterShockPLvl = [70,73,76,79,82,85,88,91,64,96,99,102,105,108,111,114,117,120];
+                    armor[1] += afterShockPLvl[level - 1];
+                    spellblock[1] += afterShockPLvl[level - 1];
+                }
+                if (runeCheck(8010, true)) {//conqueror
+                    const conquerorPLvl = [10,11,13,14,16,17,19,20,22,23,25,26,28,29,31,32,34,35];
+                    attackdamage[1] += conquerorPLvl[level - 1];
+                }
+                if (runeCheck(8429, true)) {//conditioning
+                    armor[1] += 8;
+                    spellblock[1] += 8;
+                }
+                if (runeCheck(8234)) {//celerity
+                    move[2] = calc(move[2], 0.03, 0);
+                }
+                if (runeCheck(8437)) {//Grasp
+                    const graspStacks = document.getElementById(uid + "RNUM8437").value;
+                    if (stats.attackrange > 200) {
+                        hp[1] += 3 * graspStacks;//ranged
+                    } else {
+                        hp[1] += 5 * graspStacks;
+                    }
+                }
+                if (runeCheck(8472)) {//Chrysalis
+                    if (runeCheck(8472, true)) {
+                        if (adaptTyp === "phys") {
+                            attackdamage[1] += 9;
+                        } else {
+                            ap += 15;
+                        }
+                    } else {
+                        hp[1] += 50;
+                    }
+                }
+                if (runeCheck(8304)) {//fleet footwork
+                    if (checkBoots) {
+                        move[1] += 10;
+                    }
+                }
+                if (runeCheck(8226)) {
+                    if (partype === theLang.Mana) {
+                        const flowStacks = document.getElementById(uid + "RNUM8226").value;
+                        mp[1] += flowStacks * 25;
+                    }
+                }
             };
-            const setRunePathStats = function () {
+            const setTraitStats = function () {
+                if (runePaths[0]) {
+                    let PathASpd = 0, PathHP = 0, PathAD = 0, PathAP = 0;
+                    const secPath = (runePaths[1]) ? runePaths[1] : 1;
+                    const pathStats = {
+                        0: {//Domination
+                            1: {
+                                "ap": 18,
+                                "ad": 10.8
+                            },
+                            2: {
+                                "ap": 13,
+                                "aSpd": 0.055,
+                                "ad": 7.8
+                            },
+                            3: {
+                                "ap": 9,
+                                "ad": 5.4,
+                                "hp": [15, 22, 29, 36, 43, 50, 57, 64, 71, 79, 86, 93, 100, 107, 114, 121, 128, 135]
+                            },
+                            4: {
+                                "ap": 18,
+                                "ad": 10.8
+                            }
+                        },
+                        1: {//Inspiration
+                            0: {
+                                "ap": 22,
+                                "ad": 13.2
+                            },
+                            2: {
+                                "aSpd": 0.2
+                            },
+                            3: {
+                                "hp": [35, 51, 66, 82, 97, 113, 129, 144, 160, 175, 191, 206, 222, 238, 253, 269, 284, 300]
+                            },
+                            4: {
+                                "ap": 22,
+                                "ad": 13.2
+                            }
+                        },
+                        2: {//Precision
+                            0: {
+                                "ap": 10,
+                                "ad": 6,
+                                "aSpd": 0.09
+                            },
+                            1: {
+                                "aSpd": 0.18
+                            },
+                            3: {
+                                "aSpd": 0.09,
+                                "hp": [15, 22, 29, 36, 43, 50, 57, 64, 71, 79, 86, 93, 100, 107, 114, 121, 128, 135]
+                            },
+                            4: {
+                                "ap": 10,
+                                "ad": 6,
+                                "aSpd": 0.09
+                            }
+                        },
+                        3: {//Resolve
+                            0: {
+                                "ap": 9,
+                                "ad": 5.4,
+                                "hp": [15, 22, 29, 36, 43, 50, 57, 64, 71, 79, 86, 93, 100, 107, 114, 121, 128, 135]
+                            },
+                            1: {
+                                "hp": [30, 44, 58, 72, 86, 101, 115, 129, 143, 157, 171, 185, 199, 214, 228, 242, 256, 270]
+                            },
+                            2: {
+                                "aSpd": 0.09,
+                                "hp": [15, 22, 29, 36, 43, 50, 57, 64, 71, 79, 86, 93, 100, 107, 114, 121, 128, 135]
+                            },
+                            4: {
+                                "ap": 10,
+                                "ad": 6,
+                                "hp": [15, 22, 29, 36, 43, 50, 57, 64, 71, 79, 86, 93, 100, 107, 114, 121, 128, 135]
+                            }
+                        },
+                        4: {//Sorcery
+                            0: {
+                                "ap": 20,
+                                "ad": 12
+                            },
+                            1: {
+                                "ap": 20,
+                                "ad": 12
+                            },
+                            2: {
+                                "ap": 14,
+                                "ad": 8.4,
+                                "aSpd": 0.055
+                            },
+                            3: {
+                                "ap": 10,
+                                "ad": 6,
+                                "hp": [15, 22, 29, 36, 43, 50, 57, 64, 71, 79, 86, 93, 100, 107, 114, 121, 128, 135]
+                            }
+                        }
+                    };
+                    const finalStats = pathStats[runePaths[0]][secPath];
+                    if (finalStats.ap) {
+                        if (adaptTyp = "phys") {
+                            attackdamage[1] = calc(attackdamage[1], round(finalStats.ad), 0);
+                        } else {
+                            ap = calc(attackdamage[1], finalStats.ap, 0);
+                        }
+                    }
+                    if (finalStats.aSpd) {
+                        attackspeed[1] = calc(attackspeed[1], finalStats.aSpd, 0);
+                    }
+                    if (finalStats.hp) {
+                        hp[1] = calc(hp[1], finalStats.hp[level - 1], 0);
+                    }
+                }
             };
             const setStatMultis = function () {
+                //Calculate Final Bonus Movement Speed With Caps
+                move[1] = calc(getMvSpd(), move[0], 1);
+                move[2] = 0;
 
+                //Calculate Lethality
+                aPen[1] = round(calc(aPen[2], calc(0.6, calc(calc(0.4, level), 18, 3), 0)));
+
+                if (itemCheck(3031) || itemCheck(3371)) {// double crit chance from IEdge
+                    crit = calc(crit, 2);
+                }
+
+                if (runeCheck(8429, true)) {//conditioning
+                    armor[1] += round(calc(armor[0] + armor[1], 0.05));
+                    spellblock[1] += round(calc(armor[0] + armor[1], 0.05));
+                }
+                if (runeCheck(8234)) {//celerity
+                    const bonusMoveSpd = getMvSpd() - move[0];
+                    if (adaptTyp === "phys") {
+                        attackdamage[1] += round(calc(bonusMoveSpd, 0.048));
+                    } else {
+                        ap += round(calc(bonusMoveSpd, 0.08));
+                    }
+                }
+                let hpMulti = 0;
+                let baseHPMulti = 0;
+                if (itemCheck(1401) || itemCheck(1413)) {//cinderhulk jungle enhcantment
+                    hpMulti = calc(hpMulti, 0.15, 0);
+                }
+                if (itemCheck(3193, true)) {
+                    hpMulti = calc(hpMulti, 0.4, 0);
+                    baseHPMulti = calc(baseHPMulti, 0.4, 0);
+                }
+                if (runeCheck(8451)) {// Overgrowth
+                    const ogHP = calc(0.002, document.getElementById(uid + "RNUM8451").value);
+                    hpMulti = calc(hpMulti, ogHP, 0);
+                    baseHPMulti = calc(baseHPMulti, ogHP, 0);
+                }
+                hp[0] += round(calc(hp[0], baseHPMulti));
+                hp[1] += round(calc(hp[1], hpMulti));
+
+                let vladbonusAP;
+                if (id === "Vladimir") {// vlad passive
+                    vladbonusAP = round(calc(hp[1], 0.025));
+                }
+
+                let apMulti = 0, adMulti = 0;
+                if (itemCheck(3089) || itemCheck(3374)) {//Rabadons
+                  apMulti += 40;
+                }
+                if (itemCheck(3124)) {//guinsoo
+                    const stacks = document.getElementById(uid + "3124").value;
+                    adMulti += stacks * 4;
+                    apMulti += stacks * 4;
+                    attackspeed[1] = calc(calc(stacks, 0.08), attackspeed[1], 0);
+                }
+
+                if (id === "Nunu") {// nunu blood boil ap multiplier
+                    if (document.getElementById(uid + "Input1").checked) {
+                        const spellLvl = document.getElementById(uid).getElementsByClassName("spellLvl")[1].value;
+                        if (spellLvl > 0) {
+                            const nunuAPCap = 20 + (20 * spellLvl);
+                            if (ap * 0.4 > nunuAPCap) {
+                                ap += nunuAPCap;
+                            } else {
+                                apMulti += 40;
+                            }
+                        }
+                    }
+                }
+
+                //put in infernal drakes
+
+                //Calculate Multipliers
+                attackdamage[1] = calc(attackdamage[1], Number(100 + adMulti + "e-2"));
+                ap = calc(ap, Number(100 + apMulti + "e-2"));
+
+                if (id === "Vladimir") {// vlad passive
+                    hp[1] += round(calc(ap, 1.4));
+                    ap += calc(vladbonusAP, Number(100 + apMulti + "e-2"));
+                }
+/*
+    infernalBonus = (document.getElementById("elder" + myChamps[i].side).checked) ? 12:8;
+    apMulti += infernalBonus * parseInt(document.getElementById("infernal" + myChamps[i].side).value);
+    adMulti += infernalBonus * parseInt(document.getElementById("infernal" + myChamps[i].side).value);
+
+
+    */
+            };
+            const setDebuffs = function () {// stat reductions
+                let perArmorReduct = 0, flatMRReduct = 0;
+
+                if (document.getElementById(uid).querySelector(".cleaver").value > 0) {// cleaver
+                    perArmorReduct = calc(perArmorReduct, document.getElementById(uid).querySelector(".cleaver").value, 0);
+                }
+                if (document.getElementById(uid).querySelector(".wits").value > 0) {// wits end
+                    flatMRReduct = calc(flatMRReduct, document.getElementById(uid).querySelector(".wits").value, 0);
+                }
+
+                // Flat Reductions
+                if (flatMRReduct > 0) {
+                    spellblock[0] = round(calc(spellblock[0], calc(flatMRReduct, calc(spellblock[0], spellblock[0] + spellblock[1], 3)), 1));
+                    spellblock[1] = round(calc(spellblock[1], calc(flatMRReduct, calc(spellblock[1], spellblock[0] + spellblock[1], 3)), 1));
+                }
+
+                // Percent Reductions
+                if (perArmorReduct > 0) {
+                    armor[0] = round(calc(armor[0], calc(1, perArmorReduct, 1)));
+                    armor[1] = round(calc(armor[1], calc(1, perArmorReduct, 1)));
+                }
             };
             setLevel();
             setBaseStats();
             setItemStats();
             setRuneStats();
-            setRunePathStats();
+            setTraitStats();
             setStatMultis();
+            setDebuffs();
         },
         addItem = function (itemNo) {
             let itemDOM = document.getElementById(uid).getElementsByClassName("champItems")[0];
-            const checkBoots = function () {
-                return items.some(function (itemNo) {
-                    return theItems[itemNo].tags.includes("Boots");
-                });
-            };
             if (items.length < 6 && !(theItems[itemNo].tags.includes("Boots") && checkBoots())) {
                 const toogleItems = [//items that require check boxes
                     3800,
@@ -653,7 +1226,10 @@ const champObj = function (obj, side, uid) {// create champion object
                     3174,
                     3252,
                     3211,
-                    1054
+                    1054,
+                    3193,
+                    3095,
+                    3508
                 ];
                 const maxValue = {//items that require number inputs
                     1082 : 10,
@@ -721,7 +1297,6 @@ const champObj = function (obj, side, uid) {// create champion object
             const
                 home = document.getElementById("champs" + side),
                 champDOM = document.getElementsByTagName("template")[0].content.cloneNode(true);
-
             let champDiv = document.createElement("div");
             champDiv.id = uid;
             champDiv.classList.add("champBox");
@@ -816,12 +1391,7 @@ const champObj = function (obj, side, uid) {// create champion object
 
             finalDOM.querySelector(".killBtn").addEventListener("click", function () {
                 finalDOM.remove();// remove main div
-                let selectId;
-                if (side === "1") {
-                    selectId = "enemy0";
-                } else {
-                    selectId = "enemy1";
-                }
+                const selectId = "enemy" + (1 - side);
                 Array.from(document.getElementById(selectId)).find(function (option) {// remove option from enemy select
                     return option.value === uid;
                 }).remove();
@@ -986,10 +1556,10 @@ const champObj = function (obj, side, uid) {// create champion object
                                 return rune.id === runeId;
                             });
                         };
-                        
+
                         while (runeNo === -1) {
                             runeSlotNo += 1;
-                            
+
                             runeNo = findRune();
                             /*
                             runeNo = theRunes[runePaths[rank]].slots[runeSlotNo].runes.findIndex(function (rune) {
@@ -1002,7 +1572,7 @@ const champObj = function (obj, side, uid) {// create champion object
 
                 const drawRune = function (slotNo) {
 
-                    const checkBox = [8112,8124,8128,8126,8143,8005,8008,8010,8437,8242,8429,8214,8472,8229,8210,8014,8439,8237,8232,8021,8230,8465,8410,8473];
+                    const checkBox = [8112,8124,8128,8126,8143,8005,8008,8010,8437,8242,8429,8214,8472,8229,8210,8014,8439,8237,8232,8021,8230,8465,8410,8473,9923,8275];
                     const number = {
                         9103: 10,
                         9104: 10,
@@ -1012,7 +1582,8 @@ const champObj = function (obj, side, uid) {// create champion object
                         8128: 999,
                         8138: 20,
                         8236: 12,
-                        8226: 10
+                        8226: 10,
+                        8106: 6,
                     };
                     const theRuneID = runes[rank][slotNo];
                     const theRuneObj = getRuneObj(theRuneID, slotNo);
@@ -1145,7 +1716,7 @@ const champObj = function (obj, side, uid) {// create champion object
                         }
                     });
                     if (rank === 0 && (runePaths[1] === undefined || runePaths[1] === path)) {
-
+                        runePaths[1] = undefined;
                         drawPaths(1, path);
                     }
                 };
@@ -1192,9 +1763,8 @@ const champObj = function (obj, side, uid) {// create champion object
         drawStats = function () {
             let theLi, oldMaxHP, oldCurrentHP;
             let statBox = document.getElementById(uid).getElementsByClassName("statList")[0],
-                frag = document.createDocumentFragment(),
-                maxHp = hp[0] + hp[1];
-
+                frag = document.createDocumentFragment();
+            const maxHp = getPercentHP(1);
             if (document.getElementById(uid + "HP")) {
                 oldMaxHP = parseInt(document.getElementById(uid + "HP").max);
                 oldCurrentHP = parseInt(document.getElementById(uid + "HP").value);
@@ -1202,7 +1772,6 @@ const champObj = function (obj, side, uid) {// create champion object
                 oldMaxHP = maxHp;
                 oldCurrentHP = maxHp;
             }
-
             while (statBox.childElementCount > 1) {
                 statBox.removeChild(statBox.lastChild);
             }
@@ -1224,17 +1793,22 @@ const champObj = function (obj, side, uid) {// create champion object
 
             let statList = [];
             let theCdr = (cdr[0] > cdr[1]) ? cdr[1] : cdr[0];
+            let totalAtkSpd = round(calc(attackspeed[0], calc(1, attackspeed[1], 0)), 3);
+            if (totalAtkSpd > attackspeed[2]) {
+                totalAtkSpd = attackspeed[2];
+            }
+            const critTotal = (crit > 1) ? 100 : Number(crit + "e2");
             statList.push(
                 [theLang.HealthRegen, calc(calc(hpregen[0], calc(1, hpregen[2], 0)), hpregen[1], 0)],
                 [theLang.Armor, armor[0] + armor[1]],
                 [theLang.SpellBlock, spellblock[0] + spellblock[1]],
                 [theLang.AttackDamage, attackdamage[0] + attackdamage[1]],
-                [theLang.AttackSpeed, round(calc(attackspeed[0], calc(1, attackspeed[1], 0)), 3)],
-                [theLang.CriticalStrike, Number(crit + "e2") + "%"],
+                [theLang.AttackSpeed, totalAtkSpd],
+                [theLang.CriticalStrike, critTotal + "%"],
                 [theLang.LifeSteal, Number(lifeSteal + "e2") + "%"],
                 [theLang.SpellDamage, ap],
                 [theLang.CooldownReduction, Number(theCdr + "e2") + "%"],
-                [theLang.Movement, calcMoveSpeed(move[0], move[1], move[2])]
+                [theLang.Movement, calc(move[0], move[1], 0)]
             );
             if (partype === theLang.Mana) {
                 statList.push(
@@ -1261,252 +1835,9 @@ const champObj = function (obj, side, uid) {// create champion object
         drawSkillTxt = function () {
             const refineTtip = function (spellNo) {
                 var enemyUID;
-                if (document.getElementById("enemy" + side).length > 0){
+                if (document.getElementById("enemy" + side).length > 0) {
                     enemyUID = document.getElementById("enemy" + side).value;
                 }
-
-                const getVar = function (theVar) {
-                    let theCoeff, stat;
-                    if (typeof theVar.coeff === "object") {
-                        if (theVar.coeff.length > 4) {
-                            theCoeff = theVar.coeff[level - 1];
-                        } else {
-                            theCoeff = theVar.coeff[spellLvl];
-                        }
-                    } else {
-                        theCoeff = theVar.coeff;
-                    }
-                    switch (theVar.link) {
-                    case "armor":
-                        stat = armor[0] + armor[1];
-                        break;
-                    case "attackdamage":
-                        stat = attackdamage[0] + attackdamage[1];
-                        break;
-                    case "baseAd":
-                        stat = attackdamage[0];
-                        break;
-                    case "bonusarmor":
-                        stat = armor[1];
-                        break;
-                    case "bonusattackdamage":
-                        stat = attackdamage[1];
-                        break;
-                    case "bonusCritDamage":
-                        stat = (items.includes(3031) || items.includes(3371)) ? 50 : 0;
-                        break;
-                    case "bonusHp":
-                        stat = hp[1];
-                        break;
-                    case "bonusmr":
-                        stat = spellblock[1];
-                        break;
-                    case "champLevel":
-                        stat = level;
-                        break;
-                    case "input":
-                        if (spellNo === "P" || document.getElementById(uid).getElementsByClassName("spellLvl")[theVar.inputId].value > 0) {
-                            stat = document.getElementById(uid + "Input" + theVar.inputId).value;
-                        } else {
-                            stat = 0;
-                        }
-                        break;
-                    case "maxHp":
-                        stat = hp[0] + hp[1];
-                        break;
-                    case "missingHp":
-                        if (document.getElementById(uid + "HP")) {
-                            stat = Number((hp[0] + hp[1]) - parseInt(document.getElementById(uid + "HP").value) + "e-2");
-                        } else {
-                            stat = 0;
-                        }
-                        break;
-                    case "mana":
-                        stat = mp[0] + mp[1];
-                        break;
-                    case "mr":
-                        stat = spellblock[0] + spellblock[1];
-                        break;
-                    case "spelldamage":
-                        stat = ap;
-                        break;
-                    default:
-                        console.log(theVar.link);
-                        stat = 0;
-                    }
-                    return calc(theCoeff, stat);
-                };
-/*
-
-case "baseGrowth":
-case "baseGrowthAtkSpd":
-break;
-case "bonusattackspeed"://for jhin, kaisa, and varus
-stat = Number(this.attackspeed[1]);
-break;
-case "bonusmovespeed":
-stat = Number(this.getMoveSpeed() - this.movespeed[0] + "e1");
-break;
-case "percentMissingHp":
-let missHp;
-if (document.getElementById(this.uid + "currHp")) {
-missHp = document.getElementById(this.uid + "currHp").value / (this.hp[0] + this.hp[1]);
-} else {
-missHp = 1;
-}
-stat = 1000 - Math.floor(Number(missHp + "e3"));
-break;
-case "@cooldownchampion":
-stat = (this.cdr[0] > this.cdr[1]) ? 100 - this.cdr[1]:100 - this.cdr[0];
-break;
-case "critChance":
-stat = (this.crit > 1)? 1000:Number(this.crit + "e3");
-break;
-case "ashePassive":
-let asheMulti = Number(this.crit + "e2");
-if (this.myItems.includes(3031) || this.myItems.includes(3371)) {
-asheMulti = Number((asheMulti * 15) + "e-1");
-}
-asheMulti += 10;
-stat = Number(((this.attackdamage[0] + this.attackdamage[1]) * asheMulti) + "e-1");
-break;
-case "caitPassive":
-let caitMulti = (this.crit > 1) ? 100:Number(this.crit + "e2");
-if (this.myItems.includes(3031) || this.myItems.includes(3371)) {//iedga
-caitMulti += 25;
-}
-stat = Number((this.attackdamage[0] + this.attackdamage[1]) * caitMulti + "e-1");
-break;
-case "jhinPassive":
-stat = Math.round(Number(25 * this.attackspeed[1] + "e-1"));
-stat += Number(4 * this.crit + "e2");
-break;
-case "rengarPassive":
-if (document.getElementById(this.uid + "numP")) {
-switch(document.getElementById(this.uid + "numP").value) {
-case "0":
-stat = 0;
-break;
-case "1":
-stat = Math.round(Number(this.attackdamage[1] + "e-2"));
-break;
-case "2":
-stat = Math.round(Number(this.attackdamage[1] * 4 + "e-2"));
-break;
-case "3":
-stat = Math.round(Number(this.attackdamage[1] * 9 + "e-2"));
-break;
-case "4":
-stat = Math.round(Number(this.attackdamage[1] * 16 + "e-2"));
-break;
-case "5":
-stat = Math.round(Number(this.attackdamage[1] * 25 + "e-2"));
-break;
-case "6":
-stat = Math.round(Number(this.attackdamage[1] * 36 + "e-2"));
-break;
-default:
-stat = 0;
-}
-} else {
-stat = 0;
-}
-break;
-case "swainFragments":
-if (document.getElementById(this.uid + "numP")) {
-let baseFragDmg = Math.round(Number(this.ap * 27 + "e-2"));
-let ultLvl = document.getElementById(this.uid + "skillLvl3").value;
-ultLvl = (ultLvl > 0) ? ultLvl - 1:0;
-baseFragDmg += this.spells[3].effect[10][ultLvl];
-stat = Number(baseFragDmg * parseInt(document.getElementById(this.uid + "numP").value) + "e1");
-} else {
-stat = 0;
-}
-break;
-case "shacoPassive":
-let shacoMulti = 130;
-if (this.myItems.includes(3031) || this.myItems.includes(3371)) {
-shacoMulti += 50;
-}
-stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1");
-
-*/
-                const getValue = function (theKey, no = spellNo) {
-                    let value = "";
-
-                    const keyObj = (myChamps[uid]["sInfo" + no])
-                        ? myChamps[uid]["sInfo" + no][theKey]
-                        : undefined;
-                    //put exemption for pre calculated buffs
-
-                    if (theKey.charAt(0) === "e" && (theKey.length === 2 || (theKey.length === 3 && theKey.charAt(2) === "a"))) {
-                        value = (theKey.charAt(1) === "0")
-                            ? riotObj.effect[10][spellLvl]
-                            : riotObj.effect[theKey.charAt(1)][spellLvl];
-                    }
-                    if (myChamps[uid]["sInfo" + no] && keyObj) {
-                        if (keyObj.empty) {
-                            return "";
-                        }
-                        value = (value === "")
-                            ? 0
-                            : value;
-                        if (keyObj.effectNo) {
-                            value = calc(value, riotObj.effect[keyObj.effectNo][spellLvl], 0);
-                        }
-                        if (keyObj.value) {
-                            if (typeof keyObj.value === "object") {
-                                value = calc(value, keyObj.value[spellLvl], 0);
-                            } else {
-                                value = calc(value, keyObj.value, 0);
-                            }
-                        }
-                        if (keyObj.valuePerLvl) {
-                            value = calc(value, keyObj.valuePerLvl[level - 1], 0);
-                        }
-                        if (keyObj.valuePair) {
-                            value = calc(value, getValue(keyObj.valuePair[1], keyObj.valuePair[0]), 0);
-                        }
-                        if (keyObj.child) {
-                            keyObj.child.forEach(function (varKey) {
-                                let varObj;
-                                if (spellNo !== "P") {
-                                    varObj = spells[spellNo].vars.find(function (theVar) {
-                                        return theVar.key === varKey;
-                                    });
-                                }
-                                if (!varObj) {
-                                    varObj = myObj[varKey];
-                                }
-                                value = calc(value, getVar(varObj), 0);
-                            });
-                        }
-                        if (keyObj.multiplier) {
-                            if (typeof keyObj.value === "object") {
-                                value = calc(value, Number(keyObj.multiplier[spellLvl] + "e-2"));
-                            } else {
-                                value = calc(value, Number(keyObj.multiplier + "e-2"));
-                            }
-                        }
-                        if (keyObj.critChanceMulti) {// Xayah E
-                            const myCritChance = (crit > 1) ? 0.5 : crit;
-                            value = calc(value, calc(calc(keyObj.critChanceMulti, myCritChance), 1, 0));
-                        }
-                        if (keyObj.apply) {
-                            if (keyObj.type === "heal") {
-                                value = 0;
-                            } else {
-                                if (enemyUID) {
-                                    value = myChamps[enemyUID].getPercentHP(Number(value + "e-2"), keyObj.apply);
-                                } else {
-                                    value = 0;
-                                }
-                            }
-                        }
-                    }
-                    return value;
-                };
-
                 let riotObj, spellLvl;
                 if (spellNo !== "P" && spellNo !== "Attack") {
                     riotObj = spells[spellNo];
@@ -1516,13 +1847,18 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                         : spellLvl - 1;
                 }
 
-                const getCrit = function (dmg, critArr) {
-                    let critMulti = (items.includes(3031) || items.includes(3371)) ? critArr[1] : critArr[0];
-                    critMulti = Number(critMulti + "e-2");
+                const getCrit = function (dmg, critArr, isBasicAttack) {
+                    let critMulti;
+                    if (itemCheck(3095, true)) {
+                        const razorBonusMulti = calc(crit, 1.5, 3);
+                        critMulti = calc(1.6, razorBonusMulti, 0);
+                    } else {
+                        critMulti = Number(critArr[0] + "e-2");
+                    }
                     if (enemyUID) {
                         critMulti = myChamps[enemyUID].takeCritMulti(critMulti);
                     }
-                    return calc(dmg, calc(dmg, critMulti), 0);
+                    return calc(dmg, critMulti);
                 };
                 const sortDmg = function (dmg, type) {
                     let magDmg = 0, physDmg = 0, truDmg = 0;
@@ -1548,35 +1884,49 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                     return [physDmg, magDmg, truDmg];
                 };
                 const getDmg = function (rawDmg, spellObj, isCrit = false) {
-                    const adaptTyp = getAdapt();
-                    let resistedDmg;
+                    let resistedDmg, truDmg = 0;
                     let myDmg = (spellObj.basicAttack && enemyUID) ? myChamps[enemyUID].takeBasicAtk(rawDmg) : rawDmg;// Ninja Tabi
 
+                    if (isCrit) {
+                        let theCritDmg;
+                        if (spellObj.basicAttack) {
+                            theCritDmg = getCrit(myDmg, spellObj.crit, true);
+                        } else {
+                            theCritDmg = getCrit(myDmg, spellObj.crit);
+                        }
+                        if (itemCheck(3031) || itemCheck(3371)) {
+                            truDmg = calc(calc(theCritDmg, 0.15), truDmg, 0);
+                            myDmg = calc(calc(theCritDmg, 0.85), myDmg, 0);
+                        } else {
+                            myDmg = calc(theCritDmg, myDmg, 0);
+                        }
+
+                    }
                     const sortedDmg = sortDmg(myDmg, spellObj.type);
                     let physDmg = sortedDmg[0];
                     let magDmg = sortedDmg[1];
-                    let truDmg = sortedDmg[2];
+                    truDmg = calc(sortedDmg[2], truDmg, 0);
 
-                    if(itemCheck(3092, true) ||// FQC etc
+                    if (itemCheck(3092, true) ||// FQC etc
                     itemCheck(3098, true)) {
                         magDmg = calc(magDmg, 18, 0);
-                    } else if(itemCheck(3303, true)) {
+                    } else if (itemCheck(3303, true)) {
                         magDmg = calc(magDmg, 13, 0);
                     }
 
-                    if(itemCheck(2033, true)) {// Corrupted potion
+                    if (itemCheck(2033, true)) {// Corrupted potion
                         let corruptDmg = [15,16,17,18,19,19,20,21,22,23,24,25,26,26,27,28,29,30];
                         magDmg = calc(magDmg, corruptDmg[level], 0);
                     }
 
-                    if(document.getElementById(uid).querySelector(".slctElix").value === "2139") {// elixir of sorcery
+                    if (document.getElementById(uid).querySelector(".slctElix").value === "2139") {// elixir of sorcery
                         truDmg = calc(truDmg, 25, 0);
                     }
 
                     //Runes added dmg
                     if (runeCheck(8112, true)) {//electrocute
                         const theDmg =  calc(40 + (10 * level), calc(calc(ap, 0.3), calc(attackdamage[1], 0.5), 0), 0);
-                        if(adaptTyp === "phys") {
+                        if (adaptTyp === "phys") {
                             physDmg = calc(theDmg, physDmg, 0);
                         } else {
                             magDmg = calc(theDmg, magDmg, 0);
@@ -1585,7 +1935,7 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                     if (runeCheck(8124, true)) {// Predator
                         let predBase = [60,67,74,81,88,95,102,109,116,124,131,138,145,152,159,166,173,180];
                         const theDmg =  calc(predBase[level - 1], calc(calc(ap, 0.25), calc(attackdamage[1], 0.4), 0), 0);
-                        if(adaptTyp === "phys") {
+                        if (adaptTyp === "phys") {
                             physDmg = calc(theDmg, physDmg, 0);
                         } else {
                             magDmg = calc(theDmg, magDmg, 0);
@@ -1594,7 +1944,7 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                     if (runeCheck(8214, true)) {// Aery
                         let aeryBase = [15,16,18,19,21,22,24,25,27,28,30,31,33,34,36,37,39,40];
                         const theDmg =  calc(aeryBase[level - 1], calc(calc(ap, 0.1), calc(attackdamage[1], 0.15), 0), 0);
-                        if(adaptTyp === "phys") {
+                        if (adaptTyp === "phys") {
                             physDmg = calc(theDmg, physDmg, 0);
                         } else {
                             magDmg = calc(theDmg, magDmg, 0);
@@ -1606,15 +1956,15 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                     }
 
                     //spell effects
-                    if(spellObj.spell) {
-                        if(itemCheck(3285, true)) { //Luden's Echo
+                    if (spellObj.spell) {
+                        if (itemCheck(3285, true)) { //Luden's Echo
                             magDmg = calc(magDmg, calc(100, calc(ap, 0.1), 0), 0);
-                        } else if(itemCheck(1402, true) || //Runic Echoes
+                        } else if (itemCheck(1402, true) || //Runic Echoes
                             itemCheck(1414, true)) {
                             magDmg = calc(magDmg, calc(60, calc(ap, 0.1), 0), 0);
                         }
-                        if(items.includes(3151) && enemyUID) {//Liandry, only grants one tick
-                            if(myChamps[enemyUID].isSlowed() || items.includes(3116)) {
+                        if (items.includes(3151) && enemyUID) {//Liandry, only grants one tick
+                            if (myChamps[enemyUID].isSlowed() || items.includes(3116)) {
                                 magDmg = calc(magDmg, myChamps[enemyUID].getPercentHP(0.02), 0);
                             } else {
                                 magDmg = calc(magDmg, myChamps[enemyUID].getPercentHP(0.01), 0);
@@ -1627,7 +1977,7 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                         if (runeCheck(8229, true)) {// Comet
                             const cometBase = [30,34,38,42,46,51,55,59,62,67,71,75,79,84,88,92,96,100];
                             const cometDmg = calc(cometBase[level - 1], calc(calc(ap, 0.2), calc(attackdamage[1], 0.35), 0), 0);
-                            if(adaptTyp === "phys") {
+                            if (adaptTyp === "phys") {
                                 physDmg = calc(physDmg, cometDmg, 0);
                             } else {
                                 magDmg = calc(magDmg, cometDmg, 0);
@@ -1638,8 +1988,7 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                             magDmg = calc(magDmg, scorchBase[level - 1], 0);
                         }
                     }
-
-                    if(spellObj.onHit) {
+                    if (spellObj.onHit) {
 
                         let onHitMulti = (spellObj.onHit < 1)
                             ? spellObj.onHit
@@ -1675,17 +2024,17 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                                 physDmg = calc(physDmg, calc(attackdamage[0], onHitMulti), 0);
                             }
                         }
-                        if(itemCheck(3742, true)) {//dead mans
+                        if (itemCheck(3742, true)) {//dead mans
                             magDmg = calc(calc(100, onHitMulti), magDmg, 0);
                         }
-                        if(itemCheck(2015, true)) {//Kircheis Shard
+                        if (itemCheck(2015, true)) {//Kircheis Shard
                             magDmg = calc(calc(50, onHitMulti), magDmg, 0);
                         }
                         if (itemCheck(3087, true)) {// Static Shiv
                             const shivLvlDmg = [60,60,60,60,60,67,73,79,85,91,97,104,110,116,122,128,134,140];
                             let shivDmg = calc(shivLvlDmg[level - 1], onHitMulti);
                             if (isCrit) {
-                                shivDmg = getCrit(shivDmg, spellObj.crit);
+                                shivDmg = calc(getCrit(shivDmg, spellObj.crit), shivDmg, 0);
                             }
                             magDmg = calc(magDmg, shivDmg, 0);
                         }
@@ -1698,8 +2047,8 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                             const
                                 dhLvl = [40,42,45,47,49,52,54,56,59,61,64,66,68,71,73,75,78,80],
                                 soulStacks = parseInt(document.getElementById(uid + "RNUM8128").value);
-                            let dhDmg = calc(soulStacks, calc(dhLvl[level - 1], calc(calc(ap, 0.2), calc(attackdamage[1], 0.25), 0), 0), 0);;
-                            if(adaptTyp === "phys") {
+                            let dhDmg = calc(soulStacks, calc(dhLvl[level - 1], calc(calc(ap, 0.2), calc(attackdamage[1], 0.25), 0), 0), 0);
+                            if (adaptTyp === "phys") {
                                 physDmg = calc(physDmg, dhDmg, 0);
                             } else {
                                 magDmg = calc(magDmg, dhDmg, 0);
@@ -1707,14 +2056,14 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                         }
                         if (runeCheck(8005, true)) {//press the attack
                             const ptaPerLvl = [40,48,56,65,73,81,89,98,106,114,122,131,139,147,155,164,172,180];
-                            if(adaptTyp === "phys") {
+                            if (adaptTyp === "phys") {
                                 physDmg = calc(physDmg, ptaPerLvl[level - 1], 0);
                             } else {
                                 magDmg = calc(magDmg, ptaPerLvl[level - 1], 0);
                             }
                         }
                         if (runeCheck(8437, true)) {//graps of the undying
-                            if(stats.attackrange > 200) {
+                            if (stats.attackrange > 200) {
                                 magDmg = calc(getPercentHP(0.02), magDmg, 0);
                             } else {
                                 magDmg = calc(getPercentHP(0.04), magDmg, 0);
@@ -1742,7 +2091,7 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                             physDmg = calc(calc(myChamps[enemyUID].getPercentHP(0.04), onHitMulti, 0), physDmg, 0);
                         }
                         if (items.includes(3748)) {//Titanic Hydra
-                            physDmg = calc(calc(calc(5, calc(hp[0] + hp[1], 0.01), 0), onHitMulti), physDmg, 0);
+                            physDmg = calc(calc(calc(5, calc(getPercentHP(1), 0.01), 0), onHitMulti), physDmg, 0);
                         }
                         if (items.includes(3042) && partype === theLang.Mana) {//Muramana
                             physDmg = calc(calc(mp[0] + mp[1], 0.06), physDmg, 0);
@@ -1765,6 +2114,10 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                         (itemCheck(3379, true))
                     ) {
                         magDmg = calc(magDmg, 1.15);
+                    }
+                    if (itemCheck(3193, true)) {
+                        magDmg = calc(magDmg, 0.4);
+                        physDmg = calc(physDmg, 0.4);
                     }
 
                     // calculate damage through resistances
@@ -1820,30 +2173,30 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                 if (spellNo === "Attack") {
                     let
                         totalAD = calc(attackdamage[0], attackdamage[1], 0),
-                        attackObj = {type: "phys", onHit: 1, basicAttack: true, crit:[100,150]};
+                        attackObj = {type: "phys", onHit: 1, basicAttack: true, crit:[100]};
                     let tooltip = theLang.Attack + ": ";
                     switch (id) {
                     case "Ashe":
-                        attackObj = {type: "phys", onHit: 1, basicAttack: true, crit:[Number(crit + "e2") + 10,Number(crit + "e2") + 60]};
+                        attackObj = {type: "phys", onHit: 1, basicAttack: true, crit:[Number(crit + "e2") + 10]};
                         //critChance += 99;
                         break;
                     case "Graves":
                         let autoDmg = [0.7, 0.71, 0.72, 0.74, 0.75, 0.76, 0.78, 0.8, 0.81, 0.83, 0.85, 0.87, 0.89, 0.91, 0.95, 0.96, 0.97, 1];
                         totalAD = calc(totalAD, autoDmg[level - 1]);
-                        attackObj = {type: "phys", onHit: 1, basicAttack: true, crit:[40,60]};
+                        attackObj = {type: "phys", onHit: 1, basicAttack: true, crit:[40]};
                         break;
                     case "Corki":
-                        attackObj = {type: "corkiAuto", onHit: 1, basicAttack: true, crit:[100,150]};
+                        attackObj = {type: "corkiAuto", onHit: 1, basicAttack: true, crit:[100]};
                         break;
                     case "Jhin":
-                        attackObj = {type: "phys", onHit: 1, basicAttack: true, crit:[50,88]};
+                        attackObj = {type: "phys", onHit: 1, basicAttack: true, crit:[50]};
                         //critChance = Math.round(Number(critChance * 75 + "e-2")) + 25;
                         break;
                     case "Kalista":
                         totalAD = calc(totalAD, 0.9);
                         break;
                     case "Kled":
-                        if(document.getElementById(uid + "InputP").checked) {
+                        if (document.getElementById(uid + "InputP").checked) {
                             totalAD = calc(totalAD, 0.8);
                         }
                         break;
@@ -1855,25 +2208,35 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
 
                     }
                     tooltip += styleDigits(getDmg(totalAD, attackObj), attackObj.type) + "<br>";
-                    if (crit > 0 || id === "Ashe") {
+                    if (crit > 0 || id === "Ashe" || itemCheck(3095, true)) {
                         tooltip += theLang.CriticalStrike + " " + theLang.Damage + ": ";
-                        tooltip += styleDigits(getDmg(getCrit(totalAD, attackObj.crit), attackObj, true), attackObj.type) + "<br>";
+                        tooltip += styleDigits(getDmg(totalAD, attackObj, true), attackObj.type) + "<br>";
                     }
                     return tooltip;
                 }
 
                 const myObj = myChamps[uid]["sInfo" + spellNo];
-
                 let tooltip = (spellNo === "P")
                     ? passive.description
                     : spells[spellNo].tooltip;
                 if (myObj && myObj.txt) {
                     tooltip += myObj.txt;
                 }
-                if (myObj && spellNo === "P") {
+                if (myObj) {
                     Object.keys(myObj).forEach(function (id) {
-                        if (theLang[myObj[id].info]) {
-                            tooltip += "<br>" + theLang[myObj[id].info] + ": {{ " + id + " }}";
+                        if (myObj[id].info) {
+                            let title = "";
+                            if (typeof myObj[id].info === "object") {
+                                myObj[id].info.forEach(function (theInfo) {
+                                    title += theLang[theInfo] + " ";
+                                });
+                            } else {
+                                title = theLang[myObj[id].info];
+                            }
+                            if (myObj[id].myInfo) {
+                               title += " " + myObj[id].myInfo;
+                            }
+                            tooltip += "<br>" + title + ": {{ " + id + " }}";
                         }
                     });
                 }
@@ -1881,6 +2244,7 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                 tooltip = tooltip.replace(/<\/span>/g, "");
                 tooltip = tooltip.replace(/[*][\d.]*/g, "");
                 const keys = tooltip.match(/\{\{[^}]*\}\}/g);
+
                 if (keys !== null) {
                     let altKey = [];
                     keys.forEach(function (key) {
@@ -1889,16 +2253,23 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                         if (altKey.includes(rawKey)) {
                             rawKey += "a";
                         }
-                        let keyValue = getValue(rawKey);
+                        let keyValue = getValue(rawKey, spellNo);
                         const replaceRegEx = new RegExp(key);
                         let placeHoldStr = keyValue;
                         if (myChamps[uid]["sInfo" + spellNo] && myChamps[uid]["sInfo" + spellNo][rawKey]) {
                             let keyObj = myChamps[uid]["sInfo" + spellNo][rawKey];
-                            if (keyObj.apply) {// Remove Percent Sign from jp scaling variables
+                            if (keyObj.apply && spellNo !== "P") {// Remove Percent Sign from jp scaling variables
                                 let percentLoc = tooltip.indexOf("%",tooltip.indexOf(rawKey));
                                 tooltip = tooltip.slice(0, percentLoc) + tooltip.slice(percentLoc + 1);
                             }
                             if (keyObj.type === "heal" || keyObj.type === "shield") {
+                                /*
+                                    if (myChamps[i].myRunes[0].includes(8451) || myChamps[i].myRunes[1].includes(8451)) {//Revitalize
+      let revitStacks = document.getElementById(myChamps[i].uid + "num8451").value * 2;
+      hp[1] += Math.round(Number((myChamps[i].hp[0] + myChamps[i].hp[1]) * revitStacks + "e-3"));
+    }
+    */
+
                                 //put heal and shield calculations here...
                             } else if (keyObj.type) {
                                 const addDmg = function (dmg1, dmg2) {
@@ -1930,10 +2301,11 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                                     theDmg = addDmg(theDmg, getTickDmg(keyValue));
                                 }
                                 placeHoldStr = styleDigits(theDmg, keyObj.type);
-                                if (keyObj.crit && (crit > 0 || keyObj.crit[2])) {
-                                    const theCritDmg = getDmg(getCrit(keyValue, keyObj.crit), keyObj, true);
+                                if (keyObj.crit && (crit > 0 || keyObj.crit[1] || itemCheck(3095, true))) {
+                                    const theCritDmg = getDmg(keyValue, keyObj, true);
                                     if (keyObj.ticks) {
-                                        let avgDmg = calc(calc(keyValue, calc(1, crit, 1)), calc(getCrit(keyValue, keyObj.crit), crit), 0);
+                                        //let avgDmg = calc(calc(keyValue, calc(1, crit, 1)), calc(getCrit(keyValue, keyObj.crit), crit), 0);
+                                        let avgDmg = 0;
                                         const avgCritTickDmg = addDmg(theCritDmg, getTickDmg(avgDmg));//change crit damage based on crit chance?
                                         placeHoldStr += " [AVG " + theLang.Damage + ": " + styleDigits(avgCritTickDmg, keyObj.type) + "]";
                                     } else {
@@ -1946,7 +2318,6 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                             }
                         }
                         tooltip = tooltip.replace(replaceRegEx, placeHoldStr);
-
                         if (myChamps[uid]["sInfo" + spellNo] && myChamps[uid]["sInfo" + spellNo][rawKey + "a"]) {// alternate spell vars
                             altKey.push(rawKey);
                         }
@@ -1972,8 +2343,9 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                 }
             });
         },
-        takeDmg = function (dmg, eAPen, eMPen) {
+        takeDmg = function (dmg, eAPen, eMPen, addCleave) {
             //put in amumu passive and e passive?
+            //currentValue * 100 / PercentageAsWholeNumber -- change armor pen if already effected by cleaverf
             const calcResist = function (resistance, pen) {
                 if (resistance >= 0) {
                     return calc(100, calc(100, resistance, 0), 3);
@@ -1981,9 +2353,31 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                     return calc(2, calc(100, calc(100, resistance, 1), 3), 1);
                 }
             };
+            const calcPenResist = function (base, bonus, pen) {
+                let basePen = base, bonusPen = bonus;
+                if (base > 0) {
+                    if (pen[0] > 0) {
+                        basePen = calc(basePen, calc(1, pen[0], 1));
+                        bonusPen = calc(bonusPen, calc(1, pen[0], 1));
+                    }
+                    if (pen[1] > 0) {
+                        console.log(pen[1]);
+                        const baseRatio = calc(base, calc(base, bonus, 0), 3);
+                        basePen = calc(calc(baseRatio, pen[1]), basePen, 1);
+                        bonusPen = calc(calc(calc(1, baseRatio, 1), pen[1]), basePen, 1);
+                    }
+                    if (basePen < 0) {
+                        basePen = 0;
+                    }
+                    if (bonusPen < 0) {
+                        bonusPen = 0;
+                    }
 
-            const totalArmor = armor[0] + armor[1];
-            const totalSBlock = spellblock[0] + spellblock[1];
+                }
+                return calc(basePen, bonusPen, 0);
+            };
+            const totalArmor = calcPenResist(armor[0], armor[1], eAPen);
+            const totalSBlock = calcPenResist(spellblock[0], spellblock[1], eMPen);
 
             const physDmg = round(calc(dmg[0], calcResist(totalArmor)), 1);
             const magDmg = round(calc(dmg[1], calcResist(totalSBlock)), 1);
@@ -1997,7 +2391,7 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                 theDmg = calc(theDmg, sInfoP.p1.valuePerLvl[level - 1], 1);
             }
             if (items.includes(3047)) {
-                theDmg = calc(theDmg, 0.88)
+                theDmg = calc(theDmg, 0.88);
             }
             return (theDmg);
         },
@@ -2012,10 +2406,30 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
             }
             return false;
         },
+        getMvSpd = function () {
+            //(Base MS + Flat MS bonuses) × (1 + Sum of all Additive Percent MS bonuses) × (1 - Highest Slow ratio) × Product of (1 + any Multiplicative MS bonus)
+            //(move[0] + move[1]) * (1 + move[2]) * (1 - slow * (1 - move[3]) * (1 + move[4])
+            let rawSpd = calc((move[0] + move[1]), calc(1, move[2], 0));
+
+            if (rawSpd > 490) {
+                rawSpd = calc(calc(calc(rawSpd, 490, 1), 0.5), 475, 0);
+            }
+            return rawSpd;
+        },
         getPercentHP = function (amount, type = "maxHp") {
-            const
-                maxHp = hp[0] + hp[1],
+            let maxHp = hp[0] + hp[1];
+            switch (id) {
+                case "Pyke":
+                    maxHp = hp[0];
+                    break;
+            }
+            let currentHP;
+            if (document.getElementById(uid + "HP")) {
                 currentHP = document.getElementById(uid + "HP").value;
+            } else {
+                currentHP = maxHp;
+            }
+
             switch (type) {
             case "currHp":
                 return calc(currentHP, amount);
@@ -2027,8 +2441,14 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
                 console.log(type);
                 return 0;
             }
+        },
+        checkBoots = function () {//used by magical footwear and item check
+                return items.some(function (itemNo) {
+                    return theItems[itemNo].tags.includes("Boots");
+                });
         };
     return {
+        adaptTyp,
         attackdamage,
         ap,
         aPen,
@@ -2068,6 +2488,7 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
         stats,
         uid,
         getAdapt,
+        getValue,
         itemCheck,
         runeCheck,
         setStats,
@@ -2080,7 +2501,9 @@ stat = Number((this.attackdamage[0] + this.attackdamage[1]) * shacoMulti + "e-1"
         takeCritMulti,
         takeTickDmg,
         isSlowed,
-        getPercentHP
+        getPercentHP,
+        getMvSpd,
+        checkBoots
     };
 };
 
