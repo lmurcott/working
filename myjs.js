@@ -193,10 +193,11 @@ const champObj = function (obj, side, uid) {// create champion object
         aPen = [],// flat reduction, percent reduction, percent pen, flat pen
         armor = [],
         attackspeed = [calcBaseAspd(stats.attackspeedoffset)],
-        buffStats = [],
+        buffStats = {},
         cdr = [],
         crit = 0,
-        dmgReduc = [],
+        dmgReduct = [],
+        enemyUID = undefined,
         hp = [],
         hpregen = [],
         items = [],
@@ -229,6 +230,9 @@ const champObj = function (obj, side, uid) {// create champion object
         },
         getValue = function (theKey, no = spellNo) {
             let riotObj, spellLvl, value = "";
+            if (buffStats[no + theKey]) {//return pre calculated buff value
+                return buffStats[no + theKey];
+            }
             if (no !== "P" && no !== "Attack") {
                 riotObj = spells[no];
                 spellLvl = document.getElementById(uid).getElementsByClassName("spellLvl")[no].value;
@@ -274,7 +278,7 @@ const champObj = function (obj, side, uid) {// create champion object
                     break;
                 case "bonusmovespeed":
                     stat = move[1];
-                break;
+                    break;
                 case "bonusmr":
                     stat = spellblock[1];
                     break;
@@ -313,7 +317,11 @@ const champObj = function (obj, side, uid) {// create champion object
                     stat = spellblock[0] + spellblock[1];
                     break;
                 case "percentMissingHp":
-                    stat = round(Number(calc(getPercentHP(1) - parseInt(document.getElementById(uid + "HP").value), getPercentHP(1), 3) + "e2"));
+                    if (document.getElementById(uid + "HP")) {
+                        stat = round(Number(calc(getPercentHP(1) - parseInt(document.getElementById(uid + "HP").value), getPercentHP(1), 3) + "e2"));
+                    } else {
+                        stat = 0;
+                    }
                 break;
                 case "rengarPassive":
                     const adRatio = {
@@ -433,6 +441,11 @@ const champObj = function (obj, side, uid) {// create champion object
         setStats = function () {
             const setBaseStats = function () {
                 adaptTyp = getAdapt();
+                if (document.getElementById("enemy" + side).length > 0) {
+                    enemyUID = document.getElementById("enemy" + side).value;
+                } else {
+                    enemyUID = undefined;
+                }
                 attackdamage[0] = round(calcBaseStats(stats.attackdamage, stats.attackdamageperlevel, level));
                 armor[0] = round(calcBaseStats(stats.armor, stats.armorperlevel, level));
                 attackspeed[1] = Number(round(calcBaseStats(0, stats.attackspeedperlevel, level)) + "e-2");
@@ -447,6 +460,7 @@ const champObj = function (obj, side, uid) {// create champion object
                 mpregen[2] = 0;
                 aPen = [0, 0, 0];// percent, flat, lethality
                 mPen = [0, 0];
+                dmgReduct = [0, 0, 0, 0];
                 if (stats.mpperlevel !== 0) {
                     mp[0] = round(calcBaseStats(stats.mp, stats.mpperlevel, level));
                 }
@@ -456,7 +470,10 @@ const champObj = function (obj, side, uid) {// create champion object
                 spellblock[0] = round(calcBaseStats(stats.spellblock, stats.spellblockperlevel, level));
                 cdr = [0, 0.4];
                 move[0] = stats.movespeed;
-                move[3] = parseInt(document.getElementById(uid).querySelector(".slow").value);// slow
+                if (id === "Jhin") {
+                    attackspeed[0] = round(calc(attackspeed[0], calc(1, attackspeed[1], 0)), 3);
+                    attackspeed[1] = 0;
+                }
             };
             const setItemStats = function () {
                 let statObj = {};
@@ -541,6 +558,7 @@ const champObj = function (obj, side, uid) {// create champion object
                 move[1] = setStat("FlatMovementSpeedMod");
                 move[2] = setStat("PercentMovementSpeedMod");
                 move[3] = 0;// slow resist
+                move[4] = 0;
                 lifeSteal = setStat("PercentLifeStealMod");
                 if (statObj.hasOwnProperty("PercentAttackSpeedMod")) {// Attack Speed
                     attackspeed[1] = calc(statObj.PercentAttackSpeedMod, attackspeed[1], 0);
@@ -692,11 +710,14 @@ const champObj = function (obj, side, uid) {// create champion object
                     if (items.includes(3814)) {// Edge of Night
                         aPen[2] += 18;
                     }
+                    if (items.includes(4004)) {// Edge of Night
+                        aPen[2] += 18;
+                    }
                     //Magic Penetration
                     if (items.includes(3135)) {// Void Staff
                         mPen[0] = calc(40, mPen[0], 0);
                     }
-                    if (items.includes(3916) || items.includes(3165)) {// Cursed Strike
+                    if (items.includes(3916) || items.includes(3165) || items.includes(4010)) {// Cursed Strike
                         mPen[1] = calc(15, mPen[1], 0);
                     }
                     if (items.includes(3020)) {// Sorc Shoes
@@ -954,11 +975,21 @@ const champObj = function (obj, side, uid) {// create champion object
                         mp[1] += flowStacks * 25;
                     }
                 }
+                if (runeCheck(8010, true)) {// Conqueror
+                    const conqDmg = [10,11,13,14,16,17,19,20,22,23,25,26,28,29,31,32,34,35];
+                    attackdamage[1] = calc(conqDmg[level - 1], attackdamage[1], 0);
+                }
+                if (runeCheck(8014, true)) {// Coup de Grace
+                    if (adaptTyp === "phys") {
+                        attackdamage[1] = calc(9, attackdamage[1], 0);
+                    } else {
+                        ap += 15
+                    }
+                }
             };
             const setTraitStats = function () {
-                if (runePaths[0]) {
+                if (runePaths[0] && runePaths[1]) {
                     let PathASpd = 0, PathHP = 0, PathAD = 0, PathAP = 0;
-                    const secPath = (runePaths[1]) ? runePaths[1] : 1;
                     const pathStats = {
                         0: {//Domination
                             1: {
@@ -1055,7 +1086,7 @@ const champObj = function (obj, side, uid) {// create champion object
                             }
                         }
                     };
-                    const finalStats = pathStats[runePaths[0]][secPath];
+                    const finalStats = pathStats[runePaths[0]][runePaths[1]];
                     if (finalStats.ap) {
                         if (adaptTyp = "phys") {
                             attackdamage[1] = calc(attackdamage[1], round(finalStats.ad), 0);
@@ -1071,10 +1102,135 @@ const champObj = function (obj, side, uid) {// create champion object
                     }
                 }
             };
+            const setBuffStats = function () {
+                const addBuff = function (amount, statName, key, spell) {
+                    buffStats[spell + key] = amount;
+                    switch (statName) {
+                    case "abilityPower":
+                        ap = calc(ap, round(amount), 0);
+                        break;
+                    case "attackdamage":
+                        attackdamage[1] = calc(attackdamage[1], round(amount), 0);
+                        break;
+                    case "attackSpeed":
+                        attackspeed[1] = calc(attackspeed[1], Number(amount + "e-2"), 0);
+                        break;
+                    case "armor":
+                        armor[1] = calc(armor[1], round(amount), 0);
+                        break;
+                    case "baseAd":
+                        attackdamage[0] = calc(attackdamage[0], round(amount), 0);
+                        break;
+                    case "critChance":
+                        crit = calc(crit, amount, 0);
+                        break;
+                    case "dmgReduction":
+                        dmgReduct[0] = calc(dmgReduct[0], amount, 0);
+                        dmgReduct[1] = calc(dmgReduct[1], amount, 0);
+                        break;
+                    case "flatmoveSpeed":
+                        move[1] = calc(move[1], round(amount), 0);
+                        break;
+                    case "flatPhysReduction":
+                        dmgReduct[2] += calc(dmgReduct[2], amount, 0);
+                        break;
+                    case "hp":
+                        hp[1] = calc(hp[1], round(amount), 0);
+                        break;
+                    case "hpregen":
+                        hpregen[1] = calc(hpregen[1], round(amount, 2), 0);
+                        break;
+                    case "magDmgReduction":
+                        dmgReduct[0] += calc(dmgReduct[0], amount, 0);
+                        break;
+                    case "mpregen":
+                        mpregen[1] = calc(mpregen[1], round(amount, 2), 0);
+                        break;
+                    case "mp":
+                        mp[1] = calc(mp[1], round(amount), 0);
+                        break;
+                    case "mr":
+                        spellblock[1] = calc(spellblock[1], round(amount), 0);
+                        break;
+                    case "multiMoveSpeed":
+                        move[4] = calc(move[4], Number(amount + "e-2"), 0);
+                        break;
+                    case "percentArmPen":
+                        aPen[0] = calc(aPen[0], Number(amount + "e-2"), 0);
+                        break;
+                    case "percentmoveSpeed":
+                        move[2] = calc(move[2], Number(amount + "e-2"), 0);
+                        break;
+                    case "physDmgReduction":
+                        dmgReduct[1] += calc(dmgReduct[1], amount, 0);
+                        break;
+                    case "uncapAtkSpd":
+                        attackspeed[2] = 999;
+                        break;
+                    default:
+                        console.log(statName);
+                    }
+                    
+                    /*
+              case "baseGrowthAd":
+                myChamps[i].attackdamage[0] += buffAmount;
+                break;
+              case "baseGrowthAtkSpdReduce":
+                myChamps[i].attackspeed[1] = Number((Number(myChamps[i].attackspeed[1] + "e2") - Number(buffAmount + "e2")) + "e-2");
+                break;
+              case "baseGrowthHp":
+                myChamps[i].hp[0] += buffAmount;
+                break;
+              case "baseGrowthArm":
+                myChamps[i].armor[0] += buffAmount;
+                break;
+              case "baseGrowthMR":
+                myChamps[i].spellblock[0] += buffAmount;
+                break;
+              case "basemovespeed":
+                myChamps[i].movespeed[0] += buffAmount;
+                break;
+                */
+                    
+                };
+                if (buffs) {
+                    buffs.forEach(function (b) {
+                        if (b.spell === "P" || document.getElementById(uid).getElementsByClassName("spellLvl")[b.spell].value > 0) {
+                            if (
+                                (b.active && document.getElementById(uid + "Input" + b.spell).checked) ||
+                                (b.passiveOnly && !document.getElementById(uid + "Input" + b.spell).checked) ||
+                                (!b.active && !b.passiveOnly)
+                            ) {
+                                addBuff(getValue(b.key, b.spell), b.type, b.key, b.spell);
+                            }
+                        }
+                    });
+                }
+            };
             const setStatMultis = function () {
-                //Calculate Final Bonus Movement Speed With Caps
-                move[1] = calc(getMvSpd(), move[0], 1);
-                move[2] = 0;
+                //HP Multis
+                let hpMulti = 0;
+                let baseHPMulti = 0;
+                if (itemCheck(1401) || itemCheck(1413)) {//cinderhulk jungle enhcantment
+                    hpMulti = calc(hpMulti, 0.15, 0);
+                }
+                if (itemCheck(3193, true)) {// Gargolyes Stoneplate
+                    hpMulti = calc(hpMulti, 0.4, 0);
+                    baseHPMulti = calc(baseHPMulti, 0.4, 0);
+                }
+                if (runeCheck(8451)) {// Overgrowth
+                    const ogHP = calc(0.002, document.getElementById(uid + "RNUM8451").value);
+                    hpMulti = calc(hpMulti, ogHP, 0);
+                    baseHPMulti = calc(baseHPMulti, ogHP, 0);
+                }
+                hp[0] += round(calc(hp[0], baseHPMulti));
+                hp[1] += round(calc(hp[1], hpMulti));
+
+                //Pyke Passive
+                if (id === "Pyke") {
+                    attackdamage[1] = calc(attackdamage[1], round(calc(hp[1], 0.07145)), 0);
+                    hp[1] = 0;
+                }
 
                 //Calculate Lethality
                 aPen[1] = round(calc(aPen[2], calc(0.6, calc(calc(0.4, level), 18, 3), 0)));
@@ -1087,30 +1243,19 @@ const champObj = function (obj, side, uid) {// create champion object
                     armor[1] += round(calc(armor[0] + armor[1], 0.05));
                     spellblock[1] += round(calc(armor[0] + armor[1], 0.05));
                 }
+
+                //Calculate Final Bonus Movement Speed With Caps
+                move[1] = calc(getMvSpd(), move[0], 1);
+                move[2] = 0;
+
                 if (runeCheck(8234)) {//celerity
-                    const bonusMoveSpd = getMvSpd() - move[0];
+                    const bonusMoveSpd = move[1];
                     if (adaptTyp === "phys") {
                         attackdamage[1] += round(calc(bonusMoveSpd, 0.048));
                     } else {
                         ap += round(calc(bonusMoveSpd, 0.08));
                     }
                 }
-                let hpMulti = 0;
-                let baseHPMulti = 0;
-                if (itemCheck(1401) || itemCheck(1413)) {//cinderhulk jungle enhcantment
-                    hpMulti = calc(hpMulti, 0.15, 0);
-                }
-                if (itemCheck(3193, true)) {
-                    hpMulti = calc(hpMulti, 0.4, 0);
-                    baseHPMulti = calc(baseHPMulti, 0.4, 0);
-                }
-                if (runeCheck(8451)) {// Overgrowth
-                    const ogHP = calc(0.002, document.getElementById(uid + "RNUM8451").value);
-                    hpMulti = calc(hpMulti, ogHP, 0);
-                    baseHPMulti = calc(baseHPMulti, ogHP, 0);
-                }
-                hp[0] += round(calc(hp[0], baseHPMulti));
-                hp[1] += round(calc(hp[1], hpMulti));
 
                 let vladbonusAP;
                 if (id === "Vladimir") {// vlad passive
@@ -1187,6 +1332,7 @@ const champObj = function (obj, side, uid) {// create champion object
             setItemStats();
             setRuneStats();
             setTraitStats();
+            setBuffStats();
             setStatMultis();
             setDebuffs();
         },
@@ -1793,9 +1939,14 @@ const champObj = function (obj, side, uid) {// create champion object
 
             let statList = [];
             let theCdr = (cdr[0] > cdr[1]) ? cdr[1] : cdr[0];
-            let totalAtkSpd = round(calc(attackspeed[0], calc(1, attackspeed[1], 0)), 3);
-            if (totalAtkSpd > attackspeed[2]) {
-                totalAtkSpd = attackspeed[2];
+            let totalAtkSpd;
+            if (id === "Jhin") {
+                totalAtkSpd = attackspeed[0];
+            } else {
+                totalAtkSpd = round(calc(attackspeed[0], calc(1, attackspeed[1], 0)), 3);
+                if (totalAtkSpd > attackspeed[2]) {
+                    totalAtkSpd = attackspeed[2];
+                }
             }
             const critTotal = (crit > 1) ? 100 : Number(crit + "e2");
             statList.push(
@@ -1834,10 +1985,6 @@ const champObj = function (obj, side, uid) {// create champion object
         },
         drawSkillTxt = function () {
             const refineTtip = function (spellNo) {
-                var enemyUID;
-                if (document.getElementById("enemy" + side).length > 0) {
-                    enemyUID = document.getElementById("enemy" + side).value;
-                }
                 let riotObj, spellLvl;
                 if (spellNo !== "P" && spellNo !== "Attack") {
                     riotObj = spells[spellNo];
@@ -2119,6 +2266,16 @@ const champObj = function (obj, side, uid) {// create champion object
                         magDmg = calc(magDmg, 0.4);
                         physDmg = calc(physDmg, 0.4);
                     }
+                    if (enemyUID && runeCheck(8014) && (myChamps[enemyUID].getPercentHP(0.4) > myChamps[enemyUID].getPercentHP(1, "currHp"))) {// Coup de Grace
+                        magDmg = calc(magDmg, 1.07);
+                        physDmg = calc(physDmg, 1.07);
+                    }
+                    if (runeCheck(8010, true)) {// Conqueror
+                        truDmg = calc(truDmg, calc(magDmg, 0.2), 0);
+                        truDmg = calc(truDmg, calc(physDmg, 0.2), 0);
+                        magDmg = calc(magDmg, 0.8);
+                        physDmg = calc(physDmg, 0.8);
+                    }
 
                     // calculate damage through resistances
                     if (enemyUID) {
@@ -2271,6 +2428,8 @@ const champObj = function (obj, side, uid) {// create champion object
     */
 
                                 //put heal and shield calculations here...
+                            } else if (keyObj.type === "armor" || keyObj.type === "mr" ) {
+                                
                             } else if (keyObj.type) {
                                 const addDmg = function (dmg1, dmg2) {
                                     const physDmg = calc(dmg1[0], dmg2[0], 0);
@@ -2401,7 +2560,7 @@ const champObj = function (obj, side, uid) {// create champion object
         takeTickDmg = function (dmg, enemyPen, cleaverStacks) {
         },
         isSlowed = function () {
-            if (move[3] > 0) {
+            if (document.getElementById(uid).querySelector(".slow").value > 0) {
                 return true;
             }
             return false;
@@ -2409,20 +2568,24 @@ const champObj = function (obj, side, uid) {// create champion object
         getMvSpd = function () {
             //(Base MS + Flat MS bonuses) × (1 + Sum of all Additive Percent MS bonuses) × (1 - Highest Slow ratio) × Product of (1 + any Multiplicative MS bonus)
             //(move[0] + move[1]) * (1 + move[2]) * (1 - slow * (1 - move[3]) * (1 + move[4])
-            let rawSpd = calc((move[0] + move[1]), calc(1, move[2], 0));
-
+            
+            const flat  = calc(move[0], move[1], 0);
+            const percent = calc(1, move[2], 0);
+            const slowResist = (move[3] > 1) ? 0 : calc(1, move[3], 1);
+            const slow = calc(1, Number(calc(document.getElementById(uid).querySelector(".slow").value, slowResist) + "e-2"), 1);
+            const multi = calc(1, move[4], 0);
+            let rawSpd = calc(calc(calc(flat, percent), slow), multi);
             if (rawSpd > 490) {
-                rawSpd = calc(calc(calc(rawSpd, 490, 1), 0.5), 475, 0);
+                rawSpd = calc(calc(rawSpd, 0.5), 110, 0);
+            } else if (rawSpd > 415){
+                rawSpd = calc(calc(rawSpd, 0.8), 83, 0);
+            } else if (rawSpd < 220){
+                rawSpd = calc(calc(rawSpd, 0.5), 110, 0);
             }
             return rawSpd;
         },
         getPercentHP = function (amount, type = "maxHp") {
             let maxHp = hp[0] + hp[1];
-            switch (id) {
-                case "Pyke":
-                    maxHp = hp[0];
-                    break;
-            }
             let currentHP;
             if (document.getElementById(uid + "HP")) {
                 currentHP = document.getElementById(uid + "HP").value;
@@ -2447,6 +2610,189 @@ const champObj = function (obj, side, uid) {// create champion object
                     return theItems[itemNo].tags.includes("Boots");
                 });
         };
+//script to fix riots errors
+    const missingInfo = {
+        Darius: {
+            0: {
+                name: "Decimate",
+                tooltip: "After a short delay, Darius swings his axe around himself, striking enemies in its path. Enemies hit by the axe's blade take {{ e2 }} <span class=\"colorFF8C00\">(+{{ f1 }})</span> physical damage. Enemies hit by the handle take {{ e6 }}% damage (does not apply Hemorrhage).<br /><br />Darius heals for <span class=\"colorFF0000\">{{ e5 }}% of his missing Health</span> per enemy champion hit by the blade (max: {{ e7 }}%).",
+                vars: [
+                    { link: "bonusattackdamage", coeff: 1.05, key: "f1" }
+                ]
+            },
+            1: {
+                name: "Crippling Strike",
+                tooltip: "Darius's next basic attack deals <span class=\"colorFF8C00\">{{ f1 }}</span> physical damage and slows the target by {{ e2 }}% for {{ e5 }} second.<br /><br />Crippling Strike refunds its Mana cost and {{ e3 }}% of its cooldown if it kills the target.",
+            },
+            2: {
+                name: "Apprehend",
+                tooltip: "<span class=\"colorFF9900\">Passive: </span>Darius gains {{ e1 }}% Armor Penetration.<br /><br /><span class=\"colorFF9900\">Active: </span>Pulls in all enemies in front of Darius and slows them by {{ e2 }}% for {{ e3 }} second.",
+            },
+            3: {
+                name: "Noxian Guillotine",
+                tooltip: "Leaps to target enemy champion and strikes a lethal blow, dealing {{ e1 }} <span class=\"colorFF8C00\">(+{{ f1 }})</span> true damage. For each stack of Hemorrhage on the target, Noxian Guillotine deals an additional {{ e3 }}% damage.<span class=\"size8 colorFF9900\"><br /><br /></span><span class=\"colorF50F00\">Maximum Damage: {{ f3 }}</span><span class=\"size8\"><br /><br /></span>If Noxian Guillotine kills the target, it may be re-cast at no cost within 20 seconds.<span class=\"size8\"><br /><br /></span>At rank 3, Noxian Guillotine <span class=\"colorFFFF66\"><i>unlocks</i></span> - its cooldown resets entirely on kills and it no longer has a Mana cost.",
+                vars: [
+                    { link: "bonusattackdamage", coeff: 0.75, key: "f1" }
+                ]
+            },
+        },
+        MasterYi: {
+            0: {
+                name: "Alpha Strike",
+                tooltip: "Master Yi teleports to strike up to {{ e8 }} enemies, dealing {{ e1 }} <span class=\"colorFF8C00\">(+{{ a1 }})</span> physical damage, with an additional {{ e3 }} damage to minions and monsters. During Alpha Strike Master Yi is untargetable.<br /><br />Alpha Strike can critically strike, dealing an additional <span class=\"colorFF8C00\">{{ f1 }}</span> physical damage. Basic attacks lower the cooldown of Alpha Strike by {{ e7 }} second.",
+                vars: [
+                    { link: "attackdamage", coeff: 1, key: "a1" },
+                    { link: "attackdamage", coeff: 0.6, key: "f1" }
+                ]
+            },
+            1: {
+                name: "Meditate",
+                tooltip: "Master Yi channels, reducing incoming damage by {{ e2 }}% and restoring {{ e1 }} <scaleAP>(+{{ a1 }})</scaleAP> health over {{ f1.-1 }} seconds. This healing is increased by up to {{ e0 }}% based on Master Yi's missing health.<br /><br />In addition, Master Yi will gain stacks of Double Strike and pause the remaining duration on Wuju Style and Highlander for each second he channels.<br /><br /><rules>Meditate's damage reduction is halved against structures.</rules>",
+                vars: [
+                    { link: "spelldamage", coeff: 1, key: "a1" }
+                ]
+            },
+            2: {
+                name: "Wuju Style",
+                tooltip: "<span class=\"colorFF9900\">Passive:</span> Grants {{ e1 }}% <span class=\"colorFF8C00\">({{ f1 }})</span> Attack Damage.<br /><br /><span class=\"colorFF9900\">Active:</span> Basic attacks deal {{ e3 }} <span class=\"colorFF8C00\">(+{{ f2 }})</span> bonus true damage for {{ e5 }} seconds. Afterwards the passive bonus is lost while Wuju Style is on cooldown.",
+                vars: [
+                    { link: "attackdamage", coeff: [0.1, 0.125, 0.15, 0.175, 0.2], key: "f2" }
+                ]
+            },
+            3: {
+                name: "Highlander",
+                tooltip: "<span class=\"colorFF9900\">Passive:</span> Champion kills and assists reduce the remaining cooldown of Master Yi's basic abilities by {{ e5 }}%.<br /><br /><span class=\"colorFF9900\">Active:</span> Increases Movement Speed by {{ e3 }}%, Attack Speed by {{ e2 }}%, and grants immunity to slows for {{ e1 }} seconds. While active, champion kills and assists extend the duration of Highlander by {{ e4 }} seconds.",
+                vars: [
+                    { link: "bonusattackdamage", coeff: 0.75, key: "f1" }
+                ]
+            },
+        },
+        MissFortune: {
+            0: {
+                name: "Double Up",
+                tooltip: "Miss Fortune fires a bouncing shot through an enemy, dealing {{ e2 }} <span class=\"colorFF8C00\">(+{{ a2 }})</span> <span class=\"color99FF99\">(+{{ a1 }})</span> physical damage to each target hit. Both apply on-hit effects.<br /><br />The second shot can critically strike for {{ f1 }}% damage, and it always critically strikes if the first shot kills its target.",
+                vars: [
+                    { link: "attackdamage", coeff: 1, key: "a2" },
+                    { link: "spelldamage", coeff: 0.35, key: "a1" }
+                ]
+            },
+            1: {
+                name: "Strut",
+                tooltip: "<span class=\"colorFF9900\">Passive:</span> After 5 seconds of not taking direct damage, Miss Fortune gains {{ e5 }} Movement Speed. After another 5 seconds, this bonus increases to {{ e2 }}.<br /><br /><span class=\"colorFF9900\">Active:</span> Fully activates Strut's Movement Speed and grants {{ e1 }}% Attack Speed for {{ e3 }} seconds.<br /><br />Love Taps reduce the cooldown of Strut by {{ f2 }} seconds.",
+            },
+            2: {
+                name: "Make It Rain",
+                tooltip: "Miss Fortune reveals an area, raining down bullets that deal {{ e1 }} <span class=\"color99FF99\">(+{{ a1 }})</span> magic damage over 2 seconds and slow enemies hit by {{ e2 }}%.",
+                vars: [
+                    { link: "spelldamage", coeff: 0.8, key: "a1" }
+                ]
+            },
+            3: {
+                name: "Bullet Time",
+                tooltip: "Miss Fortune channels a barrage of bullets for {{ e3 }} seconds, dealing <span class=\"colorFF8C00\">(+{{ f1 }})</span> <span class=\"color99FF99\">(+{{ a1 }})</span> physical damage per wave ({{ e2 }} waves total).<br /><br />Each wave of Bullet Time can critically strike for {{ f3 }}% damage.<br /><br /><span class=\"colorF50F00\">Total Damage: {{ f2 }}</span>",
+                vars: [
+                    { "link": "bonusattackdamage", "coeff": 0.35, "key": "f1" },
+                    { "link": "spelldamage", "coeff": 0.2, "key": "a1" }
+                ]
+            },
+        },
+        Lux: {
+            0: {
+                name: "Light Binding",
+                tooltip: "Lux releases a sphere of light that binds and deals damage to up to two enemy units.",
+                vars: [
+                    { link: "spelldamage", coeff: 0.7, key: "a1" }
+                ]
+            },
+            1: {
+                name: "Prismatic Barrier",
+                tooltip: "Lux throws her wand and bends the light around any friendly target it touches, protecting them from enemy damage.",
+                vars: [
+                    { link: "spelldamage", coeff: 0.2, key: "a1" }
+                ]
+            },
+            2: {
+                name: "Lucent Singularity",
+                tooltip: "Fires an anomaly of twisted light to an area, which slows nearby enemies. Lux can detonate it to damage enemies in the area of effect.",
+                vars: [
+                    { link: "spelldamage", coeff: 0.6, key: "a1" }
+                ]
+            },
+            3: {
+                name: "Final Spark",
+                tooltip: "After gathering energy, Lux fires a beam of light that deals damage to all targets in the area. If Final Spark helps take down a champion, part of its cooldown is refunded. In addition, triggers Lux's passive ability and refreshes the Illumination debuff duration.",
+                vars: [
+                    { link: "spelldamage", coeff: 0.75, key: "a1" }
+                ]
+            },
+        },
+        Nocturne: {
+            0: {
+                name: "Duskbringer",
+                tooltip: "Nocturne throws a shadow blade that deals {{ e2 }} <span class=\"colorFF8C00\">(+{{ f1 }})</span> physical damage and leaves a Dusk Trail for {{ e3 }} seconds. Enemy champions hit also leave a Dusk Trail.<br /><br />While on the trail, Nocturne can move through units and gains {{ e1 }}% Movement Speed and {{ e4 }} Attack Damage.",
+                vars: [
+                    { link: "bonusattackdamage", coeff: 0.75, key: "f1" }
+                ]
+            },
+            1: {
+                name: "Shroud of Darkness",
+                tooltip: "<span class=\"colorFF9900\">Passive:</span> Nocturne gains {{ e1 }}% Attack Speed.<br /><br /><span class=\"colorFF9900\">Active:</span> Nocturne creates a magical barrier for 1.5 seconds, which blocks the next enemy ability.<br /><br />If an ability is blocked by the shield, Nocturne's passive Attack Speed bonus doubles for {{ e4 }} seconds.<br /><br /><rules>Shroud of Darkness will remain active during Paranoia's flight.</rules>"
+            },
+            2: {
+                name: "Unspeakable Horror",
+                tooltip: "<span class=\"colorFF9900\">Passive:</span> Nocturne gains massively increased Movement Speed toward terrified enemies.<br /><br /><span class=\"colorFF9900\">Active:</span> Nocturne plants a nightmare into his target's mind, dealing {{ e1 }} <span class=\"color99FF99\">(+{{ a1 }})</span> magic damage over {{ e3 }} seconds. If Nocturne stays within range of the target for the full duration, the target becomes terrified for {{ e2 }} second(s).",
+                vars: [
+                    { link: "spelldamage", coeff: 1, key: "a1" }
+                ]
+            },
+            3: {
+                name: "Paranoia",
+                tooltip: "Nocturne reduces the sight radius of all enemy champions and removes their ally vision for {{ e6 }} seconds.<br /><br />While Paranoia is active, Nocturne can launch himself at an enemy champion, dealing {{ e3 }} <span class=\"colorFF8C00\">(+{{ f1 }})</span> physical damage.",
+                vars: [
+                    { link: "bonusattackdamage", coeff: 1.2, key: "f1" }
+                ]
+            },
+        },
+        Zed: {
+            0: {
+                name: "Razor Shuriken",
+                tooltip: "Zed and his shadows throw their shurikens, each dealing {{ e1 }} <span class=\"colorFF8C00\">(+{{ a1 }})</span> physical damage to the first enemy they pass through, and {{ e3 }} <span class=\"colorFF8C00\">(+{{ a2 }})</span> physical damage to each additional enemy.",
+                vars: [
+                    { link: "bonusattackdamage", coeff: 0.9, key: "a1" },
+                    { link: "bonusattackdamage", coeff: 0.54, key: "a2" }
+                ]
+            },
+            1: {
+                name: "Living Shadow",
+                tooltip: "<span class=\"colorFF9900\">Passive: </span>Whenever Zed and his shadows strike an enemy with the same ability, Zed gains {{ e3 }} energy. Energy can only be gained once per cast ability.<br /><br /><span class=\"colorFF9900\">Active: </span>Zed's shadow dashes forward, remaining in place for {{ e5 }} seconds. Reactivating Living Shadow will cause Zed to switch positions with this shadow."
+            },
+            2: {
+                name: "Shadow Slash",
+                tooltip: "Zed and his shadows slash, dealing {{ e1 }} <span class=\"colorFF8C00\">(+{{ a1 }})</span> physical damage to nearby enemies.<br /><br />Each enemy champion hit by Zed's slash reduces Living Shadow's cooldown by {{ e4 }} seconds.<br /><br />Enemies hit by a Shadow's slash are slowed by {{ e2 }}% for 1.5 seconds. Enemies hit by multiple slashes take no additional damage but are slowed by {{ e3 }}% instead.",
+                vars: [
+                    { link: "bonusattackdamage", coeff: 0.8, key: "a1" }
+                ]
+            },
+            3: {
+                name: "Death Mark",
+                tooltip: "Zed becomes untargetable and dashes to an enemy champion, marking them. After 3 seconds, the mark triggers, dealing physical damage equal to <span class=\"colorFF8C00\">{{ a1 }}</span> + {{ e2 }}% of all damage dealt to the target by Zed while the mark was active.<br /><br />The dash leaves a shadow behind for {{ e4 }} seconds. Reactivating Death Mark causes Zed to switch positions with this shadow.<br /><br /><span class=\"colorFFFFFF\">Reaper of Shadows: </span>Zed reaps the shadow of the strongest foe slain under Death Mark, gaining <span class=\"colorFF8C00\">{{ f2 }}</span> attack damage. ({{ e0 }} + {{ e9 }}% of the victim's attack damage.)",
+                vars: [
+                    { link: "attackdamage", coeff: 1, key: "a1" }
+                ]
+            },
+        },
+    };
+    
+    if (missingInfo[id]) {
+        Object.keys(missingInfo[id]).forEach(function (theSpell) {
+            spells[theSpell].name = missingInfo[id][theSpell].name;
+            spells[theSpell].tooltip = missingInfo[id][theSpell].tooltip;
+            if (missingInfo[id][theSpell].vars) {
+                spells[theSpell].vars = missingInfo[id][theSpell].vars;
+            }
+        });
+    }
+//
     return {
         adaptTyp,
         attackdamage,
@@ -2460,7 +2806,8 @@ const champObj = function (obj, side, uid) {// create champion object
         cdr,
         crit,
         debuffs,
-        dmgReduc,
+        dmgReduct,
+        enemyUID,
         hp,
         hpregen,
         id,

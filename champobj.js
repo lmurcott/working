@@ -469,32 +469,32 @@ const champVars = {
     }
     },
     Darius: {
-    buffs: [
+        buffs: [
             {spell: "P", key: "p3", type: "attackdamage", active: true},
-      {spell: 2, key: "e1", type: "percentArmPen"}
-    ],
-    sInfoP: {
+            {spell: 2, key: "e1", type: "percentArmPen"}
+        ],
+        sInfoP: {
             active: true,
-      p1: {value: 12, type: "phys", info: "Damage", myInfo: " [x1]", child: ["p1Var"]},
+            p1: {value: 12, type: "phys", info: "Damage", myInfo: " [x1]", child: ["p1Var"]},
             p1Var: {link: "champLevel", coeff: 1},
             p2: {value: 60, type: "phys", spell: true, info: "Damage", myInfo: " [x5]", child: ["p2Var"]},
             p2Var: {link: "champLevel", coeff: 5},
             p3: {valuePerLvl: [30,35,40,45,50,55,60,65,70,75,85,95,105,130,155,180,205,230], info: "AttackDamage"}
+            },
+        sInfo0: {
+            e2: {type: "phys", spell: true, child: ["f1Var"]},
+            e5: {type: "heal", selfHeal: true, apply: "missHp"},
+            e7: {type: "heal", selfHeal: true, apply: "missHp"},
+            f1Var: {link: "attackdamage", coeff: [1,1.1,1.2,1.3,1.4]}
         },
-    sInfo0: {
-      e2: {type: "phys", spell: true, child: ["f1Var"]},
-      e5: {type: "heal", selfHeal: true, apply: "missHp"},
-      e7: {type: "heal", selfHeal: true, apply: "missHp"},
-      f1Var: {link: "attackdamage", coeff: [1,1.1,1.2,1.3,1.4]}
-    },
-    sInfo1: {
-      f1: {type: "phys", child: ["f1Var"], basicAttack: true},
-      f1Var: {link: "attackdamage", coeff: [1.4,1.45,1.5,1.55,1.6]}
-    },
-    sInfo3: {
-      e1: {type: "tru", spell: true, child: ["f1"]},
-      f3: {effectNo: 1, type: "tru", spell: true, child: ["f1"], multiplier: 200}
-    }
+        sInfo1: {
+          f1: {type: "phys", child: ["f1Var"], basicAttack: true},
+          f1Var: {link: "attackdamage", coeff: [1.4,1.45,1.5,1.55,1.6]}
+        },
+        sInfo3: {
+          e1: {type: "tru", spell: true, child: ["f1"]},
+          f3: {effectNo: 1, type: "tru", spell: true, child: ["f1"], multiplier: 200}
+        }
     },
     Diana: {
         buffs: [
@@ -524,24 +524,24 @@ const champVars = {
         }
     },
     Draven: {//w is missing tooltip???[added english] add gold from passive?
-    buffs: [
-      {spell: 1, key: "e4", type: "attackSpeed", active: true},
-      {spell: 1, key: "e2", type: "percentmoveSpeed", active: true}
-    ],
-    sInfo0: {
-      f1: {effectNo: 5, type: "phys", child: ["f1Var"], basicAttack: true},
-      f1Var: {link: "bonusattackdamage", coeff: [0.65,0.75,0.85,0.95,1.05]}
-    },
-    sInfo1: {
-      active: true,
-      txt: "Draven gains {{ e2 }}% increased Movement Speed for {{ e3 }} seconds and {{ e4 }}% increased Attack Speed for {{ e5 }} seconds. The Movement Speed decreases rapidly over its duration.<br /><br />Catching a Spinning Axe will refresh the cooldown of Blood Rush"
-    },
-    sInfo2: {
-      e1: {type: "phys", spell: true, child: ["f1"]}
-    },
-    sInfo3: {
-      e1: {type: "phys", spell: true, child: ["f1"]}
-    }
+        buffs: [
+          {spell: 1, key: "e4", type: "attackSpeed", active: true},
+          {spell: 1, key: "e2", type: "percentmoveSpeed", active: true}
+        ],
+        sInfo0: {
+          f1: {effectNo: 5, type: "phys", child: ["f1Var"], basicAttack: true},
+          f1Var: {link: "bonusattackdamage", coeff: [0.65,0.75,0.85,0.95,1.05]}
+        },
+        sInfo1: {
+          active: true,
+          txt: "Draven gains {{ e2 }}% increased Movement Speed for {{ e3 }} seconds and {{ e4 }}% increased Attack Speed for {{ e5 }} seconds. The Movement Speed decreases rapidly over its duration.<br /><br />Catching a Spinning Axe will refresh the cooldown of Blood Rush"
+        },
+        sInfo2: {
+          e1: {type: "phys", spell: true, child: ["f1"]}
+        },
+        sInfo3: {
+          e1: {type: "phys", spell: true, child: ["f1"]}
+        }
     },
     DrMundo: {//mr scaling on e
     aSpdBonus: 0.153,
@@ -899,19 +899,21 @@ const champVars = {
         {spell: "P", key: "p5", type: "baseGrowthMR", active: true},
         {spell: "P", key: "p6", type: "baseGrowthAtkSpdReduce", active: true},
     ],
-        sInfoP: {
-            active: true,
-            p1: {valuePerLvl: [10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,26,28,30], info: ["Movement","reduction"]},
-            p2: {value: 6, info: "AttackDamage", child: ["p2Var"]},
-            p2Var: {link: "baseGrowth", coeff: 2.5},
-            p3: {value: 70, info: "Health", child: ["p3Var"]},
-            p3Var: {link: "baseGrowth", coeff: 43},
-            p4: {value: 3.5, info: "Armor", child: ["p4Var"]},
-            p5: {value: 3.5, info: "SpellBlock", child: ["p4Var"]},
-            p4Var: {link: "baseGrowth", coeff: 2},
-            p6: {info: ["AttackSpeed","reduction"], myInfo: "%", child: ["p6Var"]},
-            p6Var: {link: "baseGrowthAtkSpd", coeff: 5},
-        },
+    sInfoP: {
+        active: true,
+        p1: {valuePerLvl: [10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,26,28,30], info: ["Movement","reduction"]},
+        
+        p2: {value: 6, info: "AttackDamage", child: ["p2Var"]},
+        p2Var: {link: "baseGrowth", coeff: 2.5},
+        p3: {value: 70, info: "Health", child: ["p3Var"]},
+        p3Var: {link: "baseGrowth", coeff: 43},
+        p4: {value: 3.5, info: "Armor", child: ["p4Var"]},
+        p5: {value: 3.5, info: "SpellBlock", child: ["p4Var"]},
+        p4Var: {link: "baseGrowth", coeff: 2},
+        p6: {info: ["AttackSpeed","reduction"], myInfo: "%", child: ["p6Var"]},
+        p6Var: {link: "baseGrowthAtkSpd", coeff: 5},
+        
+    },
     sInfo0: {
       e1: {type: "phys", spell: true, child: ["a1"]},
       e2: {type: "phys", spell: true, child: ["a2"]},
@@ -1326,12 +1328,12 @@ const champVars = {
             {spell: "P", key: "p2", type: "uncapAtkSpd", active: true},//key is placeholder
             {spell: 0, key: "f1", type: "attackSpeed"}
     ],
-        sInfoP: {
-            active: true,
-            //input: {type: "number", max: "255"},
-            p1: {info: "PercentMovementSpeedMod", value: 175},
-            p2: {info: "PercentAttackSpeedMod", value: 15}
-        },
+    sInfoP: {
+        active: true,
+        //input: {type: "number", max: "255"},
+        p1: {info: "PercentMovementSpeedMod", value: 175},
+        p2: {info: "PercentAttackSpeedMod", value: 15}
+    },
     sInfo0: {
             //active: true,
             input: {type: "number", max: "3"},
@@ -1475,23 +1477,23 @@ const champVars = {
             p1: {value: 15, hide: true},
         },
         sInfo0: {
-      e1: {type: "mag", spell: true, child: ["a1"]},
-      e3: {type: "shield", child: ["a2"]}
-    },
-    sInfo1: {
-      e2: {type: "mag", child: ["a1"]},
-      e3: {type: "mag", spell: true, child: ["a2"]}
-    },
-    sInfo2: {
-      e1: {type: "mag", spell: true, child: ["a1"]}
-    },
-    sInfo3: {
-      e1: {type: "mag", spell: true, child: ["a1","f2Var"]},
-      f2Var: {coeff: 0.02,link: "mana"},
-      e3: {type: "mag", child: ["f1Var","f3Var"]},
-      f1Var: {coeff: 0.1,link: "spelldamage"},
-      f3Var: {coeff: 0.01,link: "mana"},
-    }
+            e1: {type: "mag", spell: true, child: ["a1"]},
+            e3: {type: "shield", child: ["a2"]}
+        },
+        sInfo1: {
+            e2: {type: "mag", child: ["a1"]},
+            e3: {type: "mag", spell: true, child: ["a2"]}
+        },
+        sInfo2: {
+            e1: {type: "mag", spell: true, child: ["a1"]}
+        },
+        sInfo3: {
+            e1: {type: "mag", spell: true, child: ["a1","f2Var"]},
+            f2Var: {coeff: 0.02,link: "mana"},
+            e3: {type: "mag", child: ["f1Var","f3Var"]},
+            f1Var: {coeff: 0.1,link: "spelldamage"},
+            f3Var: {coeff: 0.01,link: "mana"},
+        }
     },
     Katarina: {
     buffs: [
@@ -1545,9 +1547,9 @@ const champVars = {
     }
     },
     Kayn: {//spell0 var incorrect, passive buff onhits etc?
-        buffs: [
+        /*buffs: [
             {spell: "P", key: "p1", type: "kaynShadowPassive", active: true},
-        ],
+        ],*/
         sInfoP: {
             active: true,
             p1: {info: ["Assassin","Magic","Damage"], myInfo: "%", valuePerLvl: [12,14,16,18,20,21,23,25,27,29,31,33,35,37,39,40,42,44]}
@@ -2103,40 +2105,40 @@ const champVars = {
     }
     },
     Nasus: {
-    buffs: [
-      {spell: 3, key: "e4", type: "armor", active: true},
-      {spell: 3, key: "e4", type: "mr", active: true},
-      {spell: 3, key: "e1", type: "hp", active: true}
-    ],
-    debuff: [
-      {
-      name: "PercentAtkSpeed",
-      value: [0,0.175,0.235,0.295,0.355,0.415,0.475],
-      img: "spell/NasusW.png"
-      },
-      {
-      name: "PercentArmorPen",
-      value: [0,0.15,0.2,0.25,0.30,0.35],
-      img: "spell/NasusE.png"
-      }
-    ],
-    sInfoP: {
-            p1: {info: "PercentLifeStealMod", valuePerLvl: [10,10,10,10,10,10,15,15,15,15,15,15,20,20,20,20,20,20]}
-        },
+        buffs: [
+          {spell: 3, key: "e4", type: "armor", active: true},
+          {spell: 3, key: "e4", type: "mr", active: true},
+          {spell: 3, key: "e1", type: "hp", active: true}
+        ],
+        debuff: [
+          {
+          name: "PercentAtkSpeed",
+          value: [0,0.175,0.235,0.295,0.355,0.415,0.475],
+          img: "spell/NasusW.png"
+          },
+          {
+          name: "PercentArmorPen",
+          value: [0,0.15,0.2,0.25,0.30,0.35],
+          img: "spell/NasusE.png"
+          }
+        ],
+        sInfoP: {
+                p1: {info: "PercentLifeStealMod", valuePerLvl: [10,10,10,10,10,10,15,15,15,15,15,15,20,20,20,20,20,20]}
+            },
         sInfo0: {
-      input: {type: "number"},
-      e1: {type: "phys", spell: true, child: ["a2","f1Var"], basicAttack: true},
-      f1Var: {inputId: "0", link: "input", coeff: 3}
-    },
-    sInfo2: {
-      e4: {type: "mag", spell: true, child: ["a2"]},
-      e1: {type: "mag", spell: true, child: ["a1"]}
-    },
-    sInfo3: {
-      active: true,
-      e3: {type: "mag", spell: true, child: ["a1"], apply: "maxHp"},
-      e5: {type: "mag", spell: true, child: ["a1"]}
-    }
+            input: {type: "number"},
+            e1: {type: "phys", spell: true, child: ["a2","f1Var"], basicAttack: true},
+            f1Var: {inputId: "0", link: "input", coeff: 3}
+        },
+        sInfo2: {
+          e4: {type: "mag", spell: true, child: ["a2"]},
+          e1: {type: "mag", spell: true, child: ["a1"]}
+        },
+        sInfo3: {
+          active: true,
+          e3: {type: "mag", spell: true, child: ["a1"], apply: "maxHp"},
+          e5: {type: "mag", spell: true, child: ["a1"]}
+        }
     },
     Nautilus: {
     aSpdBonus: 0.15,
@@ -2269,34 +2271,34 @@ const champVars = {
     }
     },
     Olaf: {
-    buffs: [
+        buffs: [
             {spell: "P", key: "p1", type: "attackSpeed"},
-      {spell: 1, key: "e1", type: "attackSpeed", active: true},
-      {spell: 3, key: "f1", type: "attackdamage", active: true},
-      {spell: 3, key: "e1", type: "armor", passiveOnly: true},
-      {spell: 3, key: "e1", type: "mr", passiveOnly: true},
-      {spell: 3, key: "e5", type: "percentmoveSpeed", active: true}
-    ],
-    sInfoP: {
-            p1: {info: "PercentAttackSpeedMod", child: ["p1Var"]},
-            p1Var: {link: "percentMissingHp", coeff: 1}
-        },
+            {spell: 1, key: "e1", type: "attackSpeed", active: true},
+            {spell: 3, key: "f1", type: "attackdamage", active: true},
+            {spell: 3, key: "e1", type: "armor", passiveOnly: true},
+            {spell: 3, key: "e1", type: "mr", passiveOnly: true},
+            {spell: 3, key: "e5", type: "percentmoveSpeed", active: true}
+        ],
+        sInfoP: {
+                p1: {info: "PercentAttackSpeedMod", child: ["p1Var"]},
+                p1Var: {link: "percentMissingHp", coeff: 1}
+            },
         sInfo0: {
-      e1: {type: "phys", spell: true, child: ["a1"]}
-    },
-    sInfo1: {
-      active: true
-    },
-    sInfo2: {
-      e1: {type: "tru", spell: true, child: ["a1"]}
-    },
-    sInfo3: {
-      active: true,
-      e1: {type: "armor"},
-      e1a: {type: "mr"},
+          e1: {type: "phys", spell: true, child: ["a1"]}
+        },
+        sInfo1: {
+          active: true
+        },
+        sInfo2: {
+          e1: {type: "tru", spell: true, child: ["a1"]}
+        },
+        sInfo3: {
+            active: true,
+            e1: {type: "armor"},
+            e1a: {type: "mr"},
             f1: {effectNo: 6, child: ["f1Var"]},
             f1Var: {link: "attackdamage", coeff: 0.3}
-    }
+        }
     },
     Orianna: {
     buffs: [
@@ -2394,9 +2396,6 @@ const champVars = {
     }
     },
     Pyke : {
-        buffs: [
-            {spell: "P", key: "p1", type: "attackdamage"}
-        ],
         sInfoP: {
             p1: {info: ["Attack", "Damage"], child: ["p1Var"]},
             p1Var: {link: "bonusHp", coeff: 0.07145}

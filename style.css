@@ -20,6 +20,10 @@ body, input, select, option {
     font-family: Georgia;
 }
 
+body {
+    min-width: 1280px;
+}
+
 ul {
     list-style-type: none;
 }
@@ -40,6 +44,7 @@ h1 {
     width: 100%;
     position: absolute;
     height: 3em;
+    background-color: yellow;
 }
 #logo2 {
     color: blue;
@@ -212,12 +217,13 @@ hr {
 
 .skillBox{
     width: 40%;
+    color: white;
     text-align: center;
     float: right;
     clear: right;
     overflow: hidden;
     border: solid 1px white;
-    background-color: #EEE;
+    background-color: black;
 }
 
 .skillTxt{
@@ -234,7 +240,7 @@ hr {
 }
 
 .skillImg img {
-    width: 90%;
+    width: 3em;
     cursor: pointer;
     border-radius: 0.3em;
 }
@@ -266,6 +272,7 @@ hr {
 
 .runes img {
     height: 55%;
+    cursor: pointer;
 }
 
 .runes input[type="checkbox"] {
