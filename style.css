@@ -44,13 +44,13 @@ h1 {
     width: 100%;
     position: absolute;
     height: 3em;
-    background-color: yellow;
 }
 #logo2 {
     color: blue;
 }
 
 #importBx {
+    display: none;
     float: left;
     height: 100%;
     background-color: purple;
@@ -63,7 +63,7 @@ h1 {
     width: 100%;
     top: 3em;
     height: 2em;
-    background-color: green;
+    background-color: black;
 }
 
 .sidePanel {
@@ -126,6 +126,7 @@ h2 {
 }
 
 .headBtn {
+    display: none;
     float: right;
     height: 100%;
     padding: 0 1em;
@@ -138,7 +139,9 @@ h2 {
     float: right;
     height: 100%;
     padding: 0 1em;
-    border: solid 1px black;
+    background-color: red;
+    color: white;
+    padding-top: 0.1em;
     margin-left: 0.25em;
     cursor: pointer;
 }
@@ -185,7 +188,8 @@ h2 {
 }
 
 .elixir {
-    float: right;
+    padding-top: 0.2em;
+    float: left;
     height: 100%;
     width: 8em;
     text-align: center;
@@ -327,6 +331,26 @@ h3 {
     font-weight: bold;
 }
 
+.heal {
+    color: #4cf854;
+    font-weight: bold;
+}
+
+.shield {
+    color: #d6d6d6;
+    font-weight: bold;
+}
+
+.armor {
+    color: #fafb01;
+    font-weight: bold;
+}
+
+.mr {
+    color: #fd00fd;
+    font-weight: bold;
+}
+
 .statValue {
     font-weight: bold;
 }
@@ -432,6 +456,7 @@ h3 {
 }
 
 .debuff, .buff {
+    padding-top: 0.2em;
     width: 4em;
     float: left;
     margin: 0 0.1em;
@@ -446,7 +471,7 @@ h3 {
 
 .buff img{
     width: 2.5em;
-    border: solid 1px green;
+    border: solid 2px green;
     border-radius: 10%;
 }
 
