@@ -7,11 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>&#128295; Theory Crunch - League of Legends Combat Calculator</title>
     <link rel="stylesheet" href="style.css">
-    <script src="champobj.js"></script>
-    <script src="myjs.js"></script>
-    <!--<script src="champjs.js"></script> -->
 </head>
-<body>
+<body onhashchange="newLang()">
     <div id="header">
         <h1>
             Theory<span id="logo2">Crunch</span>
@@ -35,15 +32,52 @@
             <input type="submit" value="Import" id="submitBtn">
         </form>
         </div>
+        <div id="langStr">
+            <span onclick="toogleVisible('langBox')" >&#127759;</span><br>
+        </div>
     </div>
-
-    <div class="sideHead">
+    <!-- Language Hidden Div -->
+    <div id="langBox">
+      <a href="#cs_CZ">čeština (Czech Republic)</a><br>
+      <a href="#de_DE">Deutsch (Germany)</a><br>
+      <a href="#el_GR">ελληνικά (Greece)</a><br>
+      <a href="#en_AU">English (Australia)</a><br>
+      <a href="#en_GB">English (United Kingdom)</a><br>
+      <a href="#en_PH">English (Republic of the Philippines)</a><br>
+      <a href="#en_PL">English (Poland)</a><br>
+      <a href="#en_SG">English (Singapore)</a><br>
+      <a href="#en_US">English (United States)</a><br>
+      <a href="#es_AR">español (Argentina)</a><br>
+      <a href="#es_ES">español (Spain)</a><br>
+      <a href="#es_MX">español (Mexico)</a><br>
+      <a href="#fr_FR">français (France)</a><br>
+      <a href="#hu_HU">magyar (Hungary)</a><br>
+      <a href="#id_ID">Bahasa Indonesia (Indonesia)</a><br>
+      <a href="#it_IT">Italiano (Italy)</a><br>
+      <a href="#ja_JP">日本語 (Japan)</a><br>
+      <a href="#ko_KR">조선말 (Korea)</a><br>
+      <a href="#ms_MY">Malay (Malaysia)</a><br>
+      <a href="#pl_PL">język polski (Poland)</a><br>
+      <a href="#pt_BR">português (Brazil)</a><br>
+      <a href="#ro_RO">română (Romania)</a><br>
+      <a href="#ru_RU">русский язык (Russia)</a><br>
+      <a href="#th_TH">ภาษาไทย (Thailand)</a><br>
+      <a href="#tr_TR">Türkçe (Turkey)</a><br>
+      <a href="#vn_VN">Tiếng Việt (Viet Nam)</a><br>
+      <a href="#zh_CN">简体字 (China)</a><br>
+      <a href="#zh_MY">简体字 (Malaysia)</a><br>
+      <a href="#zh_TW">繁體字 (Taiwan)</a><br>
+    </div>
+    
+    <div id="sideHead">
         <div class="sidePanel">
+            <span class="enemySelectStr">Playing Against:</span>
             <select id="enemy0">
 
             </select>
         </div>
         <div class="sidePanel">
+            <span class="enemySelectStr">Playing Against:</span>
             <select id="enemy1">
 
             </select>
@@ -265,5 +299,8 @@
     <!-- Hover Box [hidden by default] -->
     <div id="hoverDiv">
     </div>
+
 </body>
+    <script src="champobj.js"></script>
+    <script src="myjs.js"></script>
 </html>
