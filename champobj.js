@@ -673,28 +673,28 @@ const champVars = {
     }
     },
     Ezreal: {
-    buffs: [
-      {spell: 1, key: "e2", type: "attackSpeed", active: true},
+        buffs: [
+            {spell: 1, key: "e2", type: "attackSpeed", active: true},
             {spell: "P", key: "p1", type: "attackSpeed"}
-    ],
+        ],
         sInfoP: {
             input: {type: "number", max: "5"},
             p1: {info: "PercentAttackSpeedMod", child: ["p1Var"]},
-            p1Var: {inputId: "P", link: "input", coeff: [10,10,10,10,10,10,12,12,12,12,12,12,14,14,14,14,14,14]},
+            p1Var: {inputId: "P", link: "input", coeff: 10},
         },
-    sInfo0: {
-      e1: {type: "phys", spell: true, onHit: 1, child: ["a1","a2"]}
-    },
-    sInfo1: {
-      active: true,
-      e1: {type: "mag", spell: true, child: ["a1"]}
-    },
-    sInfo2: {
-      e1: {type: "mag", spell: true, child: ["a1","a2"]}
-    },
-    sInfo3: {
-      e1: {type: "mag", spell: true, child: ["a1","a2"]}
-    }
+        sInfo0: {
+          e1: {type: "phys", spell: true, onHit: 1, child: ["a1","a2"]}
+        },
+        sInfo1: {
+          active: true,
+          e1: {type: "mag", spell: true, child: ["a1"]}
+        },
+        sInfo2: {
+          e1: {type: "mag", spell: true, child: ["a1","a2"]}
+        },
+        sInfo3: {
+          e1: {type: "mag", spell: true, child: ["a1","a2"]}
+        }
     },
     Fiddlesticks: {
     buffs: [
@@ -995,7 +995,7 @@ const champVars = {
     },
     Hecarim: {
         buffs: [
-            {spell: 2, key: "f1Buff", type: "multiMoveSpeed"},//Multiplicative speed boosts [not additive]
+            {spell: 2, key: "f1Buff", type: "multiMoveSpeed"},
             {spell: "P", key: "p1", type: "attackdamage"}
         ],
         sInfoP: {
@@ -1282,7 +1282,7 @@ const champVars = {
         f3: {valuePerLvl: [10,10,10,10,10,15,15,15,15,15,20,20,20,20,20,25,25,25,]}
     }
     },
-    Jhin: {//check to see if passive crit infinitely scales
+    Jhin: {
         buffs: [
           {spell: "P", key: "p2", type: "attackdamage"}
         ],
@@ -1353,37 +1353,35 @@ const champVars = {
                 {spell: "2", key: "e5", type: "attackSpeed", active: true},
         ],
         sInfoP: {
-          p0: {info: "magicDamage", myInfo: "[X0]", type: "mag", valuePerLvl: [7,7,7,8,8,8,9,9,9,10,10,10,11,11,11,12,12,12], child: ["p1Var"]},
-          p0Var: {link: "spelldamage", coeff: 0.2},
-          p1: {info: "magicDamage", myInfo: "[X1]", type: "mag", valuePerLvl: [8,8,9,10,11,11,13,13,14,15,16,16,18,18,19,20,21,21], child: ["p1Var"]},
-          p1Var: {link: "spelldamage", coeff: 0.25},
-          p2: {info: "magicDamage", myInfo: "[X2]", type: "mag", valuePerLvl: [9,9,11,12,14,14,17,17,19,20,22,22,25,25,27,28,30,30], child: ["p2Var"]},
-          p2Var: {link: "spelldamage", coeff: 0.3},
-          p3: {info: "magicDamage", myInfo: "[X3]", type: "mag", valuePerLvl: [10,10,13,14,17,17,21,21,24,25,28,28,32,32,35,36,39,39], child: ["p3Var"]},
-          p3Var: {link: "spelldamage", coeff: 0.35},
-          p4: {info: "magicDamage", myInfo: "[X4]", type: "mag", valuePerLvl: [11,11,15,16,20,20,25,25,29,30,34,34,39,39,43,44,48,48], child: ["p4Var"]},
-          p4Var: {link: "spelldamage", coeff: 0.4},
-          p5: {info: "magicDamage", myInfo: "[X4]+", type: "mag", valuePerLvl: [15,15,15,16,16,16,17,17,17,18,18,18,19,19,19,20,20,20], apply: "missHp", child: ["p5Var"]},
+          p0: {info: "magicDamage", myInfo: "[X0]", type: "mag", valuePerLvl: [4,4,5,5,5,6,6,6,7,7,8,8,8,9,9,9,10,10], child: ["p0Var"]},
+          p0Var: {link: "spelldamage", coeff: 0.1},
+          p1: {info: "magicDamage", myInfo: "[X1]", type: "mag", valuePerLvl: [5,5,6,7,7,8,8,9,10,10,11, 12,12,13,13, 14,15,15], child: ["p1Var"]},
+          p1Var: {link: "spelldamage", coeff: 0.125},
+          p2: {info: "magicDamage", myInfo: "[X2]", type: "mag", valuePerLvl: [6,6,7,9,9,10,10,12,13,13,14,16,16,17,17,19,20,20], child: ["p2Var"]},
+          p2Var: {link: "spelldamage", coeff: 0.15},
+          p3: {info: "magicDamage", myInfo: "[X3]", type: "mag", valuePerLvl: [7,7,8,11,11,12,12,15,16,16,17,20,20,21,21,24,25,25], child: ["p3Var"]},
+          p3Var: {link: "spelldamage", coeff: 0.175},
+          p4: {info: "magicDamage", myInfo: "[X4]", type: "mag", valuePerLvl: [8,8,9,13,13,14,14,18,19,19,20,24,24,25,25,29,30,30], child: ["p4Var"]},
+          p4Var: {link: "spelldamage", coeff: 0.2},
+          p5: {info: "magicDamage", myInfo: "[Detonate DMG]", type: "mag", valuePerLvl: [15,15,15,16,16,16,17,17,17,18,18,18,19,19,19,20,20,20], apply: "missHp", child: ["p5Var"]},
           p5Var: {link: "spelldamage", coeff: 0.0375}
         },
         sInfo0: {
             e1: {type: "phys", child: ["f1Var","f7Var"], spell: true},
             f1Var: {link: "bonusattackdamage", coeff: 0.35},
             f7Var: {link: "spelldamage", coeff: 0.4},
-            f3: {effectNo: 1, type: "phys", child: ["f1Var","f7Var"], ticks: 6, tickMulti: 30, spell: true},
+            f3: {effectNo: 1, type: "phys", child: ["f1Var","f7Var"], ticks: 6, tickMulti: 0.3, spell: true},
             f5: {child: ["f5Var"]},
             f5Var: {link: "bonusattackdamage", coeff: 1},
             txt: "<br><br>x12: {{ f9 }}",
-            f9: {effectNo: 1, type: "phys", child: ["f1Var","f7Var"], ticks: 10, tickMulti: 30, spell: true}
+            f9: {effectNo: 1, type: "phys", child: ["f1Var","f7Var"], ticks: 10, tickMulti: 0.3, spell: true}
         },
         sInfo1: {
-            e1: {type: "mag", value: 14, child: ["f0Var","f1Var","f2Var"], spell:true},
-            f0Var: {link: "champLevel", coeff: 1},
+            e1: {type: "mag" ,valuePerLvl: [9,10,11,12,13,14,14,15,16,17,18,19,20,21,22,23,24,25], child: ["f1Var","f2Var"]},
             f1Var: {link: "attackdamage", coeff: 1.5},
-            f2Var: {link: "spelldamage", coeff: 0.9},
-            e1a: {type: "mag", value: 14, child: ["f4Var","f1Var","f5Var"], spell:true},
-            f4Var: {link: "champLevel", coeff: 4},
-            f5Var: {link: "spelldamage", coeff: 1.2},
+            f2Var: {link: "spelldamage", coeff: 1.16},
+            e1a: {type: "mag", value: 14, child: ["f1Var","f5Var"], valuePerLvl: [13,16,18,21,23,26,28,30,33,35,38,40,43,45,48,50,53,55], spell:true},
+            f5Var: {link: "spelldamage", coeff: 1.37},
             f3: {child: ["f3Var"]},
             f3Var: {link: "spelldamage", coeff: 1}
         },
@@ -1947,7 +1945,7 @@ const champVars = {
     aSpdBonus: 0.08,
     buffs: [
         {spell: 1, key: "e3", type: "dmgReduction", active: true},
-        {spell: 2, key: "f1", type: "attackdamage"}
+        {spell: 2, key: "f1", type: "attackdamage", passiveOnly: true}
     ],
     sInfoP: {
             p1: {info: "Damage", myInfo: "[2]", type: "phys", onHit: 1, basicAttack: true, crit: [100], child: ["p1Var"]},
@@ -1958,7 +1956,8 @@ const champVars = {
     },
     sInfo1: {
       active: true,
-      e1: {type: "heal", selfHeal: true, child: ["a1"]}
+      e1: {type: "heal", selfHeal: true, child: ["a1"]},
+      e2: {multiplier: 10000}
     },
     sInfo2: {
         active: true,
@@ -3641,7 +3640,7 @@ const champVars = {
         p1: {info: "Defense", type: "shield", selfShield: true, valuePerLvl: [100,105,110,115,120,130,140,150,165,180,200,225,255,290,330,380,440,510]}
     },
     sInfo0: {
-      "f2.0": {value: [20,45,70,95,120], type: "phys", spell: true, child: ["f3Var"], onHit: 1, crit: [50]},
+      "f2.0": {value: [20,45,70,95,120], type: "phys", spell: true, child: ["f3Var"], onHit: 1, crit: [80]},
       f3Var: {link: "attackdamage", coeff: 1}
     },
     sInfo2: {

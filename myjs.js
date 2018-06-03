@@ -69,7 +69,7 @@ const newLang = function () {
     if(location.hash.replace("#","") != theLang) {
         location.reload();
     }
-}
+};
 
 const showHover = function (txt, x, y) {
   var hoverDiv;
@@ -93,7 +93,6 @@ const hideHover = function () {
 };
 
 const toogleVisible = function (element) {
-    console.log(document.getElementById(element));
     let currEle = document.getElementById(element).style;
     currEle.display = (currEle.display === "none" || !currEle.display) ? "block":"none";
 };
@@ -683,6 +682,9 @@ const champObj = function (obj, side, uid) {// create champion object
                     if (itemCheck(3086)) {// Zeal
                         move[2] = calc(move[2], 0.05, 0);
                     }
+                    if (itemCheck(3095, true)) {
+                        move[2] = calc(move[2], 0.1, 0);
+                    }
                     // unique cdr
                     const
                         uniqCdr10 = [2065,3133,3108,3114,3024,3158,3067,3101,3083],
@@ -1261,6 +1263,9 @@ const champObj = function (obj, side, uid) {// create champion object
                 aPen[1] = round(calc(aPen[2], calc(0.6, calc(calc(0.4, level), 18, 3), 0)));
 
                 if (itemCheck(3031) || itemCheck(3371)) {// double crit chance from IEdge
+                    crit = calc(crit, 2);
+                }
+                if (id === "Yasuo") {// double crit chance from IEdge
                     crit = calc(crit, 2);
                 }
 
@@ -2033,7 +2038,7 @@ const champObj = function (obj, side, uid) {// create champion object
 
                 const getCrit = function (dmg, critArr, isBasicAttack) {
                     let critMulti;
-                    if (itemCheck(3095, true)) {
+                    if (itemCheck(3095, true) && isBasicAttack) {//stormrazor
                         const razorBonusMulti = calc(crit, 1.5, 3);
                         critMulti = calc(1.6, razorBonusMulti, 0);
                     } else {
@@ -2047,7 +2052,8 @@ const champObj = function (obj, side, uid) {// create champion object
                 const avgCritDmg = function (baseDmg, critDmg) {
                     let avgDmg = [];
                     baseDmg.forEach(function (value, index) {
-                        avgDmg.push(calc(calc(critDmg[index], crit), calc(value, calc(1, crit, 1)), 0));
+                        const critChance = (crit > 1) ? 1 : crit;
+                        avgDmg.push(calc(calc(critDmg[index], critChance), calc(value, calc(1, critChance, 1)), 0));
                     });
                     return avgDmg;
                 };
@@ -2077,19 +2083,15 @@ const champObj = function (obj, side, uid) {// create champion object
                 const getDmg = function (rawDmg, spellObj, isCrit = false, isTick = false) {
                     let resistedDmg, truDmg = 0;
                     let myDmg = (spellObj.basicAttack && enemyUID) ? myChamps[enemyUID].takeBasicAtk(rawDmg) : rawDmg;// Ninja Tabi
-
                     if (isCrit) {
-                        let theCritDmg;
                         if (spellObj.basicAttack) {
-                            theCritDmg = getCrit(myDmg, spellObj.crit, true);
+                            myDmg = calc(myDmg, getCrit(myDmg, spellObj.crit, true), 0);
                         } else {
-                            theCritDmg = getCrit(myDmg, spellObj.crit);
+                            myDmg = calc(myDmg, getCrit(myDmg, spellObj.crit), 0);
                         }
                         if (itemCheck(3031) || itemCheck(3371)) {
-                            truDmg = calc(calc(theCritDmg, 0.15), truDmg, 0);
-                            myDmg = calc(calc(theCritDmg, 0.85), myDmg, 0);
-                        } else {
-                            myDmg = calc(theCritDmg, myDmg, 0);
+                            truDmg = calc(truDmg, calc(myDmg, 0.15), 0);
+                            myDmg = calc(myDmg, 0.85);
                         }
                     }
                     const sortedDmg = sortDmg(myDmg, spellObj.type);
@@ -2097,7 +2099,7 @@ const champObj = function (obj, side, uid) {// create champion object
                     let magDmg = sortedDmg[1];
                     truDmg = calc(sortedDmg[2], truDmg, 0);
 
-                    if ((itemCheck(3092, true) || itemCheck(3098, true)) && !isTick) {
+                    if ((itemCheck(3092, true) || itemCheck(3098, true)) && !isTick) {//FQC
                         magDmg = calc(magDmg, 18, 0);
                     } else if (itemCheck(3303, true) && !isTick) {
                         magDmg = calc(magDmg, 13, 0);
@@ -2195,12 +2197,16 @@ const champObj = function (obj, side, uid) {// create champion object
                             (itemCheck(3078, true)) ||//triforce
                             (itemCheck(3384, true))
                         ) {
-                            let triDmg = calc(attackdamage[0], 2);
+                            let triDmg = calc(calc(attackdamage[0], 2), onHitMulti);
+                            if ((itemCheck(3031) || itemCheck(3371))  && isCrit) {//I Edge
+                                triDmg = calc(triDmg, 0.85);
+                                truDmg = calc(truDmg, calc(triDmg, 0.15), 0);
+                            }
                             if (spellObj.type === "corkiAuto") {
                                 physDmg = calc(physDmg, calc(triDmg, 0.2), 0);
                                 magDmg = calc(magDmg, calc(triDmg, 0.8), 0);
                             } else {
-                                physDmg = calc(physDmg, calc(triDmg, onHitMulti), 0);
+                                physDmg = calc(physDmg, triDmg, 0);
                             }
                         } else if (
                             (itemCheck(3025, true)) ||//iceborn/sheen
@@ -2210,7 +2216,12 @@ const champObj = function (obj, side, uid) {// create champion object
                                 physDmg = calc(physDmg, calc(attackdamage[0], 0.2), 0);
                                 magDmg = calc(magDmg, calc(attackdamage[0], 0.8), 0);
                             } else {
-                                physDmg = calc(physDmg, calc(attackdamage[0], onHitMulti), 0);
+                                if ((itemCheck(3031) || itemCheck(3371)) && isCrit) {
+                                    truDmg = calc(truDmg, calc(0.15, calc(attackdamage[0], onHitMulti)) ,0);
+                                    physDmg = calc(physDmg, calc(0.85, calc(attackdamage[0], onHitMulti)), 0);
+                                } else {
+                                    physDmg = calc(physDmg, calc(attackdamage[0], onHitMulti), 0);
+                                }
                             }
                         }
                         if (itemCheck(3742, true)) {//dead mans
@@ -2224,6 +2235,10 @@ const champObj = function (obj, side, uid) {// create champion object
                             let shivDmg = calc(shivLvlDmg[level - 1], onHitMulti);
                             if (isCrit) {
                                 shivDmg = calc(getCrit(shivDmg, spellObj.crit), shivDmg, 0);
+                                if (itemCheck(3031) || itemCheck(3371)) {
+                                    truDmg = calc(truDmg, calc(shivDmg, 0.15), 0);
+                                    shivDmg = calc(shivDmg, 0.85);
+                                }
                             }
                             magDmg = calc(magDmg, shivDmg, 0);
                         }
@@ -2582,14 +2597,13 @@ const champObj = function (obj, side, uid) {// create champion object
                                 const getTickDmg = function (tickDmg) {
                                     const totalTicks = (typeof keyObj.ticks === "object") ? keyObj.ticks[spellLvl] - 1 : keyObj.ticks - 1;
                                     let totalDmg = [0, 0, 0];
-                                    const ticksPS = Math.ceil(calc((totalTicks + 1), keyObj.duration, 3));
+                                    let ticksPS = (keyObj.duration) ? Math.ceil(calc((totalTicks + 1), keyObj.duration, 3)): totalTicks + 1;
                                     let cleaveStacks = 0;
                                     let liandStacks = 0;
                                     if (items.includes(3151)) {// Liandry
                                         liandStacks = parseInt(document.getElementById(uid + 3151).value);
                                     }
                                     let tickCount = 0;
-
                                     while (tickCount !== totalTicks) {
                                         tickCount += 1;
                                         let myDmg = [tickDmg[0], tickDmg[1], tickDmg[2]];
@@ -2604,7 +2618,6 @@ const champObj = function (obj, side, uid) {// create champion object
                                                     } else {
                                                         myDmg[1] = calc(myDmg[1], myChamps[enemyUID].getPercentHP(0.01), 0);
                                                     }
-                                                    console.log(myDmg[1]);
                                                 }
                                             }
                                             let liandMulti = calc(1, calc(liandStacks, 0.02), 0);
@@ -2624,10 +2637,13 @@ const champObj = function (obj, side, uid) {// create champion object
                                 };
                                 let theDmg = getDmg(keyValue, keyObj);
                                 if (keyObj.ticks) {
+                                    if (keyObj.tickMulti) {
+                                        keyValue = calc(keyValue, keyObj.tickMulti);
+                                    }
                                     theDmg = addDmg(theDmg, getTickDmg(getDmg(keyValue, keyObj ,false, true)));
                                 }
                                 placeHoldStr = styleDigits(theDmg, keyObj.type);
-                                if (keyObj.crit && (crit > 0 || keyObj.crit[1] || itemCheck(3095, true))) {
+                                if (keyObj.crit && (crit > 0 || keyObj.crit[1] || (itemCheck(3095, true) && keyObj.basicAttack))) {
                                     const theCritDmg = getDmg(keyValue, keyObj, true);
                                     if (keyObj.ticks) {
                                         const critTickDmg = addDmg(theCritDmg, getTickDmg(getDmg(keyValue, keyObj , true, true)));
@@ -2707,7 +2723,6 @@ const champObj = function (obj, side, uid) {// create champion object
                 }
                 return calc(basePen, bonusPen, 0);
             };
-
             let totalArmor;
 
             if (cleaves) {//apply black cleaver stacks
@@ -2728,10 +2743,22 @@ const champObj = function (obj, side, uid) {// create champion object
             }
             const totalSBlock = calcPenResist(spellblock[0], spellblock[1], eMPen);
 
-            const physDmg = round(calc(dmg[0], calcResist(totalArmor)), 1);
-            const magDmg = round(calc(dmg[1], calcResist(totalSBlock)), 1);
+            let physDmg = round(calc(dmg[0], calcResist(totalArmor)), 1);
+            let magDmg = round(calc(dmg[1], calcResist(totalSBlock)), 1);
             const truDmg = dmg[2];//add amumu debuff
-
+            
+            if (dmgReduct[0]) {
+                magDmg = calc(magDmg, calc(1, dmgReduct[1], 1));
+            }
+            if (dmgReduct[1]) {
+                physDmg = calc(physDmg, calc(1, dmgReduct[1], 1));
+            }
+            if (dmgReduct[2]) {
+                physDmg = calc(physDmg, dmgReduct[2], 1);
+                if (physDmg < 0) {
+                    physDmg = 0;
+                }
+            }
             return [physDmg, magDmg, truDmg];
         },
         takeBasicAtk = function (dmg) {
@@ -2800,237 +2827,164 @@ const champObj = function (obj, side, uid) {// create champion object
         };
 
     //script to fix riots disappearing data
-    const missingInfo = {
-                Ahri: {
-            0: {
-                name: "Orb of Deception",
-                tooltip: "Deals {{ e1 }} <scaleAP>(+{{ a1 }})</scaleAP> magic damage on the way out, and {{ e1 }} <scaleAP>(+{{ a1 }})</scaleAP> true damage on the way back.<br /><br />Ahri's abilities generate Essence Theft stacks when they hit enemies (max {{ f4.0 }} per cast). At {{ f3.0 }} stacks, Ahri's next Orb of Deception that lands a hit will restore <scaleLevel>{{ f1.0 }}</scaleLevel> <scaleAP>(+{{ f2.-1 }})</scaleAP> health for each enemy hit.",
-                vars: [
+    switch (id) {
+    case "Ahri":
+        spells[0].name = "Orb of Deception";
+        spells[0].tooltip = "Deals {{ e1 }} <scaleAP>(+{{ a1 }})</scaleAP> magic damage on the way out, and {{ e1 }} <scaleAP>(+{{ a1 }})</scaleAP> true damage on the way back.<br /><br />Ahri's abilities generate Essence Theft stacks when they hit enemies (max {{ f4.0 }} per cast). At {{ f3.0 }} stacks, Ahri's next Orb of Deception that lands a hit will restore <scaleLevel>{{ f1.0 }}</scaleLevel> <scaleAP>(+{{ f2.-1 }})</scaleAP> health for each enemy hit.";
+        spells[0].vars = [
                     { link: "spelldamage", coeff: 0.35, key: "a1" }
-                ]
-            },
-            1: {
-                name: "Fox-Fire",
-                tooltip: "Releases fox-fires that seek nearby enemies and deal {{ e1 }} <scaleAP>(+{{ a1 }})</scaleAP> magic damage.<br /><br />Enemies hit with multiple fox-fires take {{ e2 }}% damage from each additional fox-fire beyond the first, for a maximum of <scaleAP>{{ f1 }}</scaleAP> damage to a single enemy.<br /><br /><rules>Fox-fire prioritizes champions recently hit by Charm, then enemies Ahri recently attacked.<br />If Fox-fire cannot find a priority target, it targets champions over the nearest enemy if possible.</rules>",
-                vars: [
-                    { link: "spelldamage", coeff: 0.3, key: "a1" }
-                ]
-            },
-            2: {
-                name: "Charm",
-                tooltip: "Blows a kiss dealing {{ e1 }} <scaleAP>(+{{ a1 }})</scaleAP> magic damage and charms an enemy causing them to walk harmlessly towards Ahri for {{ e2 }} second(s).<br /><br />Enemies hit by Charm become vulnerable for {{ e5 }} seconds, taking {{ e4 }}% more damage from Ahri's abilities.",
-                vars: [
+                ];
+        spells[1].name = "Fox-Fire";
+        spells[1].tooltip = "Releases fox-fires that seek nearby enemies and deal {{ e1 }} <scaleAP>(+{{ a1 }})</scaleAP> magic damage.<br /><br />Enemies hit with multiple fox-fires take {{ e2 }}% damage from each additional fox-fire beyond the first, for a maximum of <scaleAP>{{ f1 }}</scaleAP> damage to a single enemy.<br /><br /><rules>Fox-fire prioritizes champions recently hit by Charm, then enemies Ahri recently attacked.<br />If Fox-fire cannot find a priority target, it targets champions over the nearest enemy if possible.</rules>";
+        spells[1].vars = [
+                    { link: "spelldamage", coeff: 0.35, key: "a1" }
+                ];
+        spells[2].name = "Charm";
+        spells[2].tooltip = "Blows a kiss dealing {{ e1 }} <scaleAP>(+{{ a1 }})</scaleAP> magic damage and charms an enemy causing them to walk harmlessly towards Ahri for {{ e2 }} second(s).<br /><br />Enemies hit by Charm become vulnerable for {{ e5 }} seconds, taking {{ e4 }}% more damage from Ahri's abilities.";
+        spells[2].vars = [
                     { link: "spelldamage", coeff: 0.4, key: "a1" }
-                ]
-            },
-            3: {
-                name: "Spirit Rush",
-                tooltip: "Nimbly dashes forward firing {{ e2 }} essence bolts at nearby enemies (prioritizing champions) dealing {{ e1 }} <scaleAP>(+{{ a1 }})</scaleAP> magic damage.<br /><br />Can be cast up to {{ e3 }} times within {{ e6 }} seconds before going on cooldown.",
-                vars: [
+                ];
+        spells[3].name = "Spirit Rush";
+        spells[3].tooltip = "Nimbly dashes forward firing {{ e2 }} essence bolts at nearby enemies (prioritizing champions) dealing {{ e1 }} <scaleAP>(+{{ a1 }})</scaleAP> magic damage.<br /><br />Can be cast up to {{ e3 }} times within {{ e6 }} seconds before going on cooldown.";
+        spells[3].vars = [
                     { link: "spelldamage", coeff: 0.35, key: "a1" }
-                ]
-            },
-        },
-        Darius: {
-            0: {
-                name: "Decimate",
-                tooltip: "After a short delay, Darius swings his axe around himself, striking enemies in its path. Enemies hit by the axe's blade take {{ e2 }} <span class=\"colorFF8C00\">(+{{ f1 }})</span> physical damage. Enemies hit by the handle take {{ e6 }}% damage (does not apply Hemorrhage).<br /><br />Darius heals for <span class=\"colorFF0000\">{{ e5 }}% of his missing Health</span> per enemy champion hit by the blade (max: {{ e7 }}%).",
-                vars: [
+                ];
+        break;
+    case "Darius":
+        spells[0].name = "Decimate";
+        spells[0].tooltip = "After a short delay, Darius swings his axe around himself, striking enemies in its path. Enemies hit by the axe's blade take {{ e2 }} <span class=\"colorFF8C00\">(+{{ f1 }})</span> physical damage. Enemies hit by the handle take {{ e6 }}% damage (does not apply Hemorrhage).<br /><br />Darius heals for <span class=\"colorFF0000\">{{ e5 }}% of his missing Health</span> per enemy champion hit by the blade (max: {{ e7 }}%).";
+        spells[0].vars = [
                     { link: "bonusattackdamage", coeff: 1.05, key: "f1" }
-                ]
-            },
-            1: {
-                name: "Crippling Strike",
-                tooltip: "Darius's next basic attack deals <span class=\"colorFF8C00\">{{ f1 }}</span> physical damage and slows the target by {{ e2 }}% for {{ e5 }} second.<br /><br />Crippling Strike refunds its Mana cost and {{ e3 }}% of its cooldown if it kills the target.",
-            },
-            2: {
-                name: "Apprehend",
-                tooltip: "<span class=\"colorFF9900\">Passive: </span>Darius gains {{ e1 }}% Armor Penetration.<br /><br /><span class=\"colorFF9900\">Active: </span>Pulls in all enemies in front of Darius and slows them by {{ e2 }}% for {{ e3 }} second.",
-            },
-            3: {
-                name: "Noxian Guillotine",
-                tooltip: "Leaps to target enemy champion and strikes a lethal blow, dealing {{ e1 }} <span class=\"colorFF8C00\">(+{{ f1 }})</span> true damage. For each stack of Hemorrhage on the target, Noxian Guillotine deals an additional {{ e3 }}% damage.<span class=\"size8 colorFF9900\"><br /><br /></span><span class=\"colorF50F00\">Maximum Damage: {{ f3 }}</span><span class=\"size8\"><br /><br /></span>If Noxian Guillotine kills the target, it may be re-cast at no cost within 20 seconds.<span class=\"size8\"><br /><br /></span>At rank 3, Noxian Guillotine <span class=\"colorFFFF66\"><i>unlocks</i></span> - its cooldown resets entirely on kills and it no longer has a Mana cost.",
-                vars: [
+                ];
+        spells[1].name = "Crippling Strike";
+        spells[1].tooltip = "Darius's next basic attack deals <span class=\"colorFF8C00\">{{ f1 }}</span> physical damage and slows the target by {{ e2 }}% for {{ e5 }} second.<br /><br />Crippling Strike refunds its Mana cost and {{ e3 }}% of its cooldown if it kills the target.";
+        spells[2].name = "Apprehend";
+        spells[2].tooltip = "<span class=\"colorFF9900\">Passive: </span>Darius gains {{ e1 }}% Armor Penetration.<br /><br /><span class=\"colorFF9900\">Active: </span>Pulls in all enemies in front of Darius and slows them by {{ e2 }}% for {{ e3 }} second.";
+        spells[3].name = "Noxian Guillotine";
+        spells[3].tooltip = "Leaps to target enemy champion and strikes a lethal blow, dealing {{ e1 }} <span class=\"colorFF8C00\">(+{{ f1 }})</span> true damage. For each stack of Hemorrhage on the target, Noxian Guillotine deals an additional {{ e3 }}% damage.<span class=\"size8 colorFF9900\"><br /><br /></span><span class=\"colorF50F00\">Maximum Damage: {{ f3 }}</span><span class=\"size8\"><br /><br /></span>If Noxian Guillotine kills the target, it may be re-cast at no cost within 20 seconds.<span class=\"size8\"><br /><br /></span>At rank 3, Noxian Guillotine <span class=\"colorFFFF66\"><i>unlocks</i></span> - its cooldown resets entirely on kills and it no longer has a Mana cost.";
+        spells[3].vars = [
                     { link: "bonusattackdamage", coeff: 0.75, key: "f1" }
-                ]
-            },
-        },
-        MasterYi: {
-            0: {
-                name: "Alpha Strike",
-                tooltip: "Master Yi teleports to strike up to {{ e8 }} enemies, dealing {{ e1 }} <span class=\"colorFF8C00\">(+{{ a1 }})</span> physical damage, with an additional {{ e3 }} damage to minions and monsters. During Alpha Strike Master Yi is untargetable.<br /><br />Alpha Strike can critically strike, dealing an additional <span class=\"colorFF8C00\">{{ f1 }}</span> physical damage. Basic attacks lower the cooldown of Alpha Strike by {{ e7 }} second.",
-                vars: [
+                ];
+        break;
+    case "Ezreal":
+        stats.attackdamageperlevel = 2.5;
+        break;
+    case "MasterYi":
+        spells[0].name = "Alpha Strike";
+        spells[0].tooltip = "Master Yi teleports to strike up to {{ e8 }} enemies, dealing {{ e1 }} <span class=\"colorFF8C00\">(+{{ a1 }})</span> physical damage, with an additional {{ e3 }} damage to minions and monsters. During Alpha Strike Master Yi is untargetable.<br /><br />Alpha Strike can critically strike, dealing an additional <span class=\"colorFF8C00\">{{ f1 }}</span> physical damage. Basic attacks lower the cooldown of Alpha Strike by {{ e7 }} second.";
+        spells[0].vars = [
                     { link: "attackdamage", coeff: 1, key: "a1" },
                     { link: "attackdamage", coeff: 0.6, key: "f1" }
-                ]
-            },
-            1: {
-                name: "Meditate",
-                tooltip: "Master Yi channels, reducing incoming damage by {{ e2 }}% and restoring {{ e1 }} <scaleAP>(+{{ a1 }})</scaleAP> health over {{ f1.-1 }} seconds. This healing is increased by up to {{ e0 }}% based on Master Yi's missing health.<br /><br />In addition, Master Yi will gain stacks of Double Strike and pause the remaining duration on Wuju Style and Highlander for each second he channels.<br /><br /><rules>Meditate's damage reduction is halved against structures.</rules>",
-                vars: [
+                ];
+        spells[1].name = "Meditate";
+        spells[1].tooltip = "Master Yi channels, reducing incoming damage by {{ e2 }}% and restoring {{ e1 }} <scaleAP>(+{{ a1 }})</scaleAP> health over {{ f1.-1 }} seconds. This healing is increased by up to {{ e0 }}% based on Master Yi's missing health.<br /><br />In addition, Master Yi will gain stacks of Double Strike and pause the remaining duration on Wuju Style and Highlander for each second he channels.<br /><br /><rules>Meditate's damage reduction is halved against structures.</rules>";
+        spells[1].vars = [
                     { link: "spelldamage", coeff: 1, key: "a1" }
-                ]
-            },
-            2: {
-                name: "Wuju Style",
-                tooltip: "<span class=\"colorFF9900\">Passive:</span> Grants {{ e1 }}% <span class=\"colorFF8C00\">({{ f1 }})</span> Attack Damage.<br /><br /><span class=\"colorFF9900\">Active:</span> Basic attacks deal {{ e3 }} <span class=\"colorFF8C00\">(+{{ f2 }})</span> bonus true damage for {{ e5 }} seconds. Afterwards the passive bonus is lost while Wuju Style is on cooldown.",
-                vars: [
+                ];
+        spells[2].name = "Wuju Style";
+        spells[2].tooltip = "<span class=\"colorFF9900\">Passive:</span> Grants {{ e1 }}% <span class=\"colorFF8C00\">({{ f1 }})</span> Attack Damage.<br /><br /><span class=\"colorFF9900\">Active:</span> Basic attacks deal {{ e3 }} <span class=\"colorFF8C00\">(+{{ f2 }})</span> bonus true damage for {{ e5 }} seconds. Afterwards the passive bonus is lost while Wuju Style is on cooldown.";
+        spells[2].vars = [
                     { link: "attackdamage", coeff: [0.1, 0.125, 0.15, 0.175, 0.2], key: "f2" }
-                ]
-            },
-            3: {
-                name: "Highlander",
-                tooltip: "<span class=\"colorFF9900\">Passive:</span> Champion kills and assists reduce the remaining cooldown of Master Yi's basic abilities by {{ e5 }}%.<br /><br /><span class=\"colorFF9900\">Active:</span> Increases Movement Speed by {{ e3 }}%, Attack Speed by {{ e2 }}%, and grants immunity to slows for {{ e1 }} seconds. While active, champion kills and assists extend the duration of Highlander by {{ e4 }} seconds.",
-                vars: [
+                ];
+        spells[3].name = "Highlander";
+        spells[3].tooltip = "<span class=\"colorFF9900\">Passive:</span> Champion kills and assists reduce the remaining cooldown of Master Yi's basic abilities by {{ e5 }}%.<br /><br /><span class=\"colorFF9900\">Active:</span> Increases Movement Speed by {{ e3 }}%, Attack Speed by {{ e2 }}%, and grants immunity to slows for {{ e1 }} seconds. While active, champion kills and assists extend the duration of Highlander by {{ e4 }} seconds.";
+        spells[3].vars = [
                     { link: "bonusattackdamage", coeff: 0.75, key: "f1" }
-                ]
-            },
-        },
-        MissFortune: {
-            0: {
-                name: "Double Up",
-                tooltip: "Miss Fortune fires a bouncing shot through an enemy, dealing {{ e2 }} <span class=\"colorFF8C00\">(+{{ a2 }})</span> <span class=\"color99FF99\">(+{{ a1 }})</span> physical damage to each target hit. Both apply on-hit effects.<br /><br />The second shot can critically strike for {{ f1 }}% damage, and it always critically strikes if the first shot kills its target.",
-                vars: [
+                ];
+        break;
+    case "MissFortune":
+        spells[0].name = "Double Up";
+        spells[0].tooltip = "Miss Fortune fires a bouncing shot through an enemy, dealing {{ e2 }} <span class=\"colorFF8C00\">(+{{ a2 }})</span> <span class=\"color99FF99\">(+{{ a1 }})</span> physical damage to each target hit. Both apply on-hit effects.<br /><br />The second shot can critically strike for {{ f1 }}% damage, and it always critically strikes if the first shot kills its target.";
+        spells[0].vars = [
                     { link: "attackdamage", coeff: 1, key: "a2" },
                     { link: "spelldamage", coeff: 0.35, key: "a1" }
-                ]
-            },
-            1: {
-                name: "Strut",
-                tooltip: "<span class=\"colorFF9900\">Passive:</span> After 5 seconds of not taking direct damage, Miss Fortune gains {{ e5 }} Movement Speed. After another 5 seconds, this bonus increases to {{ e2 }}.<br /><br /><span class=\"colorFF9900\">Active:</span> Fully activates Strut's Movement Speed and grants {{ e1 }}% Attack Speed for {{ e3 }} seconds.<br /><br />Love Taps reduce the cooldown of Strut by {{ f2 }} seconds.",
-            },
-            2: {
-                name: "Make It Rain",
-                tooltip: "Miss Fortune reveals an area, raining down bullets that deal {{ e1 }} <span class=\"color99FF99\">(+{{ a1 }})</span> magic damage over 2 seconds and slow enemies hit by {{ e2 }}%.",
-                vars: [
+                ];
+        spells[1].name = "Strut";
+        spells[1].tooltip = "<span class=\"colorFF9900\">Passive:</span> After 5 seconds of not taking direct damage, Miss Fortune gains {{ e5 }} Movement Speed. After another 5 seconds, this bonus increases to {{ e2 }}.<br /><br /><span class=\"colorFF9900\">Active:</span> Fully activates Strut's Movement Speed and grants {{ e1 }}% Attack Speed for {{ e3 }} seconds.<br /><br />Love Taps reduce the cooldown of Strut by {{ f2 }} seconds.";
+        spells[2].name = "Make It Rain";
+        spells[2].tooltip = "Miss Fortune reveals an area, raining down bullets that deal {{ e1 }} <span class=\"color99FF99\">(+{{ a1 }})</span> magic damage over 2 seconds and slow enemies hit by {{ e2 }}%.";
+        spells[2].vars = [
                     { link: "spelldamage", coeff: 0.8, key: "a1" }
-                ]
-            },
-            3: {
-                name: "Bullet Time",
-                tooltip: "Miss Fortune channels a barrage of bullets for {{ e3 }} seconds, dealing <span class=\"colorFF8C00\">(+{{ f1 }})</span> <span class=\"color99FF99\">(+{{ a1 }})</span> physical damage per wave ({{ e2 }} waves total).<br /><br />Each wave of Bullet Time can critically strike for {{ f3 }}% damage.<br /><br /><span class=\"colorF50F00\">Total Damage: {{ f2 }}</span>",
-                vars: [
+                ];
+        spells[3].name = "Bullet Time";
+        spells[3].tooltip = "Miss Fortune channels a barrage of bullets for {{ e3 }} seconds, dealing <span class=\"colorFF8C00\">(+{{ f1 }})</span> <span class=\"color99FF99\">(+{{ a1 }})</span> physical damage per wave ({{ e2 }} waves total).<br /><br />Each wave of Bullet Time can critically strike for {{ f3 }}% damage.<br /><br /><span class=\"colorF50F00\">Total Damage: {{ f2 }}</span>";
+        spells[3].vars = [
                     { "link": "bonusattackdamage", "coeff": 0.35, "key": "f1" },
                     { "link": "spelldamage", "coeff": 0.2, "key": "a1" }
-                ]
-            },
-        },
-        Lux: {
-            0: {
-                name: "Light Binding",
-                tooltip: "Lux releases a sphere of light that binds and deals damage to up to two enemy units.",
-                vars: [
+                ];
+        break;
+    case "Lux":
+        spells[0].name = "Light Binding";
+        spells[0].tooltip = "Lux releases a sphere of light that binds and deals damage to up to two enemy units.";
+        spells[0].vars = [
                     { link: "spelldamage", coeff: 0.7, key: "a1" }
-                ]
-            },
-            1: {
-                name: "Prismatic Barrier",
-                tooltip: "Lux throws her wand and bends the light around any friendly target it touches, protecting them from enemy damage.",
-                vars: [
+                ];
+        spells[1].name = "Prismatic Barrier";
+        spells[1].tooltip = "Lux throws her wand and bends the light around any friendly target it touches, protecting them from enemy damage.";
+        spells[1].vars = [
                     { link: "spelldamage", coeff: 0.2, key: "a1" }
-                ]
-            },
-            2: {
-                name: "Lucent Singularity",
-                tooltip: "Fires an anomaly of twisted light to an area, which slows nearby enemies. Lux can detonate it to damage enemies in the area of effect.",
-                vars: [
+                ];
+        spells[2].name = "Lucent Singularity";
+        spells[2].tooltip = "Fires an anomaly of twisted light to an area, which slows nearby enemies. Lux can detonate it to damage enemies in the area of effect.";
+        spells[2].vars = [
                     { link: "spelldamage", coeff: 0.6, key: "a1" }
-                ]
-            },
-            3: {
-                name: "Final Spark",
-                tooltip: "After gathering energy, Lux fires a beam of light that deals damage to all targets in the area. If Final Spark helps take down a champion, part of its cooldown is refunded. In addition, triggers Lux's passive ability and refreshes the Illumination debuff duration.",
-                vars: [
+                ];
+        spells[3].name = "Final Spark";
+        spells[3].tooltip = "After gathering energy, Lux fires a beam of light that deals damage to all targets in the area. If Final Spark helps take down a champion, part of its cooldown is refunded. In addition, triggers Lux's passive ability and refreshes the Illumination debuff duration.";
+        spells[3].vars = [
                     { link: "spelldamage", coeff: 0.75, key: "a1" }
-                ]
-            },
-        },
-        Nocturne: {
-            0: {
-                name: "Duskbringer",
-                tooltip: "Nocturne throws a shadow blade that deals {{ e2 }} <span class=\"colorFF8C00\">(+{{ f1 }})</span> physical damage and leaves a Dusk Trail for {{ e3 }} seconds. Enemy champions hit also leave a Dusk Trail.<br /><br />While on the trail, Nocturne can move through units and gains {{ e1 }}% Movement Speed and {{ e4 }} Attack Damage.",
-                vars: [
+                ];
+        break;
+    case "Nocturne":
+        spells[0].name = "Duskbringer";
+        spells[0].tooltip = "Nocturne throws a shadow blade that deals {{ e2 }} <span class=\"colorFF8C00\">(+{{ f1 }})</span> physical damage and leaves a Dusk Trail for {{ e3 }} seconds. Enemy champions hit also leave a Dusk Trail.<br /><br />While on the trail, Nocturne can move through units and gains {{ e1 }}% Movement Speed and {{ e4 }} Attack Damage.";
+        spells[0].vars = [
                     { link: "bonusattackdamage", coeff: 0.75, key: "f1" }
-                ]
-            },
-            1: {
-                name: "Shroud of Darkness",
-                tooltip: "<span class=\"colorFF9900\">Passive:</span> Nocturne gains {{ e1 }}% Attack Speed.<br /><br /><span class=\"colorFF9900\">Active:</span> Nocturne creates a magical barrier for 1.5 seconds, which blocks the next enemy ability.<br /><br />If an ability is blocked by the shield, Nocturne's passive Attack Speed bonus doubles for {{ e4 }} seconds.<br /><br /><rules>Shroud of Darkness will remain active during Paranoia's flight.</rules>"
-            },
-            2: {
-                name: "Unspeakable Horror",
-                tooltip: "<span class=\"colorFF9900\">Passive:</span> Nocturne gains massively increased Movement Speed toward terrified enemies.<br /><br /><span class=\"colorFF9900\">Active:</span> Nocturne plants a nightmare into his target's mind, dealing {{ e1 }} <span class=\"color99FF99\">(+{{ a1 }})</span> magic damage over {{ e3 }} seconds. If Nocturne stays within range of the target for the full duration, the target becomes terrified for {{ e2 }} second(s).",
-                vars: [
+                ];
+        spells[1].name = "Shroud of Darkness";
+        spells[1].tooltip = "<span class=\"colorFF9900\">Passive:</span> Nocturne gains {{ e1 }}% Attack Speed.<br /><br /><span class=\"colorFF9900\">Active:</span> Nocturne creates a magical barrier for 1.5 seconds, which blocks the next enemy ability.<br /><br />If an ability is blocked by the shield, Nocturne's passive Attack Speed bonus doubles for {{ e4 }} seconds.<br /><br /><rules>Shroud of Darkness will remain active during Paranoia's flight.</rules>";
+        spells[2].name = "Unspeakable Horror";
+        spells[2].tooltip = "<span class=\"colorFF9900\">Passive:</span> Nocturne gains massively increased Movement Speed toward terrified enemies.<br /><br /><span class=\"colorFF9900\">Active:</span> Nocturne plants a nightmare into his target's mind, dealing {{ e1 }} <span class=\"color99FF99\">(+{{ a1 }})</span> magic damage over {{ e3 }} seconds. If Nocturne stays within range of the target for the full duration, the target becomes terrified for {{ e2 }} second(s).";
+        spells[2].vars = [
                     { link: "spelldamage", coeff: 1, key: "a1" }
-                ]
-            },
-            3: {
-                name: "Paranoia",
-                tooltip: "Nocturne reduces the sight radius of all enemy champions and removes their ally vision for {{ e6 }} seconds.<br /><br />While Paranoia is active, Nocturne can launch himself at an enemy champion, dealing {{ e3 }} <span class=\"colorFF8C00\">(+{{ f1 }})</span> physical damage.",
-                vars: [
+                ];
+        spells[3].name = "Paranoia";
+        spells[3].tooltip = "Nocturne reduces the sight radius of all enemy champions and removes their ally vision for {{ e6 }} seconds.<br /><br />While Paranoia is active, Nocturne can launch himself at an enemy champion, dealing {{ e3 }} <span class=\"colorFF8C00\">(+{{ f1 }})</span> physical damage.";
+        spells[3].vars = [
                     { link: "bonusattackdamage", coeff: 1.2, key: "f1" }
-                ]
-            },
-        },
-        Rengar: {
-          0 : {
-              cooldown: [6, 5.5, 5, 4.5, 4]
-          },
-          1 : {
-              cooldown: [16, 14.5, 13, 11.5, 10]
-          },
-          2 : {
-              cooldown: [10, 10, 10, 10, 10]
-          },
-          3 : {}
-        },
-        Zed: {
-            0: {
-                name: "Razor Shuriken",
-                tooltip: "Zed and his shadows throw their shurikens, each dealing {{ e1 }} <span class=\"colorFF8C00\">(+{{ a1 }})</span> physical damage to the first enemy they pass through, and {{ e3 }} <span class=\"colorFF8C00\">(+{{ a2 }})</span> physical damage to each additional enemy.",
-                vars: [
+                ];
+        break;
+    case "Rengar":
+        spells[0].cooldown = [6, 5.5, 5, 4.5, 4];
+        spells[1].cooldown = [16, 14.5, 13, 11.5, 10];
+        spells[2].cooldown = [10, 10, 10, 10, 10];
+        break;
+    case "Taliyah":
+        stats.attackdamage = 58;
+        spells[0].effect[2] = [40, 40, 40, 40, 40];
+        break;
+    case "Zed":
+        spells[0].name = "Razor Shuriken";
+        spells[0].tooltip = "Zed and his shadows throw their shurikens, each dealing {{ e1 }} <span class=\"colorFF8C00\">(+{{ a1 }})</span> physical damage to the first enemy they pass through, and {{ e3 }} <span class=\"colorFF8C00\">(+{{ a2 }})</span> physical damage to each additional enemy.";
+        spells[0].vars = [
                     { link: "bonusattackdamage", coeff: 0.9, key: "a1" },
                     { link: "bonusattackdamage", coeff: 0.54, key: "a2" }
-                ]
-            },
-            1: {
-                name: "Living Shadow",
-                tooltip: "<span class=\"colorFF9900\">Passive: </span>Whenever Zed and his shadows strike an enemy with the same ability, Zed gains {{ e3 }} energy. Energy can only be gained once per cast ability.<br /><br /><span class=\"colorFF9900\">Active: </span>Zed's shadow dashes forward, remaining in place for {{ e5 }} seconds. Reactivating Living Shadow will cause Zed to switch positions with this shadow."
-            },
-            2: {
-                name: "Shadow Slash",
-                tooltip: "Zed and his shadows slash, dealing {{ e1 }} <span class=\"colorFF8C00\">(+{{ a1 }})</span> physical damage to nearby enemies.<br /><br />Each enemy champion hit by Zed's slash reduces Living Shadow's cooldown by {{ e4 }} seconds.<br /><br />Enemies hit by a Shadow's slash are slowed by {{ e2 }}% for 1.5 seconds. Enemies hit by multiple slashes take no additional damage but are slowed by {{ e3 }}% instead.",
-                vars: [
+                ];
+        spells[1].name = "Living Shadow";
+        spells[1].tooltip = "<span class=\"colorFF9900\">Passive: </span>Whenever Zed and his shadows strike an enemy with the same ability, Zed gains {{ e3 }} energy. Energy can only be gained once per cast ability.<br /><br /><span class=\"colorFF9900\">Active: </span>Zed's shadow dashes forward, remaining in place for {{ e5 }} seconds. Reactivating Living Shadow will cause Zed to switch positions with this shadow.";
+        spells[2].name = "Shadow Slash";
+        spells[2].tooltip = "Zed and his shadows slash, dealing {{ e1 }} <span class=\"colorFF8C00\">(+{{ a1 }})</span> physical damage to nearby enemies.<br /><br />Each enemy champion hit by Zed's slash reduces Living Shadow's cooldown by {{ e4 }} seconds.<br /><br />Enemies hit by a Shadow's slash are slowed by {{ e2 }}% for 1.5 seconds. Enemies hit by multiple slashes take no additional damage but are slowed by {{ e3 }}% instead.";
+        spells[2].vars = [
                     { link: "bonusattackdamage", coeff: 0.8, key: "a1" }
-                ]
-            },
-            3: {
-                name: "Death Mark",
-                tooltip: "Zed becomes untargetable and dashes to an enemy champion, marking them. After 3 seconds, the mark triggers, dealing physical damage equal to <span class=\"colorFF8C00\">{{ a1 }}</span> + {{ e2 }}% of all damage dealt to the target by Zed while the mark was active.<br /><br />The dash leaves a shadow behind for {{ e4 }} seconds. Reactivating Death Mark causes Zed to switch positions with this shadow.<br /><br /><span class=\"colorFFFFFF\">Reaper of Shadows: </span>Zed reaps the shadow of the strongest foe slain under Death Mark, gaining <span class=\"colorFF8C00\">{{ f2 }}</span> attack damage. ({{ e0 }} + {{ e9 }}% of the victim's attack damage.)",
-                vars: [
+                ];
+        spells[3].name = "Death Mark";
+        spells[3].tooltip = "Zed becomes untargetable and dashes to an enemy champion, marking them. After 3 seconds, the mark triggers, dealing physical damage equal to <span class=\"colorFF8C00\">{{ a1 }}</span> + {{ e2 }}% of all damage dealt to the target by Zed while the mark was active.<br /><br />The dash leaves a shadow behind for {{ e4 }} seconds. Reactivating Death Mark causes Zed to switch positions with this shadow.<br /><br /><span class=\"colorFFFFFF\">Reaper of Shadows: </span>Zed reaps the shadow of the strongest foe slain under Death Mark, gaining <span class=\"colorFF8C00\">{{ f2 }}</span> attack damage. ({{ e0 }} + {{ e9 }}% of the victim's attack damage.)";
+        spells[3].vars = [
                     { link: "attackdamage", coeff: 1, key: "a1" }
-                ]
-            },
-        },
-    };
-
-    if (missingInfo[id]) {
-        Object.keys(missingInfo[id]).forEach(function (theSpell) {
-            if (missingInfo[id][theSpell].name) {
-                spells[theSpell].name = missingInfo[id][theSpell].name;
-            }
-            if (missingInfo[id][theSpell].cooldown) {
-                spells[theSpell].cooldown = missingInfo[id][theSpell].cooldown;
-            }
-            if (missingInfo[id][theSpell].tooltip) {
-                spells[theSpell].tooltip = missingInfo[id][theSpell].tooltip;
-            }
-            if (missingInfo[id][theSpell].vars) {
-                spells[theSpell].vars = missingInfo[id][theSpell].vars;
-            }
-        });
+                ];
+        break;
     }
-//
+
     return {
         adaptTyp,
         attackdamage,
