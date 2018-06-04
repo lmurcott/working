@@ -13,8 +13,11 @@
         <h1>
             TheoryCrunch Patch 8.11 HotFix 1/6
         </h1>
+        <div id="langStr">
+            <span onclick="toogleVisible('langBox')" >&#127759;</span><br>
+        </div>
         <div id="importBx">
-        <form onsubmit="return getIGN()">
+        <form onsubmit="return getMatches()">
             <select id="region">
                 <option value="BR1">BR</option>
                 <option value="EUW1">EUW</option>
@@ -31,9 +34,9 @@
             <input type="text" id="ign">
             <input type="submit" value="Import" id="submitBtn">
         </form>
+        <div id="matchlist">
+            <!-- Matchlist goes here -->
         </div>
-        <div id="langStr">
-            <span onclick="toogleVisible('langBox')" >&#127759;</span><br>
         </div>
     </div>
     <!-- Language Hidden Div -->

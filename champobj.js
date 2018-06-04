@@ -2229,7 +2229,6 @@ const champVars = {
     buffs: [
       {spell: 1, key: "e2", type: "percentmoveSpeed", active: true},
       {spell: 1, key: "e1", type: "attackSpeed", active: true},
-            {spell: 1, key: "e4", type: "nunuApBuff", active: true},
     ],
     debuff: [
       {
@@ -2243,7 +2242,7 @@ const champVars = {
       img: "spell/AbsoluteZero.png"
       }
     ],
-        sInfo0: {
+    sInfo0: {
       e2: {type: "heal", child: ["a1"]},
       f5: {value: [50,55,60,65,70]},
             e4: {type: "mag", child: ["a2"]}
