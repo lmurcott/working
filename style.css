@@ -239,7 +239,7 @@ h1 {
 }
 
 .champSlct {
-    padding: 0.5em;
+    padding: 0.3em 0.3em;
 }
 
 .champSide {
@@ -321,13 +321,13 @@ h2 {
     color: white;
 }
 
-.champStats{
+.champStats {
     width: 60%;
     height: 7rem;
     float: left;
     clear: left;
     overflow: hidden;
-    font-size: 0.9em;
+    font-size: 0.7rem;
     padding-top: 0.2em;
 }
 
@@ -701,7 +701,7 @@ h3 {
 #hoverDiv hr{
   margin: 0.2em 0 0.2em 0;
   border: none;
-  background-color: #AAA;
+  background-color: #222;
   padding-top: 1px;
 }
 
@@ -710,9 +710,11 @@ h3 {
 }
 
 #hoverDiv{
-	background-color: black;
+	background-color: #222;
+    border-radius: 0.4em;
 	padding: 0.5em;
-    color: #AAA;
+    color: #EEE;
+    border: solid 1px #DDD;
 	max-width: 250px;
 	font-size: 0.6em;
 	display: none;
