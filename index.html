@@ -35,6 +35,10 @@
             <input type="submit" value="Import" id="submitBtn">
         </form>
         <div id="matchlist">
+            
+            <div class="closeMatch" onclick="toogleVisible('matchlist')">
+                ^
+            </div>
             <!-- Matchlist goes here -->
         </div>
         </div>
@@ -75,15 +79,49 @@
     <div id="sideHead">
         <div class="sidePanel">
             <span class="enemySelectStr">Playing Against:</span>
-            <select id="enemy0">
+            <select id="enemy0" onchange="update()">
 
             </select>
+            <div class="teamBuffBtn" onclick="toogleVisible('teamBuffs0')">&#11206;</div>
+            <div id="teamBuffs0" class="teamBuffBx">
+                <div>
+                    <img src="img/baron.png">
+                    <input type="number" class="baronTime" value=20 min=20 max=40 onchange="update()">
+                    <input type="checkbox" class="baronActive" onchange="update()">
+                </div>
+                <div>
+                    <img src="img/elder.png">
+                    <input type="number" class="elderCount" value=0 min=0 max=5 onchange="update()">
+                    <input type="checkbox" class="elderActive" onchange="update()">
+                </div>
+                <div>
+                    <img src="img/infernal.png">
+                    <input type="number" class="infernalCount" value=0 min=0 max=3 onchange="update()">
+                </div>
+            </div>
         </div>
         <div class="sidePanel">
             <span class="enemySelectStr">Playing Against:</span>
-            <select id="enemy1">
+            <select id="enemy1" onchange="update()">
 
             </select>
+            <div class="teamBuffBtn" onclick="toogleVisible('teamBuffs1')">&#11206;</div>
+            <div id="teamBuffs1" class="teamBuffBx">
+                <div>
+                    <img src="img/baron.png">
+                    <input type="number" class="baronTime" value=20 min=20 max=40>
+                    <input type="checkbox" class="baronActive">
+                </div>
+                <div>
+                    <img src="img/elder.png">
+                    <input type="number" class="elderCount" value=0 min=0 max=5>
+                    <input type="checkbox" class="elderActive">
+                </div>
+                <div>
+                    <img src="img/infernal.png">
+                    <input type="number" class="infernalCount" value=0 min=0 max=3>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -197,7 +235,8 @@
                             </div>
                             <div class="itemBox">
                                 <div class="champItems"></div>
-                                <div class="advOpt">&#11206;</div> <!-- &#11205; -->
+                                <div class="dropBtn">&#11206;</div> <!-- &#11205; -->
+                                <div class="priceBx">0</div>
                             </div>
                             <div class="dropPanel">
                                 <ul class="dropTBar">

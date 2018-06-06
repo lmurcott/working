@@ -203,6 +203,8 @@ const importMatch = function () {
 const loadCheck = function () {
     if (theItems && theRunes && allChamps && theLang) {
         importMatch();
+        toogleVisible("content");
+        toogleVisible("sideHead");
     }
 };
 
@@ -226,7 +228,7 @@ const getMatches = function () {
 
 const drawMatchList = function (json) {
     let matchDOM = document.getElementById("matchlist");
-    while (matchDOM.hasChildNodes()) {
+    while (matchDOM.childElementCount > 1) {
         matchDOM.removeChild(matchDOM.lastChild);
     }
     if(json.region) {
@@ -926,6 +928,10 @@ const champObj = function (obj, side, uid) {// create champion object
                 }
                 levelDOM.value = lvlRquired;
                 level = lvlRquired;
+                // check elder count
+                if (document.getElementsByClassName("infernalCount")[side].value > document.getElementsByClassName("elderCount")[side].value) {
+                    document.getElementsByClassName("elderCount")[side].value = document.getElementsByClassName("infernalCount")[side].value;
+                }
             };
             const setRuneStats = function () {
                 if (runeCheck(8230, true)) {//phase rush
@@ -1300,6 +1306,16 @@ const champObj = function (obj, side, uid) {// create champion object
                         }
                     });
                 }
+                
+                //Baron Buff
+                if (document.getElementsByClassName("baronActive")[side].checked) {
+                    const baronStacks = document.getElementsByClassName("baronTime")[side].value;
+                    const baronAD = [24, 25, 26, 27, 29, 30, 31, 32, 33, 34, 35, 37, 38, 39, 40, 41, 42, 43, 45, 46, 48];
+                    const baronAP = [40, 42, 44, 46, 48, 50, 51, 53, 55, 57, 59, 61, 63, 65, 67, 69, 70, 72, 74, 76, 80];
+                    ap = calc(ap, baronAP[baronStacks - 20], 0);
+                    attackdamage[1] = calc(attackdamage[1], baronAD[baronStacks - 20], 0);
+                }
+                
             };
             const setStatMultis = function () {
                 //HP Multis
@@ -1400,6 +1416,15 @@ const champObj = function (obj, side, uid) {// create champion object
                 }
 
                 //put in infernal drakes
+                
+                const infernalStacks = document.getElementsByClassName("infernalCount")[side].value;
+                if (document.getElementsByClassName("elderActive")[side].checked) {
+                    adMulti += infernalStacks * 12;
+                    apMulti += infernalStacks * 12;
+                } else {
+                    adMulti += infernalStacks * 8;
+                    apMulti += infernalStacks * 8;
+                }
 
                 //Calculate Multipliers
                 attackdamage[1] = calc(attackdamage[1], Number(100 + adMulti + "e-2"));
@@ -1516,6 +1541,9 @@ const champObj = function (obj, side, uid) {// create champion object
                     theImg = document.createElement("img");
                 theImg.src = "http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/item/" + itemNo + ".png";
                 const itemSlotNo = items.length;
+                const priceDOM = document.getElementById(uid).querySelector(".priceBx");
+                let price = parseInt(document.getElementById(uid).querySelector(".priceBx").innerText);
+                priceDOM.innerText = price + theItems[itemNo].gold.total;
                 theImg.addEventListener("click", function (e) {// remove item
                     let currSlotNo = itemSlotNo;
                     while (items[currSlotNo] !== itemNo) {
@@ -1537,6 +1565,8 @@ const champObj = function (obj, side, uid) {// create champion object
                             document.getElementById(uid).getElementsByClassName("itemIcon")[items.indexOf(itemNo)].appendChild(theInput);
                         }
                     }
+                    price = parseInt(document.getElementById(uid).querySelector(".priceBx").innerText);
+                    priceDOM.innerText = price - theItems[itemNo].gold.total;
                     hideHover();
                     update();
                 });
@@ -1670,7 +1700,7 @@ const champObj = function (obj, side, uid) {// create champion object
                 update();
             }, false);
 
-            finalDOM.querySelector(".advOpt").addEventListener("click", function () {
+            finalDOM.querySelector(".dropBtn").addEventListener("click", function () {
                 let element = finalDOM.getElementsByClassName("dropPanel")[0];
                 if (element.style.display === "block") {
                     element.style.display = "none";
@@ -2358,7 +2388,10 @@ const champObj = function (obj, side, uid) {// create champion object
                                 magDmg = calc(getPercentHP(0.04), magDmg, 0);
                             }
                         }
-
+                        if (document.getElementsByClassName("elderActive")[side].checked) {//Elder Drake
+                            const elderStacks = document.getElementsByClassName("elderCount")[side].value;
+                            truDmg = calc(truDmg, 45 + (45 * elderStacks), 0);
+                        }                        
                         onHitMulti = spellObj.onHit;
                         if (items.includes(1043)) {//Recurve Bow
                             physDmg = calc(calc(15, onHitMulti), physDmg, 0);
@@ -2748,9 +2781,8 @@ const champObj = function (obj, side, uid) {// create champion object
 
                     });
                 }
-                tooltip = tooltip.replace(/\(\+%?\)/g, "");
                 tooltip = tooltip.replace(/<font.color\='#......'.?size\='..'>/g, "");
-                tooltip = tooltip.replace(/\(\+%.Missing.Health\)/g, "");
+                tooltip = tooltip.replace(/\(\+.?\D*\)\%?/g, "");
                 return tooltip;
             };
             let skillDivs = document.getElementById(uid).getElementsByClassName("skillTxt");
@@ -3178,5 +3210,3 @@ loadJSON("language", setLang);
 loadJSON("item", setItems);
 loadJSON("runesReforged", setRunes);
 loadJSON("champion", setChampList);
-toogleVisible("content");
-toogleVisible("sideHead");

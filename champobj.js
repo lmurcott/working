@@ -1466,7 +1466,7 @@ const champVars = {
             {spell: "P", key: "p1", type: "magDmgReduction"}
         ],
         sInfoP: {
-            p1: {value: 15, hide: true},
+            p1: {value: 15},
         },
         sInfo0: {
             e1: {type: "mag", spell: true, child: ["a1"]},
@@ -1658,7 +1658,7 @@ const champVars = {
         sInfoP: {
             active: true,
             p1: {value: 400, info: "Health", growth: 60},
-            p2: {value: -60, hide: true},
+            p2: {value: -60},
         },
         sInfo0: {
             e1: {type: "phys", spell: true, child: ["a1"]},
@@ -1681,36 +1681,35 @@ const champVars = {
         }
     },
     KogMaw: {
-    buffs: [
-      {spell: 0, key: "e2", type: "attackSpeed"}
-    ],
-    debuff: [
-      {
-      name: "PercentArmorMagPen",
-      value: [0,0.20,0.22,0.24,0.26,0.28],
-      img: "spell/KogMawQ.png"
-      }
-    ],
-    sInfoP: {
-            p1: {info: "Damage", type: "tru", spell: true, value: 100,child: ["p1Var"]},
-            p1Var: {link: "champLevel", coeff: 25}
-        },
+        buffs: [
+          {spell: 0, key: "e2", type: "attackSpeed"}
+        ],
+        debuff: [
+          {
+          name: "PercentArmorMagPen",
+          value: [0,0.20,0.22,0.24,0.26,0.28],
+          img: "spell/KogMawQ.png"
+          }
+        ],
+        sInfoP: {
+                p1: {info: "Damage", type: "tru", spell: true, value: 100,child: ["p1Var"]},
+                p1Var: {link: "champLevel", coeff: 25}
+            },
         sInfo0: {
-      e1: {type: "mag", spell: true, child: ["a1"]}
-    },
-    sInfo1: {
-      e2: {type: "mag", apply: "maxHp", child: ["f1Var"], basicAttack: true},
-      f1Var: {coeff: 0.01, link: "spelldamage"},
-      f1: {empty: true, apply: "maxHp",}
-    },
-    sInfo2: {
-      e1: {type: "mag", spell: true, child: ["a1"]}
-    },
-    sInfo3: {
-      e1: {type: "mag", spell: true, child: ["a1","a2"]},
-      effect1amount: {effectNo: 1, type: "mag", spell: true, child: ["a1","a2"], multiplier: 150},
-      f4: {effectNo: 1, type: "mag", spell: true, child: ["a1","a2"], multiplier: 200}
-    }
+          e1: {type: "mag", spell: true, child: ["a1"]}
+        },
+        sInfo1: {
+            e2: {type: "mag", apply: "maxHp", child: ["f1Var"], basicAttack: true},
+            f1Var: {coeff: 0.01, link: "spelldamage"}
+        },
+        sInfo2: {
+          e1: {type: "mag", spell: true, child: ["a1"]}
+        },
+        sInfo3: {
+          e1: {type: "mag", spell: true, child: ["a1","a2"]},
+          effect1amount: {effectNo: 1, type: "mag", spell: true, child: ["a1","a2"], multiplier: 150},
+          f4: {effectNo: 1, type: "mag", spell: true, child: ["a1","a2"], multiplier: 200}
+        }
     },
     Leblanc: {
     sInfo0: {
@@ -3484,10 +3483,7 @@ const champVars = {
     }
     },
     Vladimir: {//add debuff for ult damage increase
-    sInfoP: {
-            p1: {hide: true}//placeholder
-        },
-        sInfo0: {
+    sInfo0: {
       e1: {type: "mag", spell: true, child: ["a1"]},
       e2: {type: "heal", selfHeal: true, child: ["a2"]},
       e5: {child: ["f6Var"]},

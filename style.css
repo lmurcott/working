@@ -28,6 +28,33 @@ ul {
     list-style-type: none;
 }
 
+input, select{
+    border: solid 1px #999;
+    border-radius: 0.2em;
+    font-size: 0.85em;
+}
+
+input[type="submit"], input[type="button"]{
+    background-color: white;
+    padding: 0.1em 1em;
+    border-radius: 0.2em;
+}
+
+input[type="submit"]:hover, input[type="button"]:hover{
+    box-shadow: 0 0 0;
+    border-color: #999;
+    background-color: #EFEFEF;
+}
+
+input:hover, select:hover{
+    border-color: #666;
+    box-shadow: 0 2px 2px #DDD;
+}
+
+input:focus, select:focus{
+    border-color: #0078d7;
+}
+
 /* Header */
 
 h1 {
@@ -44,13 +71,14 @@ h1 {
     width: 100%;
     position: absolute;
     height: 3em;
-    border-bottom: solid 1px black;
+    background-color: #EEE;
+    border-bottom: solid 1px #999;
 }
 
 #importBx {
     float: right;
     text-align: center;
-    padding-top: 0.5em;
+    padding-top: 0.75em;
     height: 100%;
     width: 18em;
 }
@@ -61,48 +89,67 @@ h1 {
     background-color: white;
     position: absolute;
     z-index: 2;
-    border: solid 1px black;
+    border: solid 1px #DDD;
+}
+
+.closeMatch {
+    width: 100%;
+    cursor: pointer;
+    padding-top: 0.3em;
+}
+
+.closeMatch:hover {
+    background-color: #EEE;
 }
 
 #matchlist a {
     color: black;
     text-decoration: none;
-    
 }
 
 .match {
     width: 100%;
+    border-top: solid 1px #DDD;
+    cursor: pointer;
 }
 
 .match:hover {
-    background-color: green;
+    background-color: #EEE;
 }
 
 .match p {
     height: 3em;
-    padding-top: 1em;
+    line-height: 3em;
 }
 
 .match img {
     float: left;
+    border-radius: 10%;
+    padding: 0.1em;
     height: 3em;
 }
 
 #langBox{
   display: none;
   z-index: 2;
-  border: solid 0.1em white;
-  background-color: black;
+  box-shadow: 0 2px 3px #BBB;
+  border: solid 0.1em #DDD;
+  background-color: white;
   position: absolute;
-  right: 1em;
+  right: 0.5em;
   top: 4em;
   font-size: 0.7em;
-  padding: 0.5em;
+  padding: 0.5em 1em;
   border-radius: 0.25em;
  }
 
 #langBox a {
-    color: white;
+    color: #333;
+    text-decoration: none;
+}
+
+#langBox a:hover {
+    text-decoration: underline;
 }
  
  #langStr {
@@ -118,14 +165,63 @@ h1 {
     min-width: 9em;
 }
 
+.teamBuffBtn {
+    float: right;
+    border-radius: 0.2em;
+    width: 1.7em;
+    line-height: 1.7em;
+    height: 1.7em;
+    text-align: center;
+    margin-right: 2%;
+    margin-top: 0.1em;
+    cursor: pointer;
+}
+
+.teamBuffBtn:hover {
+    background-color: #DDD;
+}
+
+.teamBuffBx {
+    width: 6%;
+    display: none;
+    position: absolute;
+    left: 43%;
+    background-color: #EEE;
+    margin-top: 0.4em;
+    border-radius: 0 0 0.2em 0.2em;
+    border: solid 1px #999;
+}
+
+.teamBuffBx input[type="number"]{
+    width: 3em;
+    margin: 0.1em 0;
+    text-align: center;
+}
+
+.teamBuffBx div{
+    width: 100%;
+    text-align: center;
+}
+
+.teamBuffBx img{
+    width: 100%;
+    background-color: black;
+}
+
+#teamBuffs1 {
+    left: 93%;
+}
+
+
 #sideHead {
-    padding-top: 0.3em;
     display: none;
     position: absolute;
     width: 100%;
     top: 3em;
     height: 2em;
-    background-color: white;
+    line-height: 2em;
+    border-bottom: solid 1px #999;
+    background-color: #F8F8F8;
 }
 
 .sidePanel {
@@ -154,11 +250,11 @@ h1 {
 }
 
 #side0 {
-    border-top: solid 0.5rem blue;
+    border-top: solid 0.2rem blue;
 }
 
 #side1 {
-    border-top: solid 0.5rem red;
+    border-top: solid 0.2rem red;
 }
 
 .champMain {
@@ -205,13 +301,24 @@ h2 {
 
 .killBtn {
     float: right;
-    height: 100%;
-    padding: 0 1em;
-    background-color: red;
-    color: white;
-    padding-top: 0.1em;
+    height: 2em;
+    line-height: 2em;
+    text-align: center;
+    background-color: #EFEFEF;
+    border: solid 1px #CCC;
+    margin-top: 0.1em;
+    margin-right: 0.25em;
+    color: black;
+    font-family: sans-serif;
     margin-left: 0.25em;
     cursor: pointer;
+    border-radius: 0.2em;
+    width: 2em;
+}
+
+.killBtn:hover {
+    background-color: red;
+    color: white;
 }
 
 .champStats{
@@ -238,21 +345,41 @@ h2 {
 
 .itemBox {
     width: 60%;
+    border: solid 1px #CCC;
+    border-width: 1px 0px;
+    background-color: #EFEFEF;
     height: 4rem;
     float: left;
     clear: left;
 }
 
-.advOpt{
-    float: right;
-    clear: right;
-    height: 2.5rem;
-    width: 2.5rem;
-    text-align: center;
+.champItems {
+    float: left;
+    height: 100%;
+}
+
+.priceBx {
+    margin-left: 14rem;
+    line-height: 2rem;
+    text-align: left;
+    padding-left: 0.5em;
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.dropBtn {
     font-size: 2em;
-    border: solid 1px black;
-    color: black;
+    border-radius: 10%;
+    float: right;
+    height: 1.5em;
+    width: 1.5em;
+    text-align: center;
     cursor: pointer;
+    margin: 0.2em;
+}
+
+.dropBtn:hover {
+    background-color: #DDD;
 }
 
 .elixir {
@@ -281,21 +408,20 @@ h2 {
 }
 
 hr {
-  margin: 0.2em 0 0.2em 0;
-  border: none;
-  background-color: #544c1e;
-  padding-top: 1px;
+    border: solid 1px #464e4c;
+    border-top-color: #333b3a;
+    margin: 0.2em 0;
+    
 }
 
 .skillBox{
     width: 40%;
-    color: white;
-    text-align: center;
+    background-color: #222;
+    color: #EEE;
+    border-bottom: solid 1px white;
     float: right;
     clear: right;
     overflow: hidden;
-    border: solid 1px white;
-    background-color: black;
 }
 
 .skillTxt{
@@ -317,11 +443,15 @@ hr {
     border-radius: 0.3em;
 }
 
+.skillImg img:hover {
+    opacity: 0.8;
+}
+
 .skillImg input {
     width: 100%;
     font-size: 0.8em;
     text-align: center;
-    margin-top: 0.05em;
+    padding: 0.2em 0em;
 }
 
 .skillTBar {
@@ -332,19 +462,19 @@ hr {
 
 .runes {
     height: 50%;
-    background-color: #000;
-    overflow: hidden;
 }
 
 .runes div {
     height: 100%;
-    float: left;
+    display: inline-block;
+    vertical-align: top;
     margin: 0 0.5em;
 }
 
 .runes img {
     height: 55%;
     cursor: pointer;
+    border-radius: 100%;
 }
 
 .runes input[type="checkbox"] {
@@ -359,7 +489,6 @@ hr {
 .runeSelect {
     display: none;
     height: 50%;
-    background-color: #000;
 }
 
 .runeSelect div {
@@ -369,15 +498,20 @@ hr {
 
 .runeSelect img {
     cursor: pointer;
+    border-radius: 100%;
+    border: solid 1px black;
+    background-color: black;
     height: 100%;
 }
 
 h3 {
     text-align: left;
+    padding-bottom: 0.1em;
 }
 
 .skillDesc {
     width: 100%;
+    border-radius: 0.2em;
     height: 8.5rem;
     padding-left: 1%;
     overflow: auto;
@@ -426,8 +560,15 @@ h3 {
 
 .skillInput {
     text-align: left;
-    font-weight: bold;
     font-size: 0.8em;
+    font-weight: bold;
+}
+
+.skillInput input[type="number"] {
+    font-size: 1em;
+    width: 5em;
+    padding: 0.25em 0.2em;
+    text-align: center;
 }
 
 .skillInput input[type="checkbox"]{
@@ -435,8 +576,8 @@ h3 {
     margin: 0 0.25em 0 0;   
 }
 
-.skillInput input[type="number"]{
-    width: 4em;
+.skillInput input[type="number"]:hover{
+    box-shadow: none;
 }
 
 .itemIcon {
@@ -444,17 +585,20 @@ h3 {
     float: left;
     cursor: pointer;
     text-align: center;
-    margin: 0 0.1em;
+    margin: 0.1em 0.1em;
 }
 
 .itemIcon img {
     width: 100%;
+    border: solid 1px #999;
     border-radius: 0.3em;
 }
 
 .itemIcon input {
     width: 100%;
     font-size: 0.8em;
+    text-align: center;
+    padding: 0.25em 0;
     margin: 0.1em 0;
 }
 
@@ -469,6 +613,7 @@ h3 {
     width: 100%;
     column-count: 3;
     column-gap: 0;
+    border-bottom: solid 1px white;
 }
 
 .dropTBar li {
@@ -484,7 +629,8 @@ h3 {
 }
 
 .dropTBar li:hover {
-    color: green;
+    background-color: #DDD;
+    border-radius: 0.2em;
 }
 
 .dropContent {
@@ -493,7 +639,6 @@ h3 {
     height: 8rem;
     text-align: center;
     overflow: auto;
-    background-color: black;
 }
 
 .items img {
