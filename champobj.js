@@ -1561,32 +1561,32 @@ const champVars = {
         }
     },
     Kennen: {
-    buffs: [
-      {spell: 2, key: "defenses", type: "armor", active: true},
-      {spell: 2, key: "defenses", type: "mr", active: true},
-      {spell: 2, key: "movement speed", type: "multiMoveSpeed", active: true},
-    ],
-    sInfo0: {
-      e1: {type: "mag", spell: true, child: ["a1"]}
-    },
-    sInfo1: {
-      e2: {type: "mag", spell: true, child: ["a2","f1Var"], basicAttack: true},
-      e1: {type: "mag", spell: true, child: ["a1"]},
-      f1Var: {coeff: [0.6,0.7,0.8,0.9,1], link: "bonusattackdamage"}
-    },
-    sInfo2: {
-      active: true,
-      "base damage": {effectNo: 1, type: "mag", spell: true, child: ["a1"]},
-      "duration - as ball": {effectNo: 5},
-      "defenses": {effectNo: 3},
-      "movement speed": {value: 100},//effect 4 * 100
-      "energy refund": {effectNo: 2},
-      "attack speed": {valuePerLvl: [30,40,50,60,70]},//effect 6 * 100
-      "damage to minions": {value: 50}
-    },
-    sInfo3: {
-      e1: {type: "mag", spell: true, child: ["a1"]},
-    }
+        buffs: [
+          {spell: 2, key: "defenses", type: "armor", active: true},
+          {spell: 2, key: "defenses", type: "mr", active: true},
+          {spell: 2, key: "movement speed", type: "multiMoveSpeed", active: true},
+        ],
+        sInfo0: {
+          e1: {type: "mag", spell: true, child: ["a1"]}
+        },
+        sInfo1: {
+          e2: {type: "mag", spell: true, child: ["a2","f1Var"], basicAttack: true},
+          e1: {type: "mag", spell: true, child: ["a1"]},
+          f1Var: {coeff: [0.6,0.7,0.8,0.9,1], link: "bonusattackdamage"}
+        },
+        sInfo2: {
+          active: true,
+          "base damage": {effectNo: 1, type: "mag", spell: true, child: ["a1"]},
+          "duration - as ball": {effectNo: 5},
+          "defenses": {effectNo: 3},
+          "movement speed": {value: 100},//effect 4 * 100
+          "energy refund": {effectNo: 2},
+          "attack speed": {value: [30,40,50,60,70]},//effect 6 * 100
+          "damage to minions": {value: 50}
+        },
+        sInfo3: {
+          e1: {type: "mag", spell: true, child: ["a1"]},
+        }
     },
     Khazix: {
     buffs: [

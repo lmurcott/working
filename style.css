@@ -12,16 +12,20 @@ body, div, h1, h2, h3, img, p, ul, li{
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: Georgia, Serif;
+    font-family: Cambria, Georgia, Serif;
 }
 
-body, input, select, option {
-    /*font-family: Cambria, serif;*/
-    font-family: Georgia;
+noscript {
+    font-size: 3em;
+    color: red;
+    font-weight: bold;
+    margin-top: 5em;
+    width: 100%;
+    text-align: center;
 }
 
-body {
-    min-width: 1280px;
+input, select, option, button {
+    font-family: Cambria, Georgia, Serif;
 }
 
 ul {
@@ -36,6 +40,8 @@ input, select{
 
 input[type="submit"], input[type="button"]{
     background-color: white;
+    text-transform: lowercase;
+    text-shadow: 1px 1px #BBB;
     padding: 0.1em 1em;
     border-radius: 0.2em;
 }
@@ -58,13 +64,33 @@ input:focus, select:focus{
 /* Header */
 
 h1 {
-    text-transform: uppercase;
+    text-shadow: 1px 1px #BBB;
     letter-spacing: 0.05em;
-    font-family: calibri, arial, sans-serif;
-    font-size: 1.25em;
+    line-height: 2rem;
+    font-size: 1em;
     padding: 0.5em;
     display: flex;
     float: left;
+}
+
+h1 a {
+    text-decoration: none;
+    color: black;
+}
+
+.patchNo {
+    text-transform: lowercase;
+    text-shadow: none;
+    font-weight: normal;
+    font-size: 1em;
+    margin-left: 0.25em;
+}
+
+#twitter {
+    height: 1.25rem;
+    text-align: center;
+    margin-top: 0.95em;
+    cursor: pointer;
 }
  
 #header {
@@ -77,10 +103,45 @@ h1 {
 
 #importBx {
     float: right;
-    text-align: center;
+    text-align: left;
     padding-top: 0.75em;
+    padding-right: 0.25em;
     height: 100%;
-    width: 18em;
+}
+
+#importBx input[type="text"]{
+    width: 8em;
+    padding-left: 0.25em;
+}
+
+#importBx input[type="submit"]{
+    width: 8em;
+}
+
+#shareIcon {
+    float: right;
+    color: #0078d7;
+    font-size: 2rem;
+    margin-right: 0.1em;
+    cursor: pointer;
+}
+
+#shareBx {
+    right: 1em;
+    display: none;
+    background-color: white;
+    border: solid 1px #999;
+    border-radius: 0.2em;
+    z-index: 3;
+    width: 25%;
+    top: 3rem;
+    padding: 0.25em;
+    text-align: center;
+    position: absolute;
+}
+
+#shareBx input {
+    width: 100%;
 }
 
 #matchlist {
@@ -90,6 +151,7 @@ h1 {
     position: absolute;
     z-index: 2;
     border: solid 1px #DDD;
+    text-align: center;
 }
 
 .closeMatch {
@@ -131,6 +193,7 @@ h1 {
 
 #langBox{
   display: none;
+  column-count: 2;
   z-index: 2;
   box-shadow: 0 2px 3px #BBB;
   border: solid 0.1em #DDD;
@@ -138,13 +201,13 @@ h1 {
   position: absolute;
   right: 0.5em;
   top: 4em;
-  font-size: 0.7em;
+  font-size: 0.8em;
   padding: 0.5em 1em;
   border-radius: 0.25em;
  }
 
 #langBox a {
-    color: #333;
+    color: black;
     text-decoration: none;
 }
 
@@ -156,8 +219,24 @@ h1 {
      float: right;
      font-size: 2rem;
      cursor: pointer;
-     height: 100%;
  }
+
+button {
+    border: none;
+    text-align: center;
+    margin-top: 0.05em;
+    text-shadow: 2px 2px #999;
+    background-color: transparent;
+}
+
+button:hover {
+    background-color: #DDD;
+    border-radius: 0.2em;
+}
+
+button:active {
+    text-shadow: none;
+}
 
 /* Champ Panels */
 
@@ -167,18 +246,9 @@ h1 {
 
 .teamBuffBtn {
     float: right;
-    border-radius: 0.2em;
-    width: 1.7em;
-    line-height: 1.7em;
-    height: 1.7em;
-    text-align: center;
+    font-size: 1.25em;
     margin-right: 2%;
-    margin-top: 0.1em;
     cursor: pointer;
-}
-
-.teamBuffBtn:hover {
-    background-color: #DDD;
 }
 
 .teamBuffBx {
@@ -261,6 +331,10 @@ h1 {
     width: 100%;
 }
 
+h3 {
+    color: white;
+}
+
 .champBox{
     width: 100%;
     font-size: 0.85em;
@@ -281,44 +355,33 @@ h1 {
 }
 
 h2 {
-    font-family: calibri, arial, sans-serif;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-size: 1.35em;
+    letter-spacing: 0.1em;
+    text-shadow: 1px 1px #BBB;
+    font-size: 1em;
+    line-height: 1.5em;
     width: 100%;
     text-align: center;
 }
 
-.headBtn {
-    display: none;
+.killBtn, .cloneBtn {
     float: right;
-    height: 100%;
-    padding: 0 1em;
-    border: solid 1px black;
-    margin-left: 0.25em;
-    cursor: pointer;
-}
-
-.killBtn {
-    float: right;
-    height: 2em;
-    line-height: 2em;
     text-align: center;
-    background-color: #EFEFEF;
+    text-shadow: 1px 1px #BBB;
+    font-weight: bold;
+    height: 1.5em;
+    background-color: white;
     border: solid 1px #CCC;
-    margin-top: 0.1em;
     margin-right: 0.25em;
     color: black;
     font-family: sans-serif;
-    margin-left: 0.25em;
     cursor: pointer;
     border-radius: 0.2em;
-    width: 2em;
 }
 
 .killBtn:hover {
     background-color: red;
-    color: white;
+    border-color: red;
+    text-shadow: none;
 }
 
 .champStats {
@@ -343,6 +406,14 @@ h2 {
     text-align: center;
 }
 
+
+@media only screen and (min-width: 1366px) {
+    .champStats ul{
+        column-count: 3;
+        font-size: 0.8rem;
+    }
+}
+
 .itemBox {
     width: 60%;
     border: solid 1px #CCC;
@@ -365,6 +436,7 @@ h2 {
     padding-left: 0.5em;
     font-size: 1.5em;
     font-weight: bold;
+    text-shadow: 1px 1px #AAA;
 }
 
 .dropBtn {
@@ -416,8 +488,8 @@ hr {
 
 .skillBox{
     width: 40%;
-    background-color: #222;
-    color: #EEE;
+    background-color: #181818;
+    color: #cbcbcb;
     border-bottom: solid 1px white;
     float: right;
     clear: right;
@@ -438,9 +510,10 @@ hr {
 }
 
 .skillImg img {
-    width: 3em;
+    width: 100%;
+    max-width: 3em;
     cursor: pointer;
-    border-radius: 0.3em;
+    border-radius: 15%;
 }
 
 .skillImg img:hover {
@@ -464,7 +537,7 @@ hr {
     height: 50%;
 }
 
-.runes div {
+.runeDiv {
     height: 100%;
     display: inline-block;
     vertical-align: top;
@@ -540,7 +613,7 @@ h3 {
 }
 
 .shield {
-    color: #d6d6d6;
+    color: white;
     font-weight: bold;
 }
 
@@ -590,6 +663,7 @@ h3 {
 
 .itemIcon img {
     width: 100%;
+    max-width: 2.5em;
     border: solid 1px #999;
     border-radius: 0.3em;
 }
@@ -607,6 +681,8 @@ h3 {
     display: none;
     float: left;
     clear: both;
+    border-bottom: solid 1px #DDD;
+    margin-bottom: 0.1em;
 }
 
 .dropTBar {
@@ -616,21 +692,14 @@ h3 {
     border-bottom: solid 1px white;
 }
 
-.dropTBar li {
-    text-align: center;
-    width: 100%;
-    font-size: 0.85em;
-    font-weight: bold;
-    font-family: calibri, arial, sans-serif;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 0.15em;
+.dropTBar button {
     cursor: pointer;
-}
-
-.dropTBar li:hover {
-    background-color: #DDD;
-    border-radius: 0.2em;
+    letter-spacing: 0.1em;
+    text-shadow: 1px 1px #BBB;
+    text-transform: lowercase;
+    font-weight: bold;
+    width: 100%;
+    cursor: pointer;
 }
 
 .dropContent {
@@ -710,11 +779,11 @@ h3 {
 }
 
 #hoverDiv{
-	background-color: #222;
     border-radius: 0.4em;
 	padding: 0.5em;
-    color: #EEE;
-    border: solid 1px #DDD;
+    background-color: #181818;
+    color: #cbcbcb;
+    border: solid 1px #999;
 	max-width: 250px;
 	font-size: 0.6em;
 	display: none;
@@ -727,4 +796,173 @@ h3 {
     color: white;
 	text-align: center;
 	font-weight: bold;
+}
+
+@media only screen and (max-width: 1100px) {
+    #header {
+        height: initial;
+        position: initial;
+    }
+    
+    h1 {
+        text-align: center;
+    }
+    
+    #sideHead {
+        position: initial;
+        height: initial;
+        line-height: initial;
+    }
+    
+    #content {
+        position: initial;
+        height: initial;
+        padding-top: initial;
+    }
+    
+    #importBx {
+        text-align: center;
+        height: inherit;
+        margin-left: 0.25em;
+        clear: left;
+        padding: 0;
+        float: none;
+    }
+    
+    #shareIcon, #langStr {
+        font-size: 1.25rem;
+        float: right;
+        clear: right;
+    }
+    
+    #shareBx {
+        width: 90%;
+        top: 30%;
+        right: 5%;
+    }
+    
+    #langBox {
+        font-size: 0.85em;
+        columns: 2;
+    }
+    
+    .teamBuffBx {
+        width: 25%;
+        left: 25%;
+    }
+    #teamBuffs1 {
+        left: 75%;
+    }
+    
+    .champHead {
+        width: 100%;
+    }
+    
+    .champStats {
+        width: 100%;
+        height: auto;
+    }
+    
+    .champStats ul{
+        column-count: 1;
+    }
+    
+    .skillBox {
+        width: 100%;
+        height: auto;
+    }
+    
+    .skillDesc {
+        height: auto;
+    }
+    
+    .itemBox {
+        width: 100%;
+        height: auto;
+    }
+    
+    .champItems {
+        float: none;
+        width: 100%;
+        height: auto;
+    }
+    
+    .itemIcon {
+        width: 16%;
+        margin: 0;
+        display: inline-block;
+        float: none;
+    }
+    
+    .dropBtn {
+        font-size: 1.5em;
+        float: right;
+        height: auto;
+        width: auto;
+    }
+
+    .priceBx {
+        margin-left: 0;
+        float: none;
+        line-height: auto;
+        text-align: center;
+        padding-left: 0;
+    }
+    
+    .dropTBar {
+        column-count: 1;
+    }
+    
+    .dropContent {
+        height: 10rem;
+        overflow: auto;
+    }
+    
+    .items {
+        width: 100%;
+        height: auto;
+        overflow: auto;
+        float: none;
+        clear: both;
+    }
+    
+    .itemOpt {
+        width: 100%;
+        clear: both;
+        float: none;
+    }
+    
+    .runes {
+        height: auto;
+    }
+    
+    .runeSelect {
+        height: auto;
+    }
+
+    .runeDiv {
+        height: auto;
+        width: 19%;
+        margin: 0;
+    }
+    
+    
+    .runeSelect div {
+        height: auto;
+    }
+    
+    .runeSelect {
+        width: 100%;
+        height: auto;
+    }
+
+    .runes img {
+        height: auto;
+        width: 100%;
+    }
+    
+    .runeSelect img {
+        width: 15%;
+        height: auto;
+    }
 }

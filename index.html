@@ -9,12 +9,22 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body onhashchange="newLang()">
+    <noscript>
+        Javascript must be Enabled to use this site
+    </noscript>
+
     <div id="header">
         <h1>
-            TheoryCrunch Patch 8.11 HotFix 1/6
+            <a href="http://www.theorycrunch.com">Theory Crunch</a><span class="patchNo">| Patch 8.11 HotFix 1/6</span>
         </h1>
-        <div id="langStr">
-            <span onclick="toogleVisible('langBox')" >&#127759;</span><br>
+        <a href="https://www.twitter.com/theorycrunch" target="_blank"><img id="twitter" src="img/twitter.png"></a>
+        <button id="langStr" onclick="toogleVisible('langBox')">
+            &#127759;
+        </button>
+        <button id="shareIcon" onclick="getLink()">&#129095;</button>
+        <div id="shareBx">
+            <h2>Share Build</h2>
+            <input type=text id="buildLink">
         </div>
         <div id="importBx">
         <form onsubmit="return getMatches()">
@@ -35,7 +45,6 @@
             <input type="submit" value="Import" id="submitBtn">
         </form>
         <div id="matchlist">
-            
             <div class="closeMatch" onclick="toogleVisible('matchlist')">
                 ^
             </div>
@@ -43,6 +52,7 @@
         </div>
         </div>
     </div>
+    
     <!-- Language Hidden Div -->
     <div id="langBox">
       <a href="#cs_CZ">čeština (Czech Republic)</a><br>
@@ -82,7 +92,7 @@
             <select id="enemy0" onchange="update()">
 
             </select>
-            <div class="teamBuffBtn" onclick="toogleVisible('teamBuffs0')">&#11206;</div>
+            <button class="teamBuffBtn" onclick="toogleVisible('teamBuffs0')">&#11206;</button>
             <div id="teamBuffs0" class="teamBuffBx">
                 <div>
                     <img src="img/baron.png">
@@ -105,7 +115,7 @@
             <select id="enemy1" onchange="update()">
 
             </select>
-            <div class="teamBuffBtn" onclick="toogleVisible('teamBuffs1')">&#11206;</div>
+            <button class="teamBuffBtn" onclick="toogleVisible('teamBuffs1')">&#11206;</button>
             <div id="teamBuffs1" class="teamBuffBx">
                 <div>
                     <img src="img/baron.png">
@@ -124,20 +134,14 @@
             </div>
         </div>
     </div>
-
-    <noscript>
-    
-    Enable JAVASCRIPT to use this site
-    
-    </noscript>
     <div id="content">
         <div class="champSide" id="side0">
             <div>
                 <div id="champs0">
                     <template>
                             <div class="champHead">
-                                <div class="killBtn">x</div>
-                                <div class="headBtn">c</div>
+                                <button class="killBtn">x</button>
+                                <button class="cloneBtn">c</button>
                                 <h2>
                                     header
                                 </h2>
@@ -179,7 +183,6 @@
                                     </h3>
                                     <p class="skillInput">
                                     </p>
-                                    <hr>
                                     <p class="skillTxt">
                                         PASSIVE
                                     </p>
@@ -189,7 +192,6 @@
                                     </h3>
                                     <p class="skillInput">
                                     </p>
-                                    <hr>
                                     <p class="skillTxt">
                                         SKILL 1
                                     </p>
@@ -199,7 +201,6 @@
                                     </h3>
                                     <p class="skillInput">
                                     </p>
-                                    <hr>
                                     <p class="skillTxt">
                                         SKILL 2
                                     </p>
@@ -209,7 +210,6 @@
                                     </h3>
                                     <p class="skillInput">
                                     </p>
-                                    <hr>
                                     <p class="skillTxt">
                                         SKILL 3
                                     </p>
@@ -235,15 +235,13 @@
                             </div>
                             <div class="itemBox">
                                 <div class="champItems"></div>
-                                <div class="dropBtn">&#11206;</div> <!-- &#11205; -->
+                                <button class="dropBtn">&#11206;</button>
                                 <div class="priceBx">0</div>
                             </div>
                             <div class="dropPanel">
-                                <ul class="dropTBar">
-                                    <li>Items</li>
-                                    <li>Runes</li>
-                                    <li>Special</li>
-                                </ul>
+                                <div class="dropTBar">
+                                    <!-- Buttons go here -->
+                                </div>
                                 <!-- item drop box -->
                                 <div class="dropContent" style="display: block;">
                                     <div class="itemOpt">
@@ -307,6 +305,10 @@
                                     <div class="buff">
                                         <img src="http://ddragon.leagueoflegends.com/cdn/8.9.1/img/item/3504.png">
                                         <input type=number class=ardent min=0 value=0 max=18 onchange="update()">
+                                    </div>
+                                    <div class="buff">
+                                        <img src="http://ddragon.leagueoflegends.com/cdn/8.9.1/img/item/3109.png">
+                                        <input type=checkbox class=knightsVow onchange="update()">
                                     </div>
                                     <div class="elixir">
                                         <img src="img/elix.png">
