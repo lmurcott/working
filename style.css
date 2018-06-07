@@ -486,7 +486,7 @@ hr {
     
 }
 
-.skillBox{
+.skillBox {
     width: 40%;
     background-color: #181818;
     color: #cbcbcb;
@@ -494,6 +494,10 @@ hr {
     float: right;
     clear: right;
     overflow: hidden;
+}
+
+.skillBox input:hover {
+    box-shadow: none;
 }
 
 .skillTxt{

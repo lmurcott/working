@@ -2500,8 +2500,8 @@ const champObj = function (obj, side, uid) {// create champion object
                         }
                     }
 
-                    if (items.includes(3151) && !isTick) {// Liandrys Multiplier
-                        let dmgMulti = parseInt(document.getElementById(uid + 3151).value);
+                    if ((items.includes(3136) || items.includes(3151)) && !isTick) {// Liandrys Multiplier
+                        let dmgMulti = (items.includes(3151)) ? document.getElementById(uid + 3151).value : document.getElementById(uid + 3136).value;
                         if (dmgMulti > 0) {
                             magDmg = calc(magDmg, calc(1, calc(dmgMulti, 0.02), 0));
                             physDmg = calc(physDmg, calc(1, calc(dmgMulti, 0.02), 0));
@@ -2798,19 +2798,19 @@ const champObj = function (obj, side, uid) {// create champion object
                                     let ticksPS = (keyObj.duration) ? Math.ceil(calc((totalTicks + 1), keyObj.duration, 3)): totalTicks + 1;
                                     let cleaveStacks = 0;
                                     let liandStacks = 0;
-                                    if (items.includes(3151)) {// Liandry
-                                        liandStacks = parseInt(document.getElementById(uid + 3151).value);
+                                    if (items.includes(3151) || items.includes(3136)) {// Liandry
+                                        liandStacks = (items.includes(3151)) ? parseInt(document.getElementById(uid + 3151).value) : parseInt(document.getElementById(uid + 3136).value);
                                     }
                                     let tickCount = 0;
                                     while (tickCount !== totalTicks) {
                                         tickCount += 1;
                                         let myDmg = [tickDmg[0], tickDmg[1], tickDmg[2]];
-                                        if (items.includes(3151)) {// Liandry
+                                        if (items.includes(3151) || items.includes(3136)) {// Liandry
                                             if ((tickCount) % ticksPS === 0) {
                                                 if (liandStacks < 5) {
                                                     liandStacks += 1;
                                                 }
-                                                if (myChamps[enemyUID]) {//apply liandry burn
+                                                if (myChamps[enemyUID] && items.includes(3151)) {//apply liandry burn
                                                     if (myChamps[enemyUID].isSlowed() || items.includes(3116)) {
                                                         myDmg[1] = calc(myDmg[1], myChamps[enemyUID].getPercentHP(0.02), 0);
                                                     } else {
