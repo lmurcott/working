@@ -313,7 +313,7 @@ const champObj = function (obj, side, uid) {// create champion object
         ap = 0,
         aPen = [],// flat reduction, percent reduction, percent pen, flat pen
         armor = [],
-        attackspeed = [calcBaseAspd(stats.attackspeedoffset)],
+        attackspeed = [],
         buffStats = {},
         cdr = [],
         crit = 0,
@@ -483,9 +483,7 @@ const champObj = function (obj, side, uid) {// create champion object
                 if (keyObj.empty) {
                     return "";
                 }
-                value = (value === "")
-                    ? 0
-                    : value;
+                value = (value === "") ? 0 : value;
                 if (keyObj.effectNo) {
                     value = calc(value, riotObj.effect[keyObj.effectNo][spellLvl], 0);
                 }
@@ -520,7 +518,7 @@ const champObj = function (obj, side, uid) {// create champion object
                     });
                 }
                 if (keyObj.multiplier) {
-                    if (typeof keyObj.value === "object") {
+                    if (typeof keyObj.multiplier === "object") {
                         value = calc(value, Number(keyObj.multiplier[spellLvl] + "e-2"));
                     } else {
                         value = calc(value, Number(keyObj.multiplier + "e-2"));
@@ -564,7 +562,6 @@ const champObj = function (obj, side, uid) {// create champion object
         },
         setStats = function () {
             const setBaseStats = function () {
-                adaptTyp = getAdapt();
                 buffStats = [];
                 if (document.getElementById("enemy" + side).length > 0) {
                     enemyUID = document.getElementById("enemy" + side).value;
@@ -573,6 +570,7 @@ const champObj = function (obj, side, uid) {// create champion object
                 }
                 attackdamage[0] = round(calcBaseStats(stats.attackdamage, stats.attackdamageperlevel, level));
                 armor[0] = round(calcBaseStats(stats.armor, stats.armorperlevel, level));
+                attackspeed[0] = calcBaseAspd(stats.attackspeedoffset);
                 attackspeed[1] = Number(round(calcBaseStats(0, stats.attackspeedperlevel, level)) + "e-2");
                 if (aSpdBonus) {
                     attackspeed[1] = calc(attackspeed[1], aSpdBonus, 0);
@@ -615,6 +613,7 @@ const champObj = function (obj, side, uid) {// create champion object
                     attackspeed[0] = round(calc(attackspeed[0], calc(1, attackspeed[1], 0)), 3);
                     attackspeed[1] = 0;
                 }
+                adaptTyp = getAdapt();
             };
             const setItemStats = function () {
                 let statObj = {};
@@ -777,6 +776,9 @@ const champObj = function (obj, side, uid) {// create champion object
                     }
                     if (itemCheck(3508, true)) {// essence reaver
                         attackspeed[1] = calc(attackspeed[1], 0.3, 0);
+                    }
+                    if (itemCheck(3194, true)) {
+                        dmgReduct[0] += calc(dmgReduct[0], 20, 0);
                     }
                     //Movement Items
                     if (itemCheck(3113)) {// Aether Wisp
@@ -1135,6 +1137,9 @@ const champObj = function (obj, side, uid) {// create champion object
                         ap += 15;
                     }
                 }
+                if (runeCheck(8444, true)) {//Second Wind
+                    hpregen[1] = calc(hpregen[1], calc(getPercentHP(0.04, "missHp"), 6, 0), 0);
+                }
             };
             const setTraitStats = function () {
                 if (typeof runePaths[0] === "number" && typeof runePaths[1] === "number") {
@@ -1413,9 +1418,8 @@ const champObj = function (obj, side, uid) {// create champion object
                 }
 
                 //Calculate Final Bonus Movement Speed With Caps
-                move[1] = calc(getMvSpd(), move[0], 1);
+                move[1] = round(calc(getMvSpd(), move[0], 1));
                 move[2] = 0;
-
                 if (runeCheck(8234)) {//celerity
                     const bonusMoveSpd = move[1];
                     if (adaptTyp === "phys") {
@@ -1424,12 +1428,10 @@ const champObj = function (obj, side, uid) {// create champion object
                         ap += round(calc(bonusMoveSpd, 0.08));
                     }
                 }
-
                 let vladbonusAP;
                 if (id === "Vladimir") {// vlad passive
                     vladbonusAP = round(calc(hp[1], 0.025));
                 }
-
                 let apMulti = 0, adMulti = 0;
                 if (itemCheck(3089) || itemCheck(3374)) {//Rabadons
                   apMulti += 40;
@@ -1454,9 +1456,7 @@ const champObj = function (obj, side, uid) {// create champion object
                         }
                     }
                 }
-
                 //put in infernal drakes
-
                 const infernalStacks = document.getElementsByClassName("infernalCount")[side].value;
                 if (document.getElementsByClassName("elderActive")[side].checked) {
                     adMulti += infernalStacks * 12;
@@ -1465,7 +1465,6 @@ const champObj = function (obj, side, uid) {// create champion object
                     adMulti += infernalStacks * 8;
                     apMulti += infernalStacks * 8;
                 }
-
                 //Calculate Multipliers
                 attackdamage[1] = round(calc(attackdamage[1], Number(100 + adMulti + "e-2")));
                 ap = round(calc(ap, Number(100 + apMulti + "e-2")));
@@ -1487,10 +1486,10 @@ const champObj = function (obj, side, uid) {// create champion object
 
                 //Attack Speed Reductions
                 let aSpdReduction = 1;
-                if (document.getElementById(uid).querySelector(".frozenHeart").checked) {// wits end
+                if (document.getElementById(uid).querySelector(".frozenHeart").checked) {// frozen heart
                     aSpdReduction = calc(aSpdReduction, 0.85);
                 }
-                if (document.getElementById(uid).querySelector(".coldSteel").checked) {// wits end
+                if (document.getElementById(uid).querySelector(".coldSteel").checked) {// cold steel passive
                     aSpdReduction = calc(aSpdReduction, 0.85);
                 }
                 if (aSpdReduction < 1) {
@@ -1956,7 +1955,8 @@ const champObj = function (obj, side, uid) {// create champion object
                             update();
                         });
                         runeImg.addEventListener("mouseover", function (e) {
-                            showHover(rune.name, e.pageX, e.pageY);
+                            const runeDesc = rune.name + "<br>" + rune.longDesc;
+                            showHover(runeDesc, e.pageX, e.pageY);
                         });
                         runeImg.addEventListener("mouseout", hideHover);
                         singleRuneDiv.appendChild(runeImg);
@@ -1987,7 +1987,7 @@ const champObj = function (obj, side, uid) {// create champion object
                 runeSelectDOM.style.display = "block";
             };
             const drawRune = function (rank, slotNo) {
-                const checkBox = [8112,8124,8128,8126,8143,8005,8008,8010,8437,8242,8429,8214,8472,8229,8210,8014,8439,8237,8232,8021,8230,8465,8410,8473,9923,8275];
+                const checkBox = [8112,8124,8128,8126,8143,8005,8008,8010,8437,8242,8429,8214,8472,8229,8210,8014,8439,8237,8232,8021,8230,8465,8410,8473,9923,8275,8444];
                 const number = {
                     9103: 10,
                     9104: 10,
@@ -2011,7 +2011,8 @@ const champObj = function (obj, side, uid) {// create champion object
                     drawRuneSelect(rank, slotNo);
                 });
                 runeImg.addEventListener("mouseover", function (e) {
-                    showHover(runeObj.name, e.pageX, e.pageY);
+                    const runeDesc = runeObj.name + "<br>" + runeObj.longDesc;
+                    showHover(runeDesc, e.pageX, e.pageY);
                 });
                 runeImg.addEventListener("mouseout", hideHover);
 
@@ -2220,7 +2221,7 @@ const champObj = function (obj, side, uid) {// create champion object
                     }
                     return calc(dmg, critMulti);
                 };
-                const getDPS = function (dmg) {
+                const getDPS = function (dmg, frequency = 1) {
                     let dps = [];
                     let totalAtkSpd = calc(attackspeed[0], calc(1, attackspeed[1], 0));
                     if (totalAtkSpd > attackspeed[2]) {
@@ -2229,6 +2230,7 @@ const champObj = function (obj, side, uid) {// create champion object
                     if (id === "Jhin") {//add in 2.5secs downtime
                         totalAtkSpd = calc(calc(attackspeed[1], 0.625, 0), 2, 3);
                     }
+                    totalAtkSpd = calc(totalAtkSpd, frequency, 3);
                     dmg.forEach(function (value) {
                         dps.push(calc(value, totalAtkSpd));
                     });
@@ -2599,12 +2601,6 @@ const champObj = function (obj, side, uid) {// create champion object
                     if(itemCheck(3222)) {//Mikeal
                         healShieldBonus = calc(0.2, healShieldBonus, 0);
                     }
-                    if (runeCheck(8453)) {// revitalize
-                        healShieldBonus = calc(0.05, healShieldBonus, 0);
-                        if (getPercentHP(0.4) > getPercentHP(1, "currHp")) {//not heal shield
-                            healShieldBonus = calc(0.1, healShieldBonus, 0);
-                        }
-                    }
                     if (runeCheck(8465, true) && !spellObj.selfHeal && !spellObj.selfShield) {// Guardian
                         let guardianLvl = [70,75,79,84,89,94,98,103,108,112,117,122,126,131,136,141,145,150];
                         myShield = calc(calc(myShield, guardianLvl[level -1], 0), calc(calc(ap, 0.25), calc(hp[1], 0.12), 0), 0);
@@ -2614,6 +2610,7 @@ const champObj = function (obj, side, uid) {// create champion object
                         myShield = calc(calc(myShield, aeryBase[level -1], 0), calc(calc(ap, 0.25), calc(attackdamage[1], 0.4), 0), 0);
                     }
                     if (runeCheck(8453)) {// revitalize
+                        healShieldBonus = calc(0.05, healShieldBonus, 0);
                         if (getPercentHP(0.4) > getPercentHP(1, "currHp")) {
                             myHeal = calc(myHeal, 1.1);
                             myShield = calc(myShield, 1.1);
@@ -2841,6 +2838,12 @@ const champObj = function (obj, side, uid) {// create champion object
                                     theDmg = addDmg(theDmg, getTickDmg(getDmg(keyValue, keyObj ,false, true)));
                                 }
                                 placeHoldStr = styleDigits(theDmg, keyObj.type);
+                                
+                                if (keyObj.dps) {
+                                    placeHoldStr += "[DPS:" + styleDigits(getDPS(theDmg, keyObj.dps), keyObj.type) + "]";
+                                }
+                                
+                                
                                 if (keyObj.crit && (crit > 0 || keyObj.crit[1] || (itemCheck(3095, true) && keyObj.basicAttack))) {
                                     const theCritDmg = getDmg(keyValue, keyObj, true);
                                     if (keyObj.ticks) {
@@ -2849,7 +2852,7 @@ const champObj = function (obj, side, uid) {// create champion object
                                     } else {
                                         placeHoldStr += " [" + theLang.FlatCritDamageMod + ": " + styleDigits(theCritDmg, keyObj.type) + "]";
                                     }
-                                }
+                                }                            
                             } else {
                                 placeHoldStr = "<span class='statValue'>" + keyValue + "</span>";
                             }

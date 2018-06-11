@@ -65,7 +65,6 @@ input:focus, select:focus{
 
 h1 {
     text-shadow: 1px 1px #BBB;
-    letter-spacing: 0.05em;
     line-height: 2rem;
     font-size: 1em;
     padding: 0.5em;
@@ -84,6 +83,16 @@ h1 a {
     font-weight: normal;
     font-size: 1em;
     margin-left: 0.25em;
+}
+
+#paypal {
+    float: right;
+    margin-top: 0.85em;
+    margin-right: 0.3em;
+}
+
+#paypal input{
+    border: none;
 }
 
 #twitter {
@@ -121,8 +130,8 @@ h1 a {
 #shareIcon {
     float: right;
     color: #0078d7;
-    font-size: 2rem;
-    margin-right: 0.1em;
+    font-size: 1.5rem;
+    margin-top: 0.3em;
     cursor: pointer;
 }
 
@@ -217,7 +226,8 @@ h1 a {
  
  #langStr {
      float: right;
-     font-size: 2rem;
+     margin-top: 0.3em;
+     font-size: 1.5rem;
      cursor: pointer;
  }
 
@@ -835,8 +845,6 @@ h3 {
     
     #shareIcon, #langStr {
         font-size: 1.25rem;
-        float: right;
-        clear: right;
     }
     
     #shareBx {
