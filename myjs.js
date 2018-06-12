@@ -2,7 +2,7 @@
 // Created by Logan Murcott
 // github.com/lmurcott
 
-const patch = "8.11.1";
+const patch = "8.12.1";
 var lang = "en_US", theLang, myChamps = {}, theRunes, theItems, sortedItems, allChamps;
 
 const loadJSON = function (file, callback, args = "") {// Load riot JSON files
@@ -615,7 +615,6 @@ const champObj = function (obj, side, uid) {// create champion object
                     attackspeed[0] = round(calc(attackspeed[0], calc(1, attackspeed[1], 0)), 3);
                     attackspeed[1] = 0;
                 }
-                adaptTyp = getAdapt();
             };
             const setItemStats = function () {
                 let statObj = {};
@@ -723,7 +722,7 @@ const champObj = function (obj, side, uid) {// create champion object
                         lifeSteal = calc(0.2, lifeSteal, 0);
                     }
                     if (itemCheck(3053)) {// sterak
-                        attackdamage[0] = calc(attackdamage[0], 1.5);
+                        attackdamage[1] = calc(calc(attackdamage[0], 0.5), attackdamage[1], 0);
                     }
                     if (itemCheck(3041)) {// mejai
                         const stacks = parseInt(document.getElementById(uid + "3041").value);
@@ -973,6 +972,7 @@ const champObj = function (obj, side, uid) {// create champion object
                 }
             };
             const setRuneStats = function () {
+                adaptTyp = getAdapt();
                 if (runeCheck(8230, true)) {//phase rush
                     move[3] += 75;
                     const perLvl = [0.25, 0.26, 0.27, 0.28, 0.29, 0.29, 0.3, 0.31, 0.32, 0.33, 0.34, 0.35, 0.36, 0.36, 0.37, 0.38, 0.39, 0.4];
@@ -1061,7 +1061,7 @@ const champObj = function (obj, side, uid) {// create champion object
                 }
                 if (runeCheck(9923, true)) {//Hail of Blades
                     attackspeed[2] = 999;//uncap atk spd
-                    const hobPLvl = [0.5,0.53,0.56,0.59,0.62,0.65,0.68,0.71,0.74,0.76,0.79,0.82,0.85,0.88,0.91,0.94,0.97,1];
+                    const hobPLvl = [0.75, 0.78, 0.81, 0.84, 0.87, 0.9, 0.93, 0.96, 0.99, 1.01, 1.04, 1.07, 1.1, 1.13, 1.16, 1.19, 1.22, 1.25];
                     attackspeed[1] = calc(attackspeed[1], hobPLvl[level - 1], 0);
                 }
                 if (runeCheck(9104)) {//legend alacrity
@@ -1096,7 +1096,7 @@ const champObj = function (obj, side, uid) {// create champion object
                     spellblock[1] += 8;
                 }
                 if (runeCheck(8234)) {//celerity
-                    move[2] = calc(move[2], 0.03, 0);
+                    move[2] = calc(move[2], 0.015, 0);
                 }
                 if (runeCheck(8437)) {//Grasp
                     const graspStacks = document.getElementById(uid + "RNUM8437").value;
@@ -1427,9 +1427,9 @@ const champObj = function (obj, side, uid) {// create champion object
                 if (runeCheck(8234)) {//celerity
                     const bonusMoveSpd = move[1];
                     if (adaptTyp === "phys") {
-                        attackdamage[1] += round(calc(bonusMoveSpd, 0.048));
+                        attackdamage[1] += round(calc(bonusMoveSpd, 0.096));
                     } else {
-                        ap += round(calc(bonusMoveSpd, 0.08));
+                        ap += round(calc(bonusMoveSpd, 0.16));
                     }
                 }
                 let vladbonusAP;
@@ -2591,19 +2591,19 @@ const champObj = function (obj, side, uid) {// create champion object
                         break;
                     }
                     if(itemCheck(3114)) {//Idol
-                        healShieldBonus = calc(0.08, healShieldBonus, 0);
+                        healShieldBonus = calc(0.05, healShieldBonus, 0);
                     }
                     if(itemCheck(3504)) {//Ardent
-                        healShieldBonus = calc(0.1, healShieldBonus, 0);
+                        healShieldBonus = calc(0.08, healShieldBonus, 0);
                     }
                     if(itemCheck(3107)) {//Redemption
-                        healShieldBonus = calc(0.1, healShieldBonus, 0);
+                        healShieldBonus = calc(0.8, healShieldBonus, 0);
                     }
                     if(itemCheck(3382)) {//Ornn Salvation
                         healShieldBonus = calc(0.1, healShieldBonus, 0);
                     }
                     if(itemCheck(3222)) {//Mikeal
-                        healShieldBonus = calc(0.2, healShieldBonus, 0);
+                        healShieldBonus = calc(0.15, healShieldBonus, 0);
                     }
                     if (runeCheck(8465, true) && !spellObj.selfHeal && !spellObj.selfShield) {// Guardian
                         let guardianLvl = [70,75,79,84,89,94,98,103,108,112,117,122,126,131,136,141,145,150];
@@ -2620,10 +2620,10 @@ const champObj = function (obj, side, uid) {// create champion object
                             myShield = calc(myShield, 1.1);
                         }
                     }
-                    if (itemCheck(3065) && !obj.selfShield && !obj.selfHeal) {// Spirit Visage
+                    if (itemCheck(3065) && !spellObj.selfShield && !spellObj.selfHeal) {// Spirit Visage
                         myHeal = calc(myHeal, 1.3, 0);
                     }
-                    if (itemCheck(3174, true) && !obj.selfShield && !obj.selfHeal) {// Athenes
+                    if (itemCheck(3174, true) && !spellObj.selfShield && !spellObj.selfHeal) {// Athenes
                         let atheneBase = [100,108,116,125,134,143,152,161,170,179,188,197,205,214,223,232,241,250];
                         myHeal = calc(myHeal, atheneBase[level - 1], 0);
                     }
@@ -3073,163 +3073,10 @@ const champObj = function (obj, side, uid) {// create champion object
 
     //script to fix riots disappearing data
     switch (id) {
-    case "Ahri":
-        spells[0].name = "Orb of Deception";
-        spells[0].tooltip = "Deals {{ e1 }} <scaleAP>(+{{ a1 }})</scaleAP> magic damage on the way out, and {{ e1 }} <scaleAP>(+{{ a1 }})</scaleAP> true damage on the way back.<br /><br />Ahri's abilities generate Essence Theft stacks when they hit enemies (max {{ f4.0 }} per cast). At {{ f3.0 }} stacks, Ahri's next Orb of Deception that lands a hit will restore <scaleLevel>{{ f1.0 }}</scaleLevel> <scaleAP>(+{{ f2.-1 }})</scaleAP> health for each enemy hit.";
-        spells[0].vars = [
-                    { link: "spelldamage", coeff: 0.35, key: "a1" }
-                ];
-        spells[1].name = "Fox-Fire";
-        spells[1].tooltip = "Releases fox-fires that seek nearby enemies and deal {{ e1 }} <scaleAP>(+{{ a1 }})</scaleAP> magic damage.<br /><br />Enemies hit with multiple fox-fires take {{ e2 }}% damage from each additional fox-fire beyond the first, for a maximum of <scaleAP>{{ f1 }}</scaleAP> damage to a single enemy.<br /><br /><rules>Fox-fire prioritizes champions recently hit by Charm, then enemies Ahri recently attacked.<br />If Fox-fire cannot find a priority target, it targets champions over the nearest enemy if possible.</rules>";
-        spells[1].vars = [
-                    { link: "spelldamage", coeff: 0.35, key: "a1" }
-                ];
-        spells[2].name = "Charm";
-        spells[2].tooltip = "Blows a kiss dealing {{ e1 }} <scaleAP>(+{{ a1 }})</scaleAP> magic damage and charms an enemy causing them to walk harmlessly towards Ahri for {{ e2 }} second(s).<br /><br />Enemies hit by Charm become vulnerable for {{ e5 }} seconds, taking {{ e4 }}% more damage from Ahri's abilities.";
-        spells[2].vars = [
-                    { link: "spelldamage", coeff: 0.4, key: "a1" }
-                ];
-        spells[3].name = "Spirit Rush";
-        spells[3].tooltip = "Nimbly dashes forward firing {{ e2 }} essence bolts at nearby enemies (prioritizing champions) dealing {{ e1 }} <scaleAP>(+{{ a1 }})</scaleAP> magic damage.<br /><br />Can be cast up to {{ e3 }} times within {{ e6 }} seconds before going on cooldown.";
-        spells[3].vars = [
-                    { link: "spelldamage", coeff: 0.35, key: "a1" }
-                ];
-        break;
-    case "Darius":
-        spells[0].name = "Decimate";
-        spells[0].tooltip = "After a short delay, Darius swings his axe around himself, striking enemies in its path. Enemies hit by the axe's blade take {{ e2 }} <span class=\"colorFF8C00\">(+{{ f1 }})</span> physical damage. Enemies hit by the handle take {{ e6 }}% damage (does not apply Hemorrhage).<br /><br />Darius heals for <span class=\"colorFF0000\">{{ e5 }}% of his missing Health</span> per enemy champion hit by the blade (max: {{ e7 }}%).";
-        spells[0].vars = [
-                    { link: "bonusattackdamage", coeff: 1.05, key: "f1" }
-                ];
-        spells[1].name = "Crippling Strike";
-        spells[1].tooltip = "Darius's next basic attack deals <span class=\"colorFF8C00\">{{ f1 }}</span> physical damage and slows the target by {{ e2 }}% for {{ e5 }} second.<br /><br />Crippling Strike refunds its Mana cost and {{ e3 }}% of its cooldown if it kills the target.";
-        spells[2].name = "Apprehend";
-        spells[2].tooltip = "<span class=\"colorFF9900\">Passive: </span>Darius gains {{ e1 }}% Armor Penetration.<br /><br /><span class=\"colorFF9900\">Active: </span>Pulls in all enemies in front of Darius and slows them by {{ e2 }}% for {{ e3 }} second.";
-        spells[3].name = "Noxian Guillotine";
-        spells[3].tooltip = "Leaps to target enemy champion and strikes a lethal blow, dealing {{ e1 }} <span class=\"colorFF8C00\">(+{{ f1 }})</span> true damage. For each stack of Hemorrhage on the target, Noxian Guillotine deals an additional {{ e3 }}% damage.<span class=\"size8 colorFF9900\"><br /><br /></span><span class=\"colorF50F00\">Maximum Damage: {{ f3 }}</span><span class=\"size8\"><br /><br /></span>If Noxian Guillotine kills the target, it may be re-cast at no cost within 20 seconds.<span class=\"size8\"><br /><br /></span>At rank 3, Noxian Guillotine <span class=\"colorFFFF66\"><i>unlocks</i></span> - its cooldown resets entirely on kills and it no longer has a Mana cost.";
-        spells[3].vars = [
-                    { link: "bonusattackdamage", coeff: 0.75, key: "f1" }
-                ];
-        break;
-    case "Ezreal":
-        stats.attackdamageperlevel = 2.5;
-        break;
-    case "MasterYi":
-        spells[0].name = "Alpha Strike";
-        spells[0].tooltip = "Master Yi teleports to strike up to {{ e8 }} enemies, dealing {{ e1 }} <span class=\"colorFF8C00\">(+{{ a1 }})</span> physical damage, with an additional {{ e3 }} damage to minions and monsters. During Alpha Strike Master Yi is untargetable.<br /><br />Alpha Strike can critically strike, dealing an additional <span class=\"colorFF8C00\">{{ f1 }}</span> physical damage. Basic attacks lower the cooldown of Alpha Strike by {{ e7 }} second.";
-        spells[0].vars = [
-                    { link: "attackdamage", coeff: 1, key: "a1" },
-                    { link: "attackdamage", coeff: 0.6, key: "f1" }
-                ];
-        spells[1].name = "Meditate";
-        spells[1].tooltip = "Master Yi channels, reducing incoming damage by {{ e2 }}% and restoring {{ e1 }} <scaleAP>(+{{ a1 }})</scaleAP> health over {{ f1.-1 }} seconds. This healing is increased by up to {{ e0 }}% based on Master Yi's missing health.<br /><br />In addition, Master Yi will gain stacks of Double Strike and pause the remaining duration on Wuju Style and Highlander for each second he channels.<br /><br /><rules>Meditate's damage reduction is halved against structures.</rules>";
-        spells[1].vars = [
-                    { link: "spelldamage", coeff: 1, key: "a1" }
-                ];
-        spells[2].name = "Wuju Style";
-        spells[2].tooltip = "<span class=\"colorFF9900\">Passive:</span> Grants {{ e1 }}% <span class=\"colorFF8C00\">({{ f1 }})</span> Attack Damage.<br /><br /><span class=\"colorFF9900\">Active:</span> Basic attacks deal {{ e3 }} <span class=\"colorFF8C00\">(+{{ f2 }})</span> bonus true damage for {{ e5 }} seconds. Afterwards the passive bonus is lost while Wuju Style is on cooldown.";
-        spells[2].vars = [
-                    { link: "attackdamage", coeff: [0.1, 0.125, 0.15, 0.175, 0.2], key: "f2" }
-                ];
-        spells[3].name = "Highlander";
-        spells[3].tooltip = "<span class=\"colorFF9900\">Passive:</span> Champion kills and assists reduce the remaining cooldown of Master Yi's basic abilities by {{ e5 }}%.<br /><br /><span class=\"colorFF9900\">Active:</span> Increases Movement Speed by {{ e3 }}%, Attack Speed by {{ e2 }}%, and grants immunity to slows for {{ e1 }} seconds. While active, champion kills and assists extend the duration of Highlander by {{ e4 }} seconds.";
-        spells[3].vars = [
-                    { link: "bonusattackdamage", coeff: 0.75, key: "f1" }
-                ];
-        break;
-    case "MissFortune":
-        spells[0].name = "Double Up";
-        spells[0].tooltip = "Miss Fortune fires a bouncing shot through an enemy, dealing {{ e2 }} <span class=\"colorFF8C00\">(+{{ a2 }})</span> <span class=\"color99FF99\">(+{{ a1 }})</span> physical damage to each target hit. Both apply on-hit effects.<br /><br />The second shot can critically strike for {{ f1 }}% damage, and it always critically strikes if the first shot kills its target.";
-        spells[0].vars = [
-                    { link: "attackdamage", coeff: 1, key: "a2" },
-                    { link: "spelldamage", coeff: 0.35, key: "a1" }
-                ];
-        spells[1].name = "Strut";
-        spells[1].tooltip = "<span class=\"colorFF9900\">Passive:</span> After 5 seconds of not taking direct damage, Miss Fortune gains {{ e5 }} Movement Speed. After another 5 seconds, this bonus increases to {{ e2 }}.<br /><br /><span class=\"colorFF9900\">Active:</span> Fully activates Strut's Movement Speed and grants {{ e1 }}% Attack Speed for {{ e3 }} seconds.<br /><br />Love Taps reduce the cooldown of Strut by {{ f2 }} seconds.";
-        spells[2].name = "Make It Rain";
-        spells[2].tooltip = "Miss Fortune reveals an area, raining down bullets that deal {{ e1 }} <span class=\"color99FF99\">(+{{ a1 }})</span> magic damage over 2 seconds and slow enemies hit by {{ e2 }}%.";
-        spells[2].vars = [
-                    { link: "spelldamage", coeff: 0.8, key: "a1" }
-                ];
-        spells[3].name = "Bullet Time";
-        spells[3].tooltip = "Miss Fortune channels a barrage of bullets for {{ e3 }} seconds, dealing <span class=\"colorFF8C00\">(+{{ f1 }})</span> <span class=\"color99FF99\">(+{{ a1 }})</span> physical damage per wave ({{ e2 }} waves total).<br /><br />Each wave of Bullet Time can critically strike for {{ f3 }}% damage.<br /><br /><span class=\"colorF50F00\">Total Damage: {{ f2 }}</span>";
-        spells[3].vars = [
-                    { "link": "bonusattackdamage", "coeff": 0.35, "key": "f1" },
-                    { "link": "spelldamage", "coeff": 0.2, "key": "a1" }
-                ];
-        break;
-    case "Jhin":
-        stats.attackspeedperlevel = 3;
-        break;
-    case "Lux":
-        spells[0].name = "Light Binding";
-        spells[0].tooltip = "Lux releases a sphere of light that binds and deals damage to up to two enemy units.";
-        spells[0].vars = [
-                    { link: "spelldamage", coeff: 0.7, key: "a1" }
-                ];
-        spells[1].name = "Prismatic Barrier";
-        spells[1].tooltip = "Lux throws her wand and bends the light around any friendly target it touches, protecting them from enemy damage.";
-        spells[1].vars = [
-                    { link: "spelldamage", coeff: 0.2, key: "a1" }
-                ];
-        spells[2].name = "Lucent Singularity";
-        spells[2].tooltip = "Fires an anomaly of twisted light to an area, which slows nearby enemies. Lux can detonate it to damage enemies in the area of effect.";
-        spells[2].vars = [
-                    { link: "spelldamage", coeff: 0.6, key: "a1" }
-                ];
-        spells[3].name = "Final Spark";
-        spells[3].tooltip = "After gathering energy, Lux fires a beam of light that deals damage to all targets in the area. If Final Spark helps take down a champion, part of its cooldown is refunded. In addition, triggers Lux's passive ability and refreshes the Illumination debuff duration.";
-        spells[3].vars = [
-                    { link: "spelldamage", coeff: 0.75, key: "a1" }
-                ];
-        break;
-    case "Nocturne":
-        spells[0].name = "Duskbringer";
-        spells[0].tooltip = "Nocturne throws a shadow blade that deals {{ e2 }} <span class=\"colorFF8C00\">(+{{ f1 }})</span> physical damage and leaves a Dusk Trail for {{ e3 }} seconds. Enemy champions hit also leave a Dusk Trail.<br /><br />While on the trail, Nocturne can move through units and gains {{ e1 }}% Movement Speed and {{ e4 }} Attack Damage.";
-        spells[0].vars = [
-                    { link: "bonusattackdamage", coeff: 0.75, key: "f1" }
-                ];
-        spells[1].name = "Shroud of Darkness";
-        spells[1].tooltip = "<span class=\"colorFF9900\">Passive:</span> Nocturne gains {{ e1 }}% Attack Speed.<br /><br /><span class=\"colorFF9900\">Active:</span> Nocturne creates a magical barrier for 1.5 seconds, which blocks the next enemy ability.<br /><br />If an ability is blocked by the shield, Nocturne's passive Attack Speed bonus doubles for {{ e4 }} seconds.<br /><br /><rules>Shroud of Darkness will remain active during Paranoia's flight.</rules>";
-        spells[2].name = "Unspeakable Horror";
-        spells[2].tooltip = "<span class=\"colorFF9900\">Passive:</span> Nocturne gains massively increased Movement Speed toward terrified enemies.<br /><br /><span class=\"colorFF9900\">Active:</span> Nocturne plants a nightmare into his target's mind, dealing {{ e1 }} <span class=\"color99FF99\">(+{{ a1 }})</span> magic damage over {{ e3 }} seconds. If Nocturne stays within range of the target for the full duration, the target becomes terrified for {{ e2 }} second(s).";
-        spells[2].vars = [
-                    { link: "spelldamage", coeff: 1, key: "a1" }
-                ];
-        spells[3].name = "Paranoia";
-        spells[3].tooltip = "Nocturne reduces the sight radius of all enemy champions and removes their ally vision for {{ e6 }} seconds.<br /><br />While Paranoia is active, Nocturne can launch himself at an enemy champion, dealing {{ e3 }} <span class=\"colorFF8C00\">(+{{ f1 }})</span> physical damage.";
-        spells[3].vars = [
-                    { link: "bonusattackdamage", coeff: 1.2, key: "f1" }
-                ];
-        break;
     case "Rengar":
         spells[0].cooldown = [6, 5.5, 5, 4.5, 4];
         spells[1].cooldown = [16, 14.5, 13, 11.5, 10];
         spells[2].cooldown = [10, 10, 10, 10, 10];
-        break;
-    case "Taliyah":
-        stats.attackdamage = 58;
-        spells[0].effect[2] = [40, 40, 40, 40, 40];
-        break;
-    case "Zed":
-        spells[0].name = "Razor Shuriken";
-        spells[0].tooltip = "Zed and his shadows throw their shurikens, each dealing {{ e1 }} <span class=\"colorFF8C00\">(+{{ a1 }})</span> physical damage to the first enemy they pass through, and {{ e3 }} <span class=\"colorFF8C00\">(+{{ a2 }})</span> physical damage to each additional enemy.";
-        spells[0].vars = [
-                    { link: "bonusattackdamage", coeff: 0.9, key: "a1" },
-                    { link: "bonusattackdamage", coeff: 0.54, key: "a2" }
-                ];
-        spells[1].name = "Living Shadow";
-        spells[1].tooltip = "<span class=\"colorFF9900\">Passive: </span>Whenever Zed and his shadows strike an enemy with the same ability, Zed gains {{ e3 }} energy. Energy can only be gained once per cast ability.<br /><br /><span class=\"colorFF9900\">Active: </span>Zed's shadow dashes forward, remaining in place for {{ e5 }} seconds. Reactivating Living Shadow will cause Zed to switch positions with this shadow.";
-        spells[2].name = "Shadow Slash";
-        spells[2].tooltip = "Zed and his shadows slash, dealing {{ e1 }} <span class=\"colorFF8C00\">(+{{ a1 }})</span> physical damage to nearby enemies.<br /><br />Each enemy champion hit by Zed's slash reduces Living Shadow's cooldown by {{ e4 }} seconds.<br /><br />Enemies hit by a Shadow's slash are slowed by {{ e2 }}% for 1.5 seconds. Enemies hit by multiple slashes take no additional damage but are slowed by {{ e3 }}% instead.";
-        spells[2].vars = [
-                    { link: "bonusattackdamage", coeff: 0.8, key: "a1" }
-                ];
-        spells[3].name = "Death Mark";
-        spells[3].tooltip = "Zed becomes untargetable and dashes to an enemy champion, marking them. After 3 seconds, the mark triggers, dealing physical damage equal to <span class=\"colorFF8C00\">{{ a1 }}</span> + {{ e2 }}% of all damage dealt to the target by Zed while the mark was active.<br /><br />The dash leaves a shadow behind for {{ e4 }} seconds. Reactivating Death Mark causes Zed to switch positions with this shadow.<br /><br /><span class=\"colorFFFFFF\">Reaper of Shadows: </span>Zed reaps the shadow of the strongest foe slain under Death Mark, gaining <span class=\"colorFF8C00\">{{ f2 }}</span> attack damage. ({{ e0 }} + {{ e9 }}% of the victim's attack damage.)";
-        spells[3].vars = [
-                    { link: "attackdamage", coeff: 1, key: "a1" }
-                ];
         break;
     }
 
