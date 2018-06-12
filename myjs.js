@@ -2728,7 +2728,16 @@ const champObj = function (obj, side, uid) {// create champion object
                         avgDmg = avgCritDmg(basicAtk, theCrit);
                         tooltip += styleDigits(avgCritDmg(basicAtk, theCrit) , attackObj.type) + "<br>";
                     }
-                    tooltip += "DPS: " + styleDigits(getDPS(avgDmg), attackObj.type);
+                    
+                    const theDps = getDPS(avgDmg);
+                    tooltip += "DPS: " + styleDigits(theDps, attackObj.type);
+                    let totalDps = 0;
+                    theDps.forEach(function (damage) {
+                        totalDps = calc(damage, totalDps, 0);
+                    });
+                    tooltip += "<br>Total DPS: " + round(totalDps, 1);
+                    const totalCost = parseInt(document.getElementById(uid).querySelector(".priceBx").innerText);
+                    tooltip += "<br>" + theLang.Gold + " to " + theLang.Damage + "[lower is better] : " + round(calc(totalCost, totalDps, 3), 1);
                     return tooltip;
                 }
 
