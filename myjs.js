@@ -1279,6 +1279,9 @@ const champObj = function (obj, side, uid) {// create champion object
                     case "baseArmor"://Gnar
                         armor[0] = round(calc(armor[0], round(amount), 0), 1);
                         break;
+                    case "basemovespeed":
+                        move[0] = calc(move[0], amount, 0);
+                        break;
                     case "baseMR"://Gnar
                         spellblock[0] = round(calc(spellblock[0], round(amount), 0));
                         break;
@@ -1348,7 +1351,6 @@ const champObj = function (obj, side, uid) {// create champion object
                         }
                     });
                 }
-
                 //Baron Buff
                 if (document.getElementsByClassName("baronActive")[side].checked) {
                     const baronStacks = document.getElementsByClassName("baronTime")[side].value;
@@ -2728,16 +2730,21 @@ const champObj = function (obj, side, uid) {// create champion object
                         avgDmg = avgCritDmg(basicAtk, theCrit);
                         tooltip += styleDigits(avgCritDmg(basicAtk, theCrit) , attackObj.type) + "<br>";
                     }
-                    
+                    let totalAvgDmg = 0;
+                    avgDmg.forEach(function (damage) {
+                        totalAvgDmg = calc(damage, totalAvgDmg, 0);
+                    });
+                    tooltip += "Total AVG " + theLang.Damage + ": " + totalAvgDmg + "<br>";
+                    const totalCost = parseInt(document.getElementById(uid).querySelector(".priceBx").innerText);
+                    tooltip += theLang.Gold + " to AVG " + theLang.Damage + "[lower is better] : " + round(calc(totalCost, totalAvgDmg, 3), 1) + "<br>";
                     const theDps = getDPS(avgDmg);
-                    tooltip += "DPS: " + styleDigits(theDps, attackObj.type);
+                    tooltip += "DPS: " + styleDigits(theDps, attackObj.type) + "<br>";
                     let totalDps = 0;
                     theDps.forEach(function (damage) {
                         totalDps = calc(damage, totalDps, 0);
                     });
-                    tooltip += "<br>Total DPS: " + round(totalDps, 1);
-                    const totalCost = parseInt(document.getElementById(uid).querySelector(".priceBx").innerText);
-                    tooltip += "<br>" + theLang.Gold + " to " + theLang.Damage + "[lower is better] : " + round(calc(totalCost, totalDps, 3), 1);
+                    tooltip += "Total DPS: " + round(totalDps, 1)  + "<br>";
+                    tooltip += theLang.Gold + " to DPS [lower is better] : " + round(calc(totalCost, totalDps, 3), 1);
                     return tooltip;
                 }
 
@@ -2900,6 +2907,10 @@ const champObj = function (obj, side, uid) {// create champion object
                     if (count !== 5 && itemCheck(3508, true) && !noProcER.includes(id)) {
                         skillCdr = calc(skillCdr, 0.8);
                     }
+                    if (count === 5 && runeCheck(8106)) {// Ultimate Hunter
+                        const uHCDR = calc(0.95, calc(0.02, document.getElementById(uid + "RNUM8106").value), 1);
+                        skillCdr = calc(skillCdr, uHCDR);
+                    }
                     div.innerHTML = theLang.Cooldown + ": " + skillCdr + "<br>";
                     div.innerHTML += refineTtip(count - 2);
                 }
@@ -2955,12 +2966,20 @@ const champObj = function (obj, side, uid) {// create champion object
             const totalSBlock = calcPenResist(spellblock[0], spellblock[1], eMPen);
             let physDmg = round(calc(dmg[0], calcResist(totalArmor)), 1);
             let magDmg = round(calc(dmg[1], calcResist(totalSBlock)), 1);
-            const truDmg = dmg[2];//add amumu debuff
+            const truDmg = dmg[2];            
             if (dmgReduct[0]) {
                 magDmg = calc(magDmg, calc(1, Number(dmgReduct[0] + "e-2"), 1));
             }
             if (dmgReduct[1]) {
                 physDmg = calc(physDmg, calc(1, Number(dmgReduct[1] + "e-2"), 1));
+            }
+            if (runeCheck(8473, true)) {// Bone Plating
+                const bPlat = [15, 16, 18, 19, 21, 22, 24, 25, 27, 28, 30, 31, 33, 34, 36, 37, 39, 40];
+                dmgReduct[2] = calc(dmgReduct[2], bPlat[level - 1], 0);
+                magDmg = calc(magDmg, bPlat[level - 1], 1);
+                if (magDmg < 0) {
+                    magDmg = 0;
+                }
             }
             if (dmgReduct[2]) {
                 physDmg = calc(physDmg, dmgReduct[2], 1);

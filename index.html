@@ -120,17 +120,17 @@
             <div id="teamBuffs1" class="teamBuffBx">
                 <div>
                     <img src="img/baron.png">
-                    <input type="number" class="baronTime" value=20 min=20 max=40>
-                    <input type="checkbox" class="baronActive">
+                    <input type="number" class="baronTime" value=20 min=20 max=40 onchange="update()">
+                    <input type="checkbox" class="baronActive" onchange="update()">
                 </div>
                 <div>
                     <img src="img/elder.png">
-                    <input type="number" class="elderCount" value=0 min=0 max=5>
-                    <input type="checkbox" class="elderActive">
+                    <input type="number" class="elderCount" value=0 min=0 max=5 onchange="update()">
+                    <input type="checkbox" class="elderActive" onchange="update()">
                 </div>
                 <div>
                     <img src="img/infernal.png">
-                    <input type="number" class="infernalCount" value=0 min=0 max=3>
+                    <input type="number" class="infernalCount" value=0 min=0 max=3 onchange="update()">
                 </div>
             </div>
         </div>
