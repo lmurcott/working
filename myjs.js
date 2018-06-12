@@ -289,6 +289,8 @@ const update = function () {
     });
     Object.keys(myChamps).forEach(function (uid) {
         myChamps[uid].drawStats();
+    });
+    Object.keys(myChamps).forEach(function (uid) {
         myChamps[uid].drawSkillTxt();
     });
 };
@@ -3002,7 +3004,7 @@ const champObj = function (obj, side, uid) {// create champion object
         getPercentHP = function (amount, type = "maxHp") {
             let maxHp = hp[0] + hp[1];
             let currentHP;
-            if (document.getElementById(uid + "HP")) {
+            if (document.getElementById(uid + "HP")) {                
                 currentHP = document.getElementById(uid + "HP").value;
             } else {
                 currentHP = maxHp;
