@@ -31,31 +31,31 @@ const champVars = {
         }
     },
     Ahri: {//e damage amp
-    buffs: [
-      {spell: "P", key: "p1", type: "percentmoveSpeed", active: true}
-    ],
-    sInfoP: {
-        active: true,
-        p1: {info: "PercentMovementSpeedMod", value: 20},
-    },
-    sInfo0: {
-      e1: {type: "mag", spell: true, child: ["a1"]},
-      e1a: {type: "tru", spell: true, child: ["a1"]},
-      "f1.0": {valuePerLvl: [3,3,3,3,3,5,5,5,5,5,9,9,9,9,9,18,18,18], type: "heal", selfHeal: true},
-      "f4.0": {value: 3},
-      "f3.0": {value: 9},
-    },
-    sInfo1: {
-      e1: {type: "mag", spell: true, child: ["a1"]},
-      f1: {effectNo: 1, type: "mag", spell: true, child: ["a1"], multiplier: 160},
-      f1Var: {link: "spelldamage", coeff: 0.48}
-    },
-    sInfo2: {
-      e1: {type: "mag", spell: true, child: ["a1"]}
-    },
-    sInfo3: {
-      e1: {type: "mag", spell: true, child: ["a1"]}
-    }
+        buffs: [
+          {spell: "P", key: "p1", type: "percentmoveSpeed", active: true}
+        ],
+        sInfoP: {
+            active: true,
+            p1: {info: "PercentMovementSpeedMod", value: 20},
+        },
+        sInfo0: {
+          e1: {type: "mag", spell: true, child: ["a1"]},
+          e1a: {type: "tru", spell: true, child: ["a1"]},
+          "f1.0": {valuePerLvl: [3,3,3,3,3,5,5,5,5,5,9,9,9,9,9,18,18,18], type: "heal", selfHeal: true},
+          "f4.0": {value: 3},
+          "f3.0": {value: 9},
+        },
+        sInfo1: {
+          e1: {type: "mag", spell: true, child: ["a1"]},
+          f1: {effectNo: 1, type: "mag", spell: true, child: ["a1"], multiplier: 160},
+          f1Var: {link: "spelldamage", coeff: 0.48}
+        },
+        sInfo2: {
+          e1: {type: "mag", spell: true, child: ["a1"]}
+        },
+        sInfo3: {
+          e1: {type: "mag", spell: true, child: ["a1"]}
+        }
     },
     Akali: {
         buffs: [
@@ -269,21 +269,21 @@ const champVars = {
       active: true
     }
     },
-    Blitzcrank: {//add mana shield
-    buffs: [
-      {spell: 1, key: "e1", type: "percentmoveSpeed", active: true},
-      {spell: 1, key: "e2", type: "attackSpeed", active: true}
-    ],
-    sInfo0: {
-      e1: {type: "mag", spell: true, child: ["a1"]}
-    },
-    sInfo1: {
-      active: true
-    },
-    sInfo3: {
-      e1: {type: "mag", spell: true, child: ["a1"]},
-      e2: {type: "mag", spell: true, child: ["a2"]}
-    }
+    Blitzcrank: {
+        buffs: [
+          {spell: 1, key: "e1", type: "percentmoveSpeed", active: true},
+          {spell: 1, key: "e2", type: "attackSpeed", active: true}
+        ],
+        sInfo0: {
+          e1: {type: "mag", spell: true, child: ["a1"]}
+        },
+        sInfo1: {
+          active: true
+        },
+        sInfo3: {
+          e1: {type: "mag", spell: true, child: ["a1"]},
+          e2: {type: "mag", spell: true, child: ["a2"]}
+        }
     },
     Brand: {
     sInfoP: {
@@ -523,7 +523,7 @@ const champVars = {
           e2: {type: "mag", spell: true, child: ["a1"]}
         }
     },
-    Draven: {//w is missing tooltip???[added english] add gold from passive?
+    Draven: {//w is missing tooltip???[added english]
         buffs: [
           {spell: 1, key: "e4", type: "attackSpeed", active: true},
           {spell: 1, key: "e2", type: "percentmoveSpeed", active: true}
@@ -564,7 +564,6 @@ const champVars = {
       e1: {type: "mag", spell: true, child: ["a1"]}
     },
     sInfo2: {
-      //active: true,
       //input: {type: "number", max: 3},
       f3: {effectNo: 8, multiplier: 300},
       f1: {type: "phys", child: ["f1Var"]},
@@ -1868,8 +1867,8 @@ const champVars = {
     Malphite: {
     aSpdBonus: 0.1,
     buffs: [
-      {spell: 1, key: "f1", type: "armor", passiveOnly: true},
-            {spell: 1, key: "f3", type: "armor", active: true},
+        {spell: 1, key: "f1", type: "armor", passiveOnly: true},
+        {spell: 1, key: "f3", type: "armor", active: true},
     ],
     debuff: [
       {

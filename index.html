@@ -16,7 +16,7 @@
 
     <div id="header">
         <h1>
-            <a href="http://www.theorycrunch.com">Theory Crunch</a><span class="patchNo">| Patch 8.12</span>
+            <a href="http://www.theorycrunch.com">Theory Crunch</a><span class="patchNo">| Patch 8.12 Hotfix 18/6</span>
         </h1>
         <a href="https://www.twitter.com/theorycrunch" target="_blank"><img id="twitter" src="img/twitter.png"></a>        
         <button id="langStr" onclick="toogleVisible('langBox')">
@@ -96,17 +96,17 @@
             <button class="teamBuffBtn" onclick="toogleVisible('teamBuffs0')">&#11206;</button>
             <div id="teamBuffs0" class="teamBuffBx">
                 <div>
-                    <img src="img/baron.png">
+                    <img src="img/baron.gif">
                     <input type="number" class="baronTime" value=20 min=20 max=40 onchange="update()">
                     <input type="checkbox" class="baronActive" onchange="update()">
                 </div>
                 <div>
-                    <img src="img/elder.png">
+                    <img src="img/elder.gif">
                     <input type="number" class="elderCount" value=0 min=0 max=5 onchange="update()">
                     <input type="checkbox" class="elderActive" onchange="update()">
                 </div>
                 <div>
-                    <img src="img/infernal.png">
+                    <img src="img/infernal.gif">
                     <input type="number" class="infernalCount" value=0 min=0 max=3 onchange="update()">
                 </div>
             </div>
@@ -119,17 +119,17 @@
             <button class="teamBuffBtn" onclick="toogleVisible('teamBuffs1')">&#11206;</button>
             <div id="teamBuffs1" class="teamBuffBx">
                 <div>
-                    <img src="img/baron.png">
+                    <img src="img/baron.gif">
                     <input type="number" class="baronTime" value=20 min=20 max=40 onchange="update()">
                     <input type="checkbox" class="baronActive" onchange="update()">
                 </div>
                 <div>
-                    <img src="img/elder.png">
+                    <img src="img/elder.gif">
                     <input type="number" class="elderCount" value=0 min=0 max=5 onchange="update()">
                     <input type="checkbox" class="elderActive" onchange="update()">
                 </div>
                 <div>
-                    <img src="img/infernal.png">
+                    <img src="img/infernal.gif">
                     <input type="number" class="infernalCount" value=0 min=0 max=3 onchange="update()">
                 </div>
             </div>
@@ -311,8 +311,16 @@
                                         <img src="http://ddragon.leagueoflegends.com/cdn/8.9.1/img/item/3109.png">
                                         <input type=checkbox class=knightsVow onchange="update()">
                                     </div>
+                                    <div class="buff">
+                                        <img src="img/redBuff.gif">
+                                        <input type=checkbox class=redBuff onchange="update()">
+                                    </div>
+                                    <div class="buff">
+                                        <img src="img/blueBuff.gif">
+                                        <input type=checkbox class=blueBuff onchange="update()">
+                                    </div>
                                     <div class="elixir">
-                                        <img src="img/elix.png">
+                                        <img src="img/elix.gif">
                                         <select class="slctElix" onchange="update()">
                                             <option></option>
                                         </select>
