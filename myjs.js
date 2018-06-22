@@ -1626,9 +1626,21 @@ const champObj = function (obj, side, uid) {// create champion object
                     update();
                 });
                 theImg.addEventListener("mouseover", function (e) {
-                    let description = theItems[itemNo].description;
-                    description = description.replace(/size='\d*'/g, "");
-                    showHover(theItems[itemNo].name + "<hr>" + description, e.pageX, e.pageY);
+                    let description = theItems[itemNo].name + "<hr>";
+                    description += theItems[itemNo].description.replace(/size='\d*'/g, "");
+                    if (theItems[itemNo].from) {
+                        description += "<hr><h4>" + theLang.Require_ + "</h4>";
+                        theItems[itemNo].from.forEach(function (theItemNo) {
+                            description += "<img src ='http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/item/" + theItemNo + ".png'>";    
+                        });
+                    }
+                    if (theItems[itemNo].into) {
+                        description += "<hr><h4>" + theLang.Builds_ + "</h4>";
+                        theItems[itemNo].into.forEach(function (theItemNo) {
+                            description += "<img src ='http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/item/" + theItemNo + ".png'>";    
+                        });
+                    }
+                    showHover(description, e.pageX, e.pageY);
                 });
                 theImg.addEventListener("mouseout", hideHover);
                 theDiv.appendChild(theImg);
@@ -1881,9 +1893,21 @@ const champObj = function (obj, side, uid) {// create champion object
                                 update();
                             });
                             theImg.addEventListener("mouseover", function (e) {
-                                let description = theItems[itemNo].description;
-                                description = description.replace(/size='\d*'/g, "");
-                                showHover(theItems[itemNo].name + "<hr>" + description, e.pageX, e.pageY);
+                                let description = theItems[itemNo].name + "<hr>";
+                                description += theItems[itemNo].description.replace(/size='\d*'/g, "");
+                                if (theItems[itemNo].from) {
+                                    description += "<hr><h4>" + theLang.Require_ + "</h4>";
+                                    theItems[itemNo].from.forEach(function (theItemNo) {
+                                        description += "<img src ='http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/item/" + theItemNo + ".png'>";    
+                                    });
+                                }
+                                if (theItems[itemNo].into) {
+                                    description += "<hr><h4>" + theLang.Builds_ + "</h4>";
+                                    theItems[itemNo].into.forEach(function (theItemNo) {
+                                        description += "<img src ='http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/item/" + theItemNo + ".png'>";    
+                                    });
+                                }
+                                showHover(description, e.pageX, e.pageY);
                             });
                             theImg.addEventListener("mouseout", hideHover);
                             docFrag.appendChild(theImg);
