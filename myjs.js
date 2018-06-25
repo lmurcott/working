@@ -461,14 +461,14 @@ const champObj = function (obj, side, uid) {// create champion object
                         "5": 0.25,
                         "6": 0.36,
                     };
-                    stat = calc(attackdamage[1], adRatio[document.getElementById(uid + "InputP").value]);
+                    stat = calc(attackdamage[1], adRatio[document.getElementById(uid + "SpellNumP").value]);
                 break;
                 case "spelldamage":
                     stat = ap;
                     break;
                 case "swainFragments":
                     const perFragDmg = calc(calc(ap, 0.27), spells[3].effect[10][spellLvl], 0);
-                    stat = calc(perFragDmg, document.getElementById(uid + "InputP").value);
+                    stat = calc(perFragDmg, document.getElementById(uid + "SpellNumP").value);
                 break;
                 default:
                     console.log(theVar.link);
