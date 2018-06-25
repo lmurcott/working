@@ -138,10 +138,10 @@ const setChampList = function (json) {// Create options for selecting new champ
     loadCheck();
 };
 
-const setItems = function (json) {
+const setItems = function (json) {//atmas and shojin added to remove list
     "use strict";
     const
-        delItem = [3043, 3048, 3007, 3008, 3073, 3029],
+        delItem = [3043, 3048, 3007, 3008, 3073, 3029, 3161, 3005],
         delhideFromAll = [1400, 1401, 1402, 1412, 1413, 1414, 1416, 1419];
 
     theItems = json.data;
@@ -320,6 +320,7 @@ const champObj = function (obj, side, uid) {// create champion object
         aPen = [],// flat reduction, percent reduction, percent pen, flat pen
         armor = [],
         attackspeed = [],
+        baseDPS = 0,
         buffStats = {},
         cdr = [],
         crit = 0,
@@ -1382,6 +1383,7 @@ const champObj = function (obj, side, uid) {// create champion object
                 //HP Multis
                 let hpMulti = 0;
                 let baseHPMulti = 0;
+
                 if (itemCheck(1401) || itemCheck(1413)) {//cinderhulk jungle enhcantment
                     hpMulti = calc(hpMulti, 0.15, 0);
                 }
@@ -1531,6 +1533,7 @@ const champObj = function (obj, side, uid) {// create champion object
                     armor[1] = round(calc(armor[1], calc(1, perArmorReduct, 1)));
                 }
             };
+            
             setLevel();
             setBaseStats();
             setItemStats();
@@ -1539,6 +1542,8 @@ const champObj = function (obj, side, uid) {// create champion object
             setBuffStats();
             setStatMultis();
             setDebuffs();
+            
+            
         },
         addItem = function (itemNo) {
             let itemDOM = document.getElementById(uid).getElementsByClassName("champItems")[0];
@@ -1949,14 +1954,16 @@ const champObj = function (obj, side, uid) {// create champion object
             document.getElementById("enemy" + (1 - side)).appendChild(champOpt);
         },
         importRunes = function (runeHash0, runeHash1) {
-            runePaths = [runeHash0.charAt(0), runeHash1.charAt(0)];
+            runePaths[0] = parseInt(runeHash0.charAt(0));
             runes[0].push(theRunes[runeHash0.charAt(0)].slots[0].runes[runeHash0.charAt(1)].id);
             runes[0].push(theRunes[runeHash0.charAt(0)].slots[1].runes[runeHash0.charAt(2)].id);
             runes[0].push(theRunes[runeHash0.charAt(0)].slots[2].runes[runeHash0.charAt(3)].id);
             runes[0].push(theRunes[runeHash0.charAt(0)].slots[3].runes[runeHash0.charAt(4)].id);
-
-            runes[1].push(theRunes[runeHash1.charAt(0)].slots[runeHash1.charAt(1)].runes[runeHash1.charAt(2)].id);
-            runes[1].push(theRunes[runeHash1.charAt(0)].slots[runeHash1.charAt(3)].runes[runeHash1.charAt(4)].id);
+            if (runeHash1) {
+                runePaths[1] = parseInt(runeHash1.charAt(0));
+                runes[1].push(theRunes[runeHash1.charAt(0)].slots[runeHash1.charAt(1)].runes[runeHash1.charAt(2)].id);
+                runes[1].push(theRunes[runeHash1.charAt(0)].slots[runeHash1.charAt(3)].runes[runeHash1.charAt(4)].id);
+            }
         },
         getRuneInfo = function (rank, runeNo) {
             let runeID = runes[rank][runeNo],
@@ -2160,9 +2167,13 @@ const champObj = function (obj, side, uid) {// create champion object
                     }
                 });
             };
-            if (runePaths[0]) {// Runes exist from import
+            if (runePaths.length > 0) {// Runes exist from import
                 drawAllRunes(0);
-                drawAllRunes(1);
+                if (runePaths.length > 1) {
+                    drawAllRunes(1);
+                } else {
+                    drawPaths(1);
+                }
             } else {
                 drawPaths(0);
             }
@@ -2210,7 +2221,7 @@ const champObj = function (obj, side, uid) {// create champion object
             }
             const critTotal = (crit > 1 && id !== "Ashe") ? 100 : Number(crit + "e2");
             statList.push(
-                [theLang.HealthRegen, calc(calc(hpregen[0], calc(1, hpregen[2], 0)), hpregen[1], 0)],
+                [theLang.HealthRegen, round(calc(calc(hpregen[0], calc(1, hpregen[2], 0)), hpregen[1], 0), 1)],
                 [theLang.Armor, armor[0] + armor[1]],
                 [theLang.SpellBlock, spellblock[0] + spellblock[1]],
                 [theLang.AttackDamage, attackdamage[0] + attackdamage[1]],
@@ -2229,7 +2240,7 @@ const champObj = function (obj, side, uid) {// create champion object
             } else if (mpregen[0] > 0) {//energy
                 statList.push(
                     [partype, mp[0]],
-                    [theLang.ManaRegen, calc(calc(mpregen[0], calc(1, mpregen[2], 0)), mpregen[1], 0)]
+                    [theLang.ManaRegen, round(calc(calc(mpregen[0], calc(1, mpregen[2], 0)), mpregen[1], 0), 1)]
                 );
             } else if (mp[0] > 0) {
                 statList.push(
@@ -2684,15 +2695,15 @@ const champObj = function (obj, side, uid) {// create champion object
                     let theStr = "";
                     switch (type) {
                     case "heal":
-                        theStr = "<span class='heal'>" + digits[0] + "</span>";
+                        theStr = "<span class='heal'>" + round(digits[0], 1) + "</span>";
                         if (digits[1] > 0) {
-                            theStr += "<span class='shield'>[" + digits[1] + "]</span>";
+                            theStr += "<span class='shield'>[" + round(digits[1], 1) + "]</span>";
                         }
                         break;
                     case "shield":
-                        theStr = "<span class='shield'>" + digits[1] + "</span>";
+                        theStr = "<span class='shield'>" + round(digits[1], 1) + "</span>";
                         if (digits[0] > 0) {
-                            theStr += "<span class='heal'>[" + digits[0] + "]</span>";
+                            theStr += "<span class='heal'>[" + round(digits[0], 1) + "]</span>";
                         }
                         break;
                     case "armor":
@@ -2763,7 +2774,6 @@ const champObj = function (obj, side, uid) {// create champion object
                         attackObj = {type: "phys", onHit: 1, basicAttack: true, crit:[80,125]};
                         break;
                     default:
-
                     }
                     const basicAtk = getDmg(totalAD, attackObj);
                     let avgDmg = basicAtk;
@@ -2781,8 +2791,6 @@ const champObj = function (obj, side, uid) {// create champion object
                         totalAvgDmg = calc(damage, totalAvgDmg, 0);
                     });
                     tooltip += "Total AVG " + theLang.Damage + ": " + totalAvgDmg + "<br>";
-                    const totalCost = parseInt(document.getElementById(uid).querySelector(".priceBx").innerText);
-                    tooltip += theLang.Gold + " to AVG " + theLang.Damage + "[lower is better] : " + round(calc(totalCost, totalAvgDmg, 3), 1) + "<br>";
                     const theDps = getDPS(avgDmg);
                     tooltip += "DPS: " + styleDigits(theDps, attackObj.type) + "<br>";
                     let totalDps = 0;
@@ -2790,10 +2798,8 @@ const champObj = function (obj, side, uid) {// create champion object
                         totalDps = calc(damage, totalDps, 0);
                     });
                     tooltip += "Total DPS: " + round(totalDps, 1)  + "<br>";
-                    tooltip += theLang.Gold + " to DPS [lower is better] : " + round(calc(totalCost, totalDps, 3), 1);
                     return tooltip;
                 }
-
                 const myObj = myChamps[uid]["sInfo" + spellNo];
                 let tooltip = (spellNo === "P")
                     ? passive.description
@@ -3140,6 +3146,7 @@ const champObj = function (obj, side, uid) {// create champion object
         crit,
         debuffs,
         dmgReduct,
+        baseDPS,
         enemyUID,
         hp,
         hpregen,

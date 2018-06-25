@@ -564,13 +564,13 @@ const champVars = {
       e1: {type: "mag", spell: true, child: ["a1"]}
     },
     sInfo2: {
-      //input: {type: "number", max: 3},
-      f3: {effectNo: 8, multiplier: 300},
-      f1: {type: "phys", child: ["f1Var"]},
-      f1Var: {link: "maxHp", coeff: [0.03,0.035,0.04,0.045,0.05]},
-      f2: {value: [0.3,0.5,0.7,0.9,1.1]},
-      f5: {child: ["f5Var"]},
-      f5Var: {link: "percentMissingHp", coeff: [0.3,0.5,0.7,0.9,1.1]}
+        active: true,
+        f3: {effectNo: 8, multiplier: 300},
+        f1: {type: "phys", child: ["f1Var"]},
+        f1Var: {link: "maxHp", coeff: [0.03,0.035,0.04,0.045,0.05]},
+        f2: {value: [0.3,0.5,0.7,0.9,1.1]},
+        f5: {child: ["f5Var"]},
+        f5Var: {link: "percentMissingHp", coeff: [0.3,0.5,0.7,0.9,1.1]}
     },
     sInfo3: {
       active: true,
@@ -3079,33 +3079,32 @@ const champVars = {
     }
     },
     Taric: {
-    buffs: [
+        buffs: [
             {spell: "P", key: "p1", type: "attackSpeed", active: true},
-      {spell: 1, key: "f1", type: "armor", active: true}
-    ],
-    sInfoP: {
+            {spell: 1, key: "f1", type: "armor"}
+        ],
+        sInfoP: {
             active: true,
             p1: {info: "PercentAttackSpeedMod", value: 100},
             p2: {info: "magicDamage", type: "mag", value: 21, child: ["p2Var","p2Var2"]},
             p2Var: {link: "champLevel", coeff: 4},
             p2Var2: {link: "bonusarmor", coeff: 0.15},
-        },
+            },
         sInfo0: {
-      e1: {type: "heal", child: ["a1","f1Var"]},
-      f1Var: {link: "maxHp", coeff: 0.01},
-      e5: {type: "heal", child: ["f2Var","f3Var"]},
-      f2Var: {link: "maxHp", coeff: [0.01,0.02,0.03,0.04,0.05]},
-      f3Var: {link: "spelldamage", coeff: [0.2,0.4,0.6,0.8,1]}
-    },
-    sInfo1: {
-      active: true,
-      f1: {type: "armor", child: ["f1Var"]},
-      f1Var: {link: "armor", coeff: [0.1,0.125,0.15,0.175,0.2]}
-    },
-    sInfo2: {
-      e1: {type: "mag", spell: true, child: ["a1","f1Var"]},
-      f1Var: {link: "armor", coeff: 0.3},
-    }
+            e1: {type: "heal", child: ["a1","f1Var"]},
+            f1Var: {link: "maxHp", coeff: 0.01},
+            e5: {type: "heal", child: ["f2Var","f3Var"]},
+            f2Var: {link: "maxHp", coeff: [0.01,0.02,0.03,0.04,0.05]},
+            f3Var: {link: "spelldamage", coeff: [0.2,0.4,0.6,0.8,1]}
+        },
+        sInfo1: {
+            f1: {type: "armor", child: ["f1Var"]},
+            f1Var: {link: "armor", coeff: [0.1,0.125,0.15,0.175,0.2]}
+        },
+        sInfo2: {
+            e1: {type: "mag", spell: true, child: ["a1","f1Var"]},
+            f1Var: {link: "armor", coeff: 0.3},
+        }
     },
     Teemo: {
         buffs: [
