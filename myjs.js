@@ -419,7 +419,7 @@ const champObj = function (obj, side, uid) {// create champion object
                     break;
                 case "input":
                     if (theVar.inputId === "P" || document.getElementById(uid).getElementsByClassName("spellLvl")[theVar.inputId].value > 0) {
-                        stat = document.getElementById(uid + "Input" + theVar.inputId).value;
+                        stat = document.getElementById(uid + "SpellNum" + theVar.inputId).value;
                     } else {
                         stat = 0;
                     }
@@ -1683,49 +1683,56 @@ const champObj = function (obj, side, uid) {// create champion object
             let skillDesc = finalDOM.getElementsByClassName("skillDesc");
 
             Array.from(skillDesc).forEach(function (theNode, index) {
-                let inputDiv, spellInputDOM;
+                let inputDiv = document.getElementById(uid).getElementsByClassName("skillInput")[index - 1];
+                let numDiv = document.getElementById(uid).getElementsByClassName("skillNum")[index - 1];
                 switch (index) {
                 case 0:
                     theNode.getElementsByTagName("h3")[0].innerText = theLang.Attack;
                     break;
                 case 1:
                     theNode.getElementsByTagName("h3")[0].innerText = passive.name;
-                    if (sInfoP && (sInfoP.active || sInfoP.input)) {
-                        spellInputDOM = document.createElement("input");
-                        spellInputDOM.type = (sInfoP.active) ? "checkbox" : "number";
-                        spellInputDOM.id = uid + "InputP";
-                        spellInputDOM.addEventListener("change", update);
-                        inputDiv = document.getElementById(uid).getElementsByClassName("skillInput")[index - 1];
-                        if (sInfoP.active) {
-                            inputDiv.innerText = theLang.Active + " ";
-                        } else {
-                            spellInputDOM.value = 0;
-                            spellInputDOM.min = 0;
-                            if (sInfoP.input.max) {
-                                spellInputDOM.max = sInfoP.input.max;
-                            }
-                        }
-                        inputDiv.appendChild(spellInputDOM);
+                    if (sInfoP && sInfoP.active) {
+                        let activeDOM = document.createElement("input");
+                        activeDOM.id = uid + "InputP";
+                        activeDOM.type = "checkbox";
+                        activeDOM.addEventListener("change", update);
+                        inputDiv.innerText = theLang.Active + " ";
+                        inputDiv.appendChild(activeDOM);
                     }
+                    if (sInfoP && sInfoP.input) {
+                        let numDOM = document.createElement("input");
+                        numDOM.id = uid + "SpellNumP";
+                        numDOM.type = "number";
+                        numDOM.value = 0;
+                        numDOM.min = 0;
+                        if (sInfoP.input.max) {
+                            numDOM.max = sInfoP.input.max;
+                        }
+                        numDOM.addEventListener("change", update);
+                        numDiv.appendChild(numDOM);
+                    }  
                     break;
                 default:
                     theNode.getElementsByTagName("h3")[0].innerText = spells[index - 2].name;
-                    if (myChamps[uid]["sInfo" + (index - 2)] && (myChamps[uid]["sInfo" + (index - 2)].active || myChamps[uid]["sInfo" + (index - 2)].input)) {
-                        spellInputDOM = document.createElement("input");
-                        spellInputDOM.type = (myChamps[uid]["sInfo" + (index - 2)].active) ? "checkbox" : "number";
-                        spellInputDOM.id = uid + "Input" + (index - 2);
-                        spellInputDOM.addEventListener("change", update);
-                        inputDiv = document.getElementById(uid).getElementsByClassName("skillInput")[index - 1];
-                        if (myChamps[uid]["sInfo" + (index - 2)].active) {
-                            inputDiv.innerText = theLang.Active + " ";
-                        } else {
-                            spellInputDOM.value = 0;
-                            spellInputDOM.min = 0;
-                            if (myChamps[uid]["sInfo" + (index - 2)].input.max) {
-                                spellInputDOM.max = myChamps[uid]["sInfo" + (index - 2)].input.max;
-                            }
+                    if (myChamps[uid]["sInfo" + (index - 2)] && myChamps[uid]["sInfo" + (index - 2)].active) {
+                        let activeDOM = document.createElement("input");
+                        activeDOM.id = uid + "Input" + (index - 2);
+                        activeDOM.type = "checkbox";
+                        activeDOM.addEventListener("change", update);
+                        inputDiv.innerText = theLang.Active + " ";
+                        inputDiv.appendChild(activeDOM);
+                    }
+                    if (myChamps[uid]["sInfo" + (index - 2)] && myChamps[uid]["sInfo" + (index - 2)].input) {
+                        let numDOM = document.createElement("input");
+                        numDOM.id = uid + "SpellNum" + (index - 2);
+                        numDOM.type = "number";
+                        numDOM.value = 0;
+                        numDOM.min = 0;
+                        if (myChamps[uid]["sInfo" + (index - 2)].input.max) {
+                            numDOM.max = myChamps[uid]["sInfo" + (index - 2)].input.max;
                         }
-                        inputDiv.appendChild(spellInputDOM);
+                        numDOM.addEventListener("change", update);
+                        numDiv.appendChild(numDOM);
                     }
                 }
             });
@@ -1954,6 +1961,8 @@ const champObj = function (obj, side, uid) {// create champion object
             document.getElementById("enemy" + (1 - side)).appendChild(champOpt);
         },
         importRunes = function (runeHash0, runeHash1) {
+            //console.log(runeHash0);
+            //console.log(runeHash1);
             runePaths[0] = parseInt(runeHash0.charAt(0));
             runes[0].push(theRunes[runeHash0.charAt(0)].slots[0].runes[runeHash0.charAt(1)].id);
             runes[0].push(theRunes[runeHash0.charAt(0)].slots[1].runes[runeHash0.charAt(2)].id);
@@ -3103,7 +3112,7 @@ const champObj = function (obj, side, uid) {// create champion object
             }
         },
         getRuneHash = function () {
-            if (runePaths[0]) {
+            if (runePaths.length > 0) {
                 let runeHash = "&" + runePaths[0];
                 runes[0].forEach(function (runeID, count) {
                     runeHash += getRuneInfo(0, count)[1];
@@ -3115,6 +3124,7 @@ const champObj = function (obj, side, uid) {// create champion object
                 });
                 return runeHash;
             }
+            console.log("runehash not done");
             return "";
         },
         checkBoots = function () {//used by magical footwear and item check
