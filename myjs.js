@@ -1782,8 +1782,8 @@ const champObj = function (obj, side, uid) {// create champion object
             finalDOM.querySelector(".cloneBtn").addEventListener("click", function () {//clone current champion
                 const newUid = newUID();
                 myChamps[newUid] = champObj({id, image, name, partype, passive, spells, stats}, side, newUid);
-                const myRunes = getRuneHash().substr(1).split("&");
-                if (myRunes.length > 1) {
+                if (runePaths[0] !== "") {
+                    const myRunes = getRuneHash().substr(1).split("&");
                     myChamps[newUid].importRunes(myRunes[0], myRunes[1]);
                 }
                 myChamps[newUid].drawChampDOM();
@@ -1961,8 +1961,7 @@ const champObj = function (obj, side, uid) {// create champion object
             document.getElementById("enemy" + (1 - side)).appendChild(champOpt);
         },
         importRunes = function (runeHash0, runeHash1) {
-            //console.log(runeHash0);
-            //console.log(runeHash1);
+
             runePaths[0] = parseInt(runeHash0.charAt(0));
             runes[0].push(theRunes[runeHash0.charAt(0)].slots[0].runes[runeHash0.charAt(1)].id);
             runes[0].push(theRunes[runeHash0.charAt(0)].slots[1].runes[runeHash0.charAt(2)].id);
@@ -3112,19 +3111,20 @@ const champObj = function (obj, side, uid) {// create champion object
             }
         },
         getRuneHash = function () {
-            if (runePaths.length > 0) {
+            if (runePaths[0] !== "") {
                 let runeHash = "&" + runePaths[0];
                 runes[0].forEach(function (runeID, count) {
                     runeHash += getRuneInfo(0, count)[1];
                 });
-                runeHash += "&" + runePaths[1];
-                runes[1].forEach(function (runeID, count) {
-                    runeHash += getRuneInfo(1, count)[0];
-                    runeHash += getRuneInfo(1, count)[1];
-                });
+                if (runePaths[1] !== "") {
+                    runeHash += "&" + runePaths[1];
+                    runes[1].forEach(function (runeID, count) {
+                        runeHash += getRuneInfo(1, count)[0];
+                        runeHash += getRuneInfo(1, count)[1];
+                    });
+                }
                 return runeHash;
             }
-            console.log("runehash not done");
             return "";
         },
         checkBoots = function () {//used by magical footwear and item check
