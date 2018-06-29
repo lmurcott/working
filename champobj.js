@@ -1,89 +1,76 @@
 const champVars = {
     Aatrox: {
-        buffs: [{
+        buffs: [
+            {
+                spell: 2,
+                key: "adBuff",
+                type: "attackdamage",
+                active: true
+            },
+            {
                 spell: 3,
-                key: "e3",
-                type: "attackSpeed",
-                active: true
-            },
-            {
-                spell: "P",
-                key: "p2",
-                type: "attackSpeed",
-                active: true
-            },
-            {
-                spell: "P",
-                key: "p1",
-                type: "baseAd",
+                key: "moveBuff",
+                type: "flatmoveSpeed",
                 active: true
             }
         ],
         sInfoP: {
-            active: true,
             p1: {
-                info: "AttackDamage",
-                child: ["p1Var"]
+                info: "Damage",
+                type: "phys",
+                apply: "maxHp",
+                valuePerLvl: [8, 8.47, 8.94, 9.41, 9.88, 10.35, 10.82, 11.29, 11.76, 12.24, 12.71, 13.18, 13.65, 14.12, 14.59, 15.06, 15.53, 16]
             },
-            p1Var: {
-                link: "baseAd",
-                coeff: 0.25
-            },
-            p2: {
-                info: "AttackSpeed",
-                percent: true,
-                valuePerLvl: [30, 30, 30, 30, 30, 40, 40, 40, 40, 40, 50, 50, 50, 50, 50, 60, 60, 60]
-            },
-            p3: {
-                info: "Regen",
-                type: "heal",
-                selfHeal: true,
-                child: ["p3Var"]
-            },
-            p3Var: {
-                link: "maxHp",
-                coeff: 0.3
-            }
         },
         sInfo0: {
-            e1: {
+            qbasedamage: {
+                value: [20, 35, 50, 65, 80],
+                spell: true,
                 type: "phys",
-                child: ["a1"],
-                spell: true
-            }
-        },
-        sInfo1: {
-            staticCd: true,
-            e2: {
-                type: "phys",
-                child: ["a2"],
-                basicAttack: true,
-                dps: 3
-            },
-            e3: {
-                type: "heal",
-                selfHeal: true,
                 child: ["f1Var"]
             },
             f1Var: {
-                link: "missingHp",
-                coeff: 6.5
+                coeff: [0.64, 0.68, 0.72, 0.76, 0.8],
+                link: "attackdamage"
+            }
+        },
+        sInfo1: {
+            "spell.aatroxw:wbasedamage": {
+                effectNo: 1,
+                spell: true,
+                type: "phys",
+                child: ["f1Var"]
+            },
+            "spell.aatroxw:wslowpercentage-100" : {
+                value: [15, 20, 25, 30, 35]
+            },
+            "spell.aatroxw:wslowduration" : {
+                effectNo: 3
+            },
+            f1Var: {
+                coeff: 0.4,
+                link: "attackdamage"
             }
         },
         sInfo2: {
-            e1: {
-                type: "phys",
-                spell: true,
-                child: ["a2"]
-            }
+            active: true,
+            "spell.aatroxe:espellvamp": {
+                value: [20, 21.25, 22.5, 23.75, 25]
+            },
+            adBuff: {
+                value: [15, 25, 35, 45, 55]
+            },
+            txt: "<br>AD: {{ adBuff }}"
         },
         sInfo3: {
             active: true,
-            e2: {
-                type: "mag",
-                spell: true,
-                child: ["a1"]
-            }
+            "spell.aatroxr:rduration": {
+                value: 12
+            },
+            moveBuff: {
+                value: [120, 180, 240]
+            },
+            txt: "<br>AD: 20%<br>Movement Speed: {{ moveBuff }}"
         }
     },
     Ahri: { //e damage amp
@@ -1488,14 +1475,14 @@ const champVars = {
                 coeff: [0.03, 0.035, 0.04, 0.045, 0.05]
             },
             f2: {
-                value: [0.3, 0.5, 0.7, 0.9, 1.1]
+                value: [0.3, 0.45, 0.6, 0.75, 0.9]
             },
             f5: {
                 child: ["f5Var"]
             },
             f5Var: {
                 link: "percentMissingHp",
-                coeff: [0.3, 0.5, 0.7, 0.9, 1.1]
+                coeff: [0.3, 0.45, 0.6, 0.75, 0.9]
             }
         },
         sInfo3: {
@@ -2944,50 +2931,32 @@ const champVars = {
                 info: "magicDamage",
                 myInfo: "[X1]",
                 type: "mag",
-                value: 1.5,
-                child: ["p0Var1", "p0Var2"]
+                valuePerLvl: [1,1.65,2.29,2.94,3.59,4.24,4.88,5.53,6.18,6.82,7.47,8.12,8.76,9.41,10.06,10.71,11.35,12],
+                child: ["p0Var"]
             },
-            p0Var1: {
-                link: "champLevel",
-                coeff: 1
-            },
-            p0Var2: {
-                link: "attackdamage",
-                coeff: [0.02, 0.02, 0.02, 0.02, 0.02, 0.02, 0.03, 0.03, 0.03, 0.03, 0.03, 0.03, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04]
+            p0Var: {
+                link: "bonusattackdamage",
+                coeff: 0.04
             },
             p1: {
                 info: "magicDamage",
                 myInfo: "[X4]",
                 type: "mag",
-                value: 6,
-                child: ["p0Var1", "p0Var2"]
-            },
-            p1Var1: {
-                link: "champLevel",
-                coeff: 4
-            },
-            p1Var2: {
-                link: "attackdamage",
-                coeff: [0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.12, 0.12, 0.12, 0.12, 0.12, 0.12, 0.16, 0.16, 0.16, 0.16, 0.16, 0.16]
+                valuePerLvl: [1,1.65,2.29,2.94,3.59,4.24,4.88,5.53,6.18,6.82,7.47,8.12,8.76,9.41,10.06,10.71,11.35,12],
+                child: ["p0Var"],
+                multiplier: 400
             },
             p3: {
                 info: "magicDamage",
                 myInfo: "[X4] Shields",
                 type: "mag",
-                value: 18,
-                child: ["p3Var1", "p3Var2"]
-            },
-            p3Var1: {
-                link: "champLevel",
-                coeff: 12
-            },
-            p3Var2: {
-                link: "attackdamage",
-                coeff: [0.24, 0.24, 0.24, 0.24, 0.24, 0.24, 0.36, 0.36, 0.36, 0.36, 0.36, 0.36, 0.48, 0.48, 0.48, 0.48, 0.48, 0.48]
+                valuePerLvl: [1,1.65,2.29,2.94,3.59,4.24,4.88,5.53,6.18,6.82,7.47,8.12,8.76,9.41,10.06,10.71,11.35,12],
+                child: ["p0Var"],
+                multiplier: 800
             },
             p4: {
                 info: "PercentAttackSpeedMod",
-                valuePerLvl: [20, 20, 20, 20, 20, 20, 30, 30, 30, 30, 30, 30, 40, 40, 40, 40, 40, 40]
+                valuePerLvl: [30, 30, 30, 30, 30, 30, 40, 40, 40, 40, 40, 40, 50, 50, 50, 50, 50, 50]
             }
         },
         sInfo0: {
@@ -3020,17 +2989,12 @@ const champVars = {
                 spell: true,
                 child: ["a1", "a2"]
             },
-            e3a: {
+            f4: {
+                effectNo: 3,
                 type: "phys",
-                spell: true
-            },
-            f2Var: {
-                link: "spelldamage",
-                coeff: 0.8
-            },
-            f3Var: {
-                link: "attackdamage",
-                coeff: 1.2
+                spell: true,
+                child: ["a1", "a2"],
+                multiplier: 200
             }
         },
         sInfo2: {
@@ -3215,6 +3179,12 @@ const champVars = {
             img: "spell/JarvanIVDragonStrike.png"
         }],
         sInfoP: {
+            p0: {
+                info: "Damage",
+                myInfo: "[Minimum]",
+                type: "phys",
+                value: 20
+            },
             p1: {
                 info: "Damage",
                 apply: "currHp",
@@ -3546,7 +3516,7 @@ const champVars = {
         }
 
     },
-    Jinx: { //add q basic attack buff and atkspd debuff, passive atkspd stacks indefinitely
+    Jinx: { //add q basic attack buff and atkspd debuff, passive atkspd stacks indefinitely, add total q damage
         staticCd: true,
         buffs: [{
                 spell: "P",
@@ -3820,7 +3790,7 @@ const champVars = {
             },
         }
     },
-    Kalista: { //recharge time on w cooldown based
+    Kalista: { //recharge time on w cooldown based, additional spear damage after the first
         buffs: [{
             spell: 1,
             key: "e8",
@@ -3963,7 +3933,7 @@ const champVars = {
             }
         }
     },
-    Kassadin: { //ult ap ratio is wrong
+    Kassadin: {
         buffs: [{
             spell: "P",
             key: "p1",
@@ -4406,6 +4376,16 @@ const champVars = {
             }
         },
         sInfo1: {
+            f1: {
+                type: "heal",
+                value: 32,
+                selfHeal: true,
+                child: ["f1Var"]
+            },
+            f1Var: {
+                link: "champLevel",
+                coeff: 4
+            },
             e5: {
                 type: "mag",
                 spell: true,
@@ -5993,7 +5973,14 @@ const champVars = {
             }
         },
         sInfo1: {
-            active: true
+            active: true,
+            e1: {
+                child: ["f1Var"]
+            },
+            f1Var: {
+                link: "spelldamage",
+                coeff: 0.05
+            }
         },
         sInfo2: {
             e1: {
@@ -6407,13 +6394,13 @@ const champVars = {
         },
         sInfo3: {
             f8: {
-                valuePerLvl: [190, 190, 190, 190, 190, 190, 240, 290, 340, 390, 440, 475, 510, 545, 580, 615, 635, 655],
+                valuePerLvl: [200, 250, 300, 350, 400, 450, 475, 500, 525, 550, 575, 590, 600],
                 child: ["a1"]
             },
             f7: {
                 info: "Damage",
                 type: "phys",
-                valuePerLvl: [190, 190, 190, 190, 190, 190, 240, 290, 340, 390, 440, 475, 510, 545, 580, 615, 635, 655],
+                valuePerLvl: [200, 250, 300, 350, 400, 450, 475, 500, 525, 550, 575, 590, 600],
                 child: ["a1"]
             }
         }
@@ -7469,7 +7456,7 @@ const champVars = {
             }
         }
     },
-    Singed: {
+    Singed: {//passive doesn't work with ult active
         buffs: [{
                 spell: "P",
                 key: "p1",
@@ -8355,7 +8342,7 @@ const champVars = {
             },
             f1Var: {
                 link: "armor",
-                coeff: 0.3
+                coeff: 0.5
             },
         }
     },
@@ -8544,7 +8531,22 @@ const champVars = {
             f1Var: {
                 link: "bonusattackdamage",
                 coeff: [0.5, 0.6, 0.7, 0.8, 0.9]
-            }
+            },
+            f5: {
+                type: "phys",
+                spell: true,
+                value: [132, 154, 176, 198, 220],
+                child: ["f5Var1", "f5Var2"]
+            },
+            f5Var1: {
+                link: "spelldamage",
+                coeff: 1.1
+            },
+            f5Var2: {
+                link: "bonusattackdamage",
+                coeff: [1.1, 1.43, 1.76, 2.09, 2.42]
+            },
+            txt: "<br>4X Damage: {{ f5 }}"
         },
         sInfo3: {
             e1: {
@@ -8784,7 +8786,7 @@ const champVars = {
             },
             f2Var: {
                 link: "bonusattackdamage",
-                coeff: 1.5
+                coeff: 2.1
             },
             f2Var2: {
                 link: "spelldamage",

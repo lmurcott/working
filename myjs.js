@@ -2,7 +2,7 @@
 // Created by Logan Murcott
 // github.com/lmurcott
 
-const patch = "8.12.1";
+const patch = "8.13.1";
 var lang = "en_US", theLang, myChamps = {}, theRunes, theItems, sortedItems, allChamps;
 
 const loadJSON = function (file, callback, args = "") {// Load riot JSON files
@@ -141,7 +141,7 @@ const setChampList = function (json) {// Create options for selecting new champ
 const setItems = function (json) {//atmas and shojin added to remove list
     "use strict";
     const
-        delItem = [3043, 3048, 3007, 3008, 3073, 3029, 3161, 3005],
+        delItem = [],
         delhideFromAll = [1400, 1401, 1402, 1412, 1413, 1414, 1416, 1419];
 
     theItems = json.data;
@@ -176,10 +176,6 @@ const setItems = function (json) {//atmas and shojin added to remove list
     delete theItems[3200].inStore;//viktor base item
     theItems[3200].tags = theItems[3198].tags;
     delete theItems[2003].consumed;//health potion
-    
-    //Patch 8.12 Hotfix
-    theItems[3095].stats.FlatPhysicalDamageMod = 75;
-    theItems[3031].gold.total = 3600;
 
     sortedItems = Object.keys(theItems).sort(function (a, b) {
         return theItems[a].gold.total - theItems[b].gold.total;
@@ -1155,22 +1151,22 @@ const champObj = function (obj, side, uid) {// create champion object
                     const pathStats = {
                         0: {//Domination
                             1: {
-                                "ap": 18,
-                                "ad": 10.8
+                                "ap": 20,
+                                "ad": 12
                             },
                             2: {
-                                "ap": 13,
+                                "ap": 14,
                                 "aSpd": 0.055,
-                                "ad": 7.8
+                                "ad": 8.4
                             },
                             3: {
-                                "ap": 9,
-                                "ad": 5.4,
+                                "ap": 10,
+                                "ad": 6,
                                 "hp": [15, 22, 29, 36, 43, 50, 57, 64, 71, 79, 86, 93, 100, 107, 114, 121, 128, 135]
                             },
                             4: {
-                                "ap": 18,
-                                "ad": 10.8
+                                "ap": 20,
+                                "ad": 12
                             }
                         },
                         1: {//Inspiration
@@ -1440,7 +1436,7 @@ const champObj = function (obj, side, uid) {// create champion object
                     armor[1] += round(calc(armor[0] + armor[1], 0.05));
                     spellblock[1] += round(calc(armor[0] + armor[1], 0.05));
                 }
-
+                let apMulti = 0, adMulti = 0;
                 //Calculate Final Bonus Movement Speed With Caps
                 move[1] = round(calc(getMvSpd(), move[0], 1));
                 move[2] = 0;
@@ -1456,26 +1452,30 @@ const champObj = function (obj, side, uid) {// create champion object
                 if (id === "Vladimir") {// vlad passive
                     vladbonusAP = round(calc(hp[1], 0.025));
                 }
-                let apMulti = 0, adMulti = 0;
                 if (itemCheck(3089) || itemCheck(3374)) {//Rabadons
                   apMulti += 40;
                 }
                 if (itemCheck(3124)) {//guinsoo
                     const stacks = document.getElementById(uid + "3124").value;
-                    adMulti += stacks * 4;
-                    apMulti += stacks * 4;
+                    attackdamage[1] = round(calc(attackdamage[1], calc(1, calc(stacks, 0.025), 0)));
+                    apMulti += calc(stacks, 2.5);
                     attackspeed[1] = calc(calc(stacks, 0.08), attackspeed[1], 0);
                 }
 
+                if (id === "Aatrox" &&
+                    document.getElementById(uid + "Input3").checked &&
+                    parseInt(document.getElementById(uid).getElementsByClassName("spellLvl")[3].value) > 0){
+                        adMulti = calc(adMulti, 0.2, 0);
+                }
                 if (id === "Nunu") {// nunu blood boil ap multiplier
                     if (document.getElementById(uid + "Input1").checked) {
                         const spellLvl = document.getElementById(uid).getElementsByClassName("spellLvl")[1].value;
                         if (spellLvl > 0) {
                             const nunuAPCap = 20 + (20 * spellLvl);
-                            if (ap * 0.4 > nunuAPCap) {
+                            if (ap * 0.2 > nunuAPCap) {
                                 ap += nunuAPCap;
                             } else {
-                                apMulti += 40;
+                                apMulti += 20;
                             }
                         }
                     }
@@ -1483,14 +1483,14 @@ const champObj = function (obj, side, uid) {// create champion object
                 //put in infernal drakes
                 const infernalStacks = document.getElementsByClassName("infernalCount")[side].value;
                 if (document.getElementsByClassName("elderActive")[side].checked) {
-                    adMulti += infernalStacks * 12;
+                    adMulti = calc(adMulti, calc(infernalStacks, 0.12), 0);
                     apMulti += infernalStacks * 12;
                 } else {
-                    adMulti += infernalStacks * 8;
+                    adMulti = calc(adMulti, calc(infernalStacks, 0.08), 0);
                     apMulti += infernalStacks * 8;
                 }
                 //Calculate Multipliers
-                attackdamage[1] = round(calc(attackdamage[1], Number(100 + adMulti + "e-2")));
+                attackdamage[1] = attackdamage[1] + round(calc(adMulti, calc(attackdamage[0], attackdamage[1], 0)));
                 ap = round(calc(ap, Number(100 + apMulti + "e-2")));
 
                 if (id === "Vladimir") {// vlad passive
@@ -1533,7 +1533,6 @@ const champObj = function (obj, side, uid) {// create champion object
                     armor[1] = round(calc(armor[1], calc(1, perArmorReduct, 1)));
                 }
             };
-            
             setLevel();
             setBaseStats();
             setItemStats();
@@ -1542,8 +1541,6 @@ const champObj = function (obj, side, uid) {// create champion object
             setBuffStats();
             setStatMultis();
             setDebuffs();
-            
-            
         },
         addItem = function (itemNo) {
             let itemDOM = document.getElementById(uid).getElementsByClassName("champItems")[0];
@@ -1636,13 +1633,13 @@ const champObj = function (obj, side, uid) {// create champion object
                     if (theItems[itemNo].from) {
                         description += "<hr><h4>" + theLang.Require_ + "</h4>";
                         theItems[itemNo].from.forEach(function (theItemNo) {
-                            description += "<img src ='http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/item/" + theItemNo + ".png'>";    
+                            description += "<img src ='http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/item/" + theItemNo + ".png'>";
                         });
                     }
                     if (theItems[itemNo].into) {
                         description += "<hr><h4>" + theLang.Builds_ + "</h4>";
                         theItems[itemNo].into.forEach(function (theItemNo) {
-                            description += "<img src ='http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/item/" + theItemNo + ".png'>";    
+                            description += "<img src ='http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/item/" + theItemNo + ".png'>";
                         });
                     }
                     showHover(description, e.pageX, e.pageY);
@@ -1710,7 +1707,7 @@ const champObj = function (obj, side, uid) {// create champion object
                         }
                         numDOM.addEventListener("change", update);
                         numDiv.appendChild(numDOM);
-                    }  
+                    }
                     break;
                 default:
                     theNode.getElementsByTagName("h3")[0].innerText = spells[index - 2].name;
@@ -1910,13 +1907,13 @@ const champObj = function (obj, side, uid) {// create champion object
                                 if (theItems[itemNo].from) {
                                     description += "<hr><h4>" + theLang.Require_ + "</h4>";
                                     theItems[itemNo].from.forEach(function (theItemNo) {
-                                        description += "<img src ='http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/item/" + theItemNo + ".png'>";    
+                                        description += "<img src ='http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/item/" + theItemNo + ".png'>";
                                     });
                                 }
                                 if (theItems[itemNo].into) {
                                     description += "<hr><h4>" + theLang.Builds_ + "</h4>";
                                     theItems[itemNo].into.forEach(function (theItemNo) {
-                                        description += "<img src ='http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/item/" + theItemNo + ".png'>";    
+                                        description += "<img src ='http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/item/" + theItemNo + ".png'>";
                                     });
                                 }
                                 showHover(description, e.pageX, e.pageY);
@@ -2685,7 +2682,7 @@ const champObj = function (obj, side, uid) {// create champion object
                             myShield = calc(myShield, 1.1);
                         }
                     }
-                    if (itemCheck(3065) && !spellObj.selfShield && !spellObj.selfHeal) {// Spirit Visage
+                    if (itemCheck(3065) && !spellObj.allyOnly) {// Spirit Visage
                         myHeal = calc(myHeal, 1.3);
                     }
                     if (itemCheck(3174, true) && !spellObj.selfShield && !spellObj.selfHeal) {// Athenes
@@ -2833,11 +2830,12 @@ const champObj = function (obj, side, uid) {// create champion object
                         }
                     });
                 }
-                tooltip = tooltip.replace(/<span.class="\w*\d*.?color......">/g, "");
-                tooltip = tooltip.replace(/<\/span>/g, "");
+                //tooltip = tooltip.replace(/<span.class="\w*\d*.?color......">/g, "");
+                //tooltip = tooltip.replace(/<\/span>/g, "");
+                tooltip = tooltip.replace(/\<a.href=\'.*\'>/g, "");
+                tooltip = tooltip.replace(/\<\/a\>/g, "");
                 tooltip = tooltip.replace(/[*][\d.]*/g, "");
                 const keys = tooltip.match(/\{\{[^}]*\}\}/g);
-
                 if (keys !== null) {//add values
                     let altKey = [];
                     keys.forEach(function (key) {
@@ -3135,6 +3133,10 @@ const champObj = function (obj, side, uid) {// create champion object
 
     //script to fix riots disappearing data
     switch (id) {
+    case "Aatrox":
+        stats.hp = 600;
+        spells[3].cooldown = [140, 130, 120];
+        break;
     case "Rengar":
         spells[0].cooldown = [6, 5.5, 5, 4.5, 4];
         spells[1].cooldown = [16, 14.5, 13, 11.5, 10];
