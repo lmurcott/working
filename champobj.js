@@ -846,7 +846,7 @@ const champVars = {
             },
             p1Var: {
                 link: "attackdamage",
-                coeff: 0.5
+                coeff: [0.5, 0.5294, 0.5588, 0.5882, 0.6176, 0.6471, 0.6765, 0.7059, 0.7353, 0.7627, 0.7941, 0.8235, 0.8529, 0.8824, 0.9118, 0.9412, 0.9706, 1]
             },
             p2Var: {
                 link: "caitPassive",
@@ -4559,7 +4559,8 @@ const champVars = {
                 type: "mag",
                 apply: "maxHp",
                 child: ["f1Var"],
-                basicAttack: true
+                basicAttack: true,
+                dps: 1
             },
             f1Var: {
                 coeff: 0.01,
@@ -5860,7 +5861,7 @@ const champVars = {
             },
         }
     },
-    Nocturne: {
+    Nocturne: {//keep an eye on ult var ratio
         aSpdBonus: 0.08,
         buffs: [{
                 spell: 0,
@@ -8140,7 +8141,7 @@ const champVars = {
             active: true,
             p1: {
                 info: "PercentMovementSpeedMod",
-                valuePerLvl: [30, 31, 32, 33, 34, 34, 35, 36, 37, 38, 39, 40, 41, 41, 42, 43, 44, 45]
+                valuePerLvl: [20, 21.47, 22.94, 24.41, 25.88, 27.35, 28.82, 30.29, 31.76, 33.24, 34.71, 36.18, 37.65, 39.12, 40.59, 42.06, 43.43, 45]
             }
         },
         sInfo0: {

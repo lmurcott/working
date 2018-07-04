@@ -141,7 +141,7 @@ const setChampList = function (json) {// Create options for selecting new champ
 const setItems = function (json) {//atmas and shojin added to remove list
     "use strict";
     const
-        delItem = [],
+        delItem = [3029],
         delhideFromAll = [1400, 1401, 1402, 1412, 1413, 1414, 1416, 1419];
 
     theItems = json.data;
@@ -177,6 +177,9 @@ const setItems = function (json) {//atmas and shojin added to remove list
     theItems[3200].tags = theItems[3198].tags;
     delete theItems[2003].consumed;//health potion
 
+    //8.13 Hotfix
+    theItems[1051].gold.total = 400;
+    
     sortedItems = Object.keys(theItems).sort(function (a, b) {
         return theItems[a].gold.total - theItems[b].gold.total;
     });
@@ -407,8 +410,8 @@ const champObj = function (obj, side, uid) {// create champion object
                     stat = spellblock[1];
                     break;
                 case "caitPassive":
-                    const caitMulti = (crit > 1) ? 1 : crit;
-                    stat = calc(attackdamage[1], caitMulti);
+                    const caitMulti = (crit > 1) ? 1.5 : calc(crit, 1.5);
+                    stat = calc(attackdamage[0] + attackdamage[1], caitMulti);
                     break;
                 case "champLevel":
                     stat = level;
@@ -545,12 +548,17 @@ const champObj = function (obj, side, uid) {// create champion object
             }
             return value;
         },
+        itemCount = function (itemID) {
+            if (document.getElementById(uid + itemID)) {
+                return parseInt(document.getElementById(uid + itemID).value);
+            }
+            return 0;
+        },
         itemCheck = function (itemID, status) {
             if (items.includes(itemID)) {
-                if (status && !document.getElementById(uid + itemID).checked) {
-                    return false;
+                if (!status || (document.getElementById(uid + itemID) && document.getElementById(uid + itemID).checked)) {
+                    return true;
                 }
-                return true;
             }
             return false;
         },
@@ -728,13 +736,13 @@ const champObj = function (obj, side, uid) {// create champion object
                         attackdamage[1] = calc(calc(attackdamage[0], 0.5), attackdamage[1], 0);
                     }
                     if (itemCheck(3041)) {// mejai
-                        const stacks = parseInt(document.getElementById(uid + "3041").value);
+                        const stacks = itemCount(3041);
                         ap = calc(ap, (stacks * 5), 0);
                         if (stacks > 9) {
                             move[2] = calc(move[2], 0.1, 0);
                         }
                     } else if (itemCheck(1082)) {// dark seal
-                        const stacks = parseInt(document.getElementById(uid + "1082").value);
+                        const stacks = itemCount(1082);
                         ap = calc(ap, (stacks * 3), 0);
                     }
                     if (id === "Viktor") {//viktor Items
@@ -753,18 +761,18 @@ const champObj = function (obj, side, uid) {// create champion object
                         }
                     }
                     if (itemCheck(3027)) {//rod of ages
-                        const roaStacks = parseInt(document.getElementById(uid + "3027").value);
+                        const roaStacks = itemCount(3027);
                         ap += roaStacks * 4;
                         hp[1] += roaStacks * 20;
                         mp[1] += roaStacks * 10;
                     }
                     if (itemCheck(3907)) {//spellbinder
-                        const sbStacks = parseInt(document.getElementById(uid + "3907").value);
+                        const sbStacks = itemCount(3907);
                         ap += round(calc(0.8, sbStacks));
                         move[2] = calc(move[2], calc(0.005, sbStacks), 0);
                     }
                     if (itemCheck(3091)) {//wits end
-                        const witsEndsStacks = parseInt(document.getElementById(uid + "3091").value);
+                        const witsEndsStacks = itemCount(3091);
                         spellblock[1] += witsEndsStacks * 6;
                     }
                     if (itemCheck(3042) || itemCheck(3004)) {//manamune
@@ -1456,7 +1464,7 @@ const champObj = function (obj, side, uid) {// create champion object
                   apMulti += 40;
                 }
                 if (itemCheck(3124)) {//guinsoo
-                    const stacks = document.getElementById(uid + "3124").value;
+                    const stacks = itemCount(3124);
                     attackdamage[1] = round(calc(attackdamage[1], calc(1, calc(stacks, 0.025), 0)));
                     apMulti += calc(stacks, 2.5);
                     attackspeed[1] = calc(calc(stacks, 0.08), attackspeed[1], 0);
@@ -1917,8 +1925,14 @@ const champObj = function (obj, side, uid) {// create champion object
                                     });
                                 }
                                 showHover(description, e.pageX, e.pageY);
+                                items.push(parseInt(itemNo));
+                                update();
+                                items.pop();
                             });
-                            theImg.addEventListener("mouseout", hideHover);
+                            theImg.addEventListener("mouseout", function() {
+                                hideHover();
+                                update();
+                            });
                             docFrag.appendChild(theImg);
                         }
                     });
@@ -2225,10 +2239,30 @@ const champObj = function (obj, side, uid) {// create champion object
                 }
             }
             const critTotal = (crit > 1 && id !== "Ashe") ? 100 : Number(crit + "e2");
+            const resistTooltip = function (resist, resistStr) {
+                const totalResist = resist[0] + resist[1];
+                let percentResist, recoHP;
+                if (totalResist >= 0) {
+                    percentResist = calc(2, calc(100, calc(100, totalResist, 0), 3), 1);
+                } else {
+                    percentResist = calc(2, calc(2, calc(100, calc(100, totalResist, 1), 3), 1), 1);
+                }
+                const effHP = round(calc(maxHp, percentResist));
+                let tooltip = "<span class='heal'>" + (resist[0] + resist[1]) + "</span> (" +resist[0] + " + <span class='heal'>" + resist[1] + "</span>)<br>";
+                tooltip += "Effective " + theLang.Health + ": " + effHP + "<br>";
+                if (resistStr === theLang.Armor) {
+                    recoHP = calc(7.5, (totalResist + 100));
+                } else {
+                    recoHP = calc(6.75, (totalResist + 100));
+                }
+                const recoStat = (recoHP > (hp[0] + hp[1])) ? theLang.Health : resistStr;
+                tooltip += theLang.RecommendedItems.replace(theLang.categoryItem, "") + ": " + recoStat;
+                return tooltip;
+            };
             statList.push(
                 [theLang.HealthRegen, round(calc(calc(hpregen[0], calc(1, hpregen[2], 0)), hpregen[1], 0), 1)],
-                [theLang.Armor, armor[0] + armor[1]],
-                [theLang.SpellBlock, spellblock[0] + spellblock[1]],
+                [theLang.Armor, armor[0] + armor[1], resistTooltip(armor, theLang.Armor)],
+                [theLang.SpellBlock, spellblock[0] + spellblock[1], resistTooltip(spellblock, theLang.SpellBlock)],
                 [theLang.AttackDamage, attackdamage[0] + attackdamage[1]],
                 [theLang.AttackSpeed, totalAtkSpd],
                 [theLang.CriticalStrike, critTotal + "%"],
@@ -2254,7 +2288,15 @@ const champObj = function (obj, side, uid) {// create champion object
             }
             statList.forEach(function (stat) {
                 theLi = document.createElement("li");
-                theLi.innerText = stat[0] + ": " + stat[1];
+                if (stat[2]) {
+                    theLi.innerHTML = "<span style='text-decoration: underline;text-decoration-style:dotted;'>" + stat[0] + ": " + stat[1] + "</span>";
+                    theLi.addEventListener("mouseover", function (e) {
+                        showHover(stat[2], e.pageX, e.pageY);
+                    });
+                    theLi.addEventListener("mouseout", hideHover);
+                } else {
+                    theLi.innerText = stat[0] + ": " + stat[1];
+                }
                 frag.appendChild(theLi);
             });
             statBox.appendChild(frag);
@@ -2272,7 +2314,7 @@ const champObj = function (obj, side, uid) {// create champion object
                 const getCrit = function (dmg, critAmount, isBasicAttack) {
                     let critMulti;
                     if (itemCheck(3095, true) && isBasicAttack) {//stormrazor
-                        const razorBonusMulti = calc(crit, 1.5, 3);
+                        const razorBonusMulti = (crit > 0.3) ? 0.4: round(calc(crit, 1.3333), 3);
                         critMulti = calc(1.6, razorBonusMulti, 0);
                     } else {
                         critMulti = Number(critAmount + "e-2");
@@ -2569,7 +2611,7 @@ const champObj = function (obj, side, uid) {// create champion object
                     }
 
                     if ((items.includes(3136) || items.includes(3151)) && !isTick) {// Liandrys Multiplier
-                        let dmgMulti = (items.includes(3151)) ? document.getElementById(uid + 3151).value : document.getElementById(uid + 3136).value;
+                        let dmgMulti = (items.includes(3151)) ? itemCount(3151) : itemCount(3136);
                         if (dmgMulti > 0) {
                             magDmg = calc(magDmg, calc(1, calc(dmgMulti, 0.02), 0));
                             physDmg = calc(physDmg, calc(1, calc(dmgMulti, 0.02), 0));
@@ -2830,10 +2872,8 @@ const champObj = function (obj, side, uid) {// create champion object
                         }
                     });
                 }
-                //tooltip = tooltip.replace(/<span.class="\w*\d*.?color......">/g, "");
-                //tooltip = tooltip.replace(/<\/span>/g, "");
-                tooltip = tooltip.replace(/\<a.href=\'.*\'>/g, "");
-                tooltip = tooltip.replace(/\<\/a\>/g, "");
+                tooltip = tooltip.replace(/<a.href=\'.*\'>/g, "");
+                tooltip = tooltip.replace(/<\/a\>/g, "");
                 tooltip = tooltip.replace(/[*][\d.]*/g, "");
                 const keys = tooltip.match(/\{\{[^}]*\}\}/g);
                 if (keys !== null) {//add values
@@ -2872,7 +2912,7 @@ const champObj = function (obj, side, uid) {// create champion object
                                     let cleaveStacks = 0;
                                     let liandStacks = 0;
                                     if (items.includes(3151) || items.includes(3136)) {// Liandry
-                                        liandStacks = (items.includes(3151)) ? parseInt(document.getElementById(uid + 3151).value) : parseInt(document.getElementById(uid + 3136).value);
+                                        liandStacks = (items.includes(3151)) ? itemCount(3151) : itemCount(3136);
                                     }
                                     let tickCount = 0;
                                     while (tickCount !== totalTicks) {
@@ -3137,6 +3177,21 @@ const champObj = function (obj, side, uid) {// create champion object
         stats.hp = 600;
         spells[3].cooldown = [140, 130, 120];
         break;
+    case "Nocturne":
+        stats.attackdamage = 62
+        break;
+    case "Taliyah":
+        spells[0].cooldown = [11, 9, 7, 5, 3]
+        break;
+    case "Tristana":
+        spells[0].effect[1] = [50, 65, 80, 95, 110]
+        break;
+    case "Varus":
+        spells[0].vars[0].coeff = 1.1,
+        spells[0].vars[1].coeff = 1.65,
+        spells[1].effect[1] = [7, 10.5, 14, 17.5, 21],
+        spells[1].effect[2] = [3, 3.5, 4, 4.5, 5]
+        break;
     case "Rengar":
         spells[0].cooldown = [6, 5.5, 5, 4.5, 4];
         spells[1].cooldown = [16, 14.5, 13, 11.5, 10];
@@ -3189,6 +3244,7 @@ const champObj = function (obj, side, uid) {// create champion object
         getAdapt,
         getValue,
         itemCheck,
+        itemCount,
         runeCheck,
         setStats,
         drawChampDOM,
