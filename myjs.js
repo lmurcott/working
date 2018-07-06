@@ -355,7 +355,7 @@ const champObj = function (obj, side, uid) {// create champion object
                 return "phys";
             }
         },
-        getValue = function (theKey, no) {
+        getValue = function (theKey, no, isLookup = false) {
             let riotObj, spellLvl, value = "";
             if (buffStats[no + theKey]) {//return pre calculated buff value
                 return buffStats[no + theKey];
@@ -363,9 +363,9 @@ const champObj = function (obj, side, uid) {// create champion object
             if (no !== "P" && no !== "Attack") {
                 riotObj = spells[no];
                 spellLvl = document.getElementById(uid).getElementsByClassName("spellLvl")[no].value;
-                spellLvl = (spellLvl < 1)
-                    ? 0
-                    : spellLvl - 1;
+                if (spellLvl > 0 && !isLookup) {
+                    spellLvl -= 1;
+                }
             }
             const getVar = function (theVar) {
                 let theCoeff, stat;
@@ -504,7 +504,7 @@ const champObj = function (obj, side, uid) {// create champion object
                     value = calc(value, keyObj.valuePerLvl[level - 1], 0);
                 }
                 if (keyObj.valuePair) {
-                    value = calc(value, getValue(keyObj.valuePair[1], keyObj.valuePair[0]), 0);
+                    value = calc(value, getValue(keyObj.valuePair[1], keyObj.valuePair[0], true), 0);
                 }
                 if (keyObj.growth) {
                     value = calc(value, round(calcBaseStats(0, keyObj.growth, level), 1), 0);
@@ -2249,6 +2249,7 @@ const champObj = function (obj, side, uid) {// create champion object
                 }
                 const effHP = round(calc(maxHp, percentResist));
                 let tooltip = "<span class='heal'>" + (resist[0] + resist[1]) + "</span> (" +resist[0] + " + <span class='heal'>" + resist[1] + "</span>)<br>";
+                tooltip += theLang.reduction + ": " + Number(round(calc(percentResist, 1, 1), 3) + "e2") + "%<br>";
                 tooltip += "Effective " + theLang.Health + ": " + effHP + "<br>";
                 if (resistStr === theLang.Armor) {
                     recoHP = calc(7.5, (totalResist + 100));
@@ -3312,3 +3313,51 @@ loadJSON("language", setLang);
 loadJSON("item", setItems);
 loadJSON("runesReforged", setRunes);
 loadJSON("champion", setChampList);
+
+//** TESTING **
+/*
+const checkArrays = function () {
+    Object.keys(champVars).forEach(function (champKey) {
+        Object.keys(champVars[champKey]).forEach(function (spellKey) {
+            Object.keys(champVars[champKey][spellKey]).forEach(function (valueKey) {
+                Object.keys(champVars[champKey][spellKey][valueKey]).forEach(function (value) {
+                    if (typeof champVars[champKey][spellKey][valueKey][value] === "object" &&
+                        value !== "child" &&
+                        value !== "crit" &&
+                        value !== "info" &&
+                        value !== "valuePair" &&
+                        spellKey !== "debuff" &&
+                        champVars[champKey][spellKey][valueKey][value].length !== 18 &&
+                        champVars[champKey][spellKey][valueKey][value].length !== 5 &&
+                        !(champVars[champKey][spellKey][valueKey][value].length === 3 && spellKey === "sInfo3") &&
+                        !(champVars[champKey][spellKey][valueKey][value].length === 4 && spellKey === "sInfo3")
+                        ) {
+                        console.log(champKey + "-" + spellKey + "-" + valueKey + "-" + value);
+                        console.log(champVars[champKey][spellKey][valueKey][value]);
+                    }
+                });
+            });   
+            
+        });
+    });
+};
+checkArrays();
+*/
+/*
+const checkValuePairs = function () {
+    Object.keys(champVars).forEach(function (champKey) {
+        Object.keys(champVars[champKey]).forEach(function (spellKey) {
+            Object.keys(champVars[champKey][spellKey]).forEach(function (valueKey) {
+                Object.keys(champVars[champKey][spellKey][valueKey]).forEach(function (value) {
+                    if (value === "valuePair") {
+                        console.log(champKey + "-" + spellKey + "-" + valueKey + "-" + value);
+                        console.log(champVars[champKey]["sInfo" + champVars[champKey][spellKey][valueKey][value][0]][champVars[champKey][spellKey][valueKey][value][1]]);
+                    }
+                });
+            });   
+            
+        });
+    });
+};
+checkValuePairs();
+*/
