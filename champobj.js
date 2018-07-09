@@ -459,7 +459,8 @@ const champVars = {
             e2: {
                 type: "phys",
                 spell: true,
-                child: ["a1"]
+                child: ["a1"],
+                crit: [0, true]
             }
         },
         sInfo3: {

@@ -943,7 +943,7 @@ const champObj = function (obj, side, uid) {// create champion object
                             4 : 7,
                             5 : 9
                         },
-                        "6" : {// ryze q
+                        "6" : {// ryze q & jayce
                             1 : 1,
                             2 : 3,
                             3 : 5,
@@ -964,6 +964,9 @@ const champObj = function (obj, side, uid) {// create champion object
                             2 : 6,
                             3 : 11,
                             4 : 16
+                        },
+                        "1" : {// Jayce
+                            1 : 1
                         }
                     };
                     Array.from(abilityLvls).forEach(function (theDOM) {
@@ -1753,12 +1756,12 @@ const champObj = function (obj, side, uid) {// create champion object
                     break;
                 default:
                     theNode.getElementsByTagName("img")[0].src = "http://ddragon.leagueoflegends.com/cdn/" + patch + "/img/spell/" + spells[index - 2].image.full;
-                    if (index === 2 && spells[0].maxrank !== 5) {
-                        theNode.getElementsByTagName("input")[0].max = spells[0].maxrank;
+                    if (index !== 5 && spells[0].maxrank !== 5) {
+                        theNode.getElementsByTagName("input")[0].max = spells[index - 2].maxrank;
                     }
                     if (index === 5 && spells[3].maxrank !== 3) {
                         theNode.getElementsByTagName("input")[0].max = spells[3].maxrank;
-                        if (spells[3].maxrank === 4) {
+                        if (spells[3].maxrank === 4 || spells[3].maxrank === 1) {
                             theNode.getElementsByTagName("input")[0].min = 1;
                             theNode.getElementsByTagName("input")[0].value = 1;
                         }
@@ -2314,7 +2317,7 @@ const champObj = function (obj, side, uid) {// create champion object
                 }
                 const getCrit = function (dmg, critAmount, isBasicAttack) {
                     let critMulti;
-                    if (itemCheck(3095, true) && isBasicAttack) {//stormrazor
+                    if (itemCheck(3095, true) && isBasicAttack && id !== "Ashe") {//stormrazor
                         const razorBonusMulti = (crit > 0.3) ? 0.4: round(calc(crit, 1.3333), 3);
                         critMulti = calc(1.6, razorBonusMulti, 0);
                     } else {
@@ -2344,9 +2347,7 @@ const champObj = function (obj, side, uid) {// create champion object
                     let avgDmg = [];
                     baseDmg.forEach(function (value, index) {
                         let critChance = (crit > 1) ? 1 : crit;
-                        if (id === "Ashe") {
-                            critChance = 0.9;
-                        } else if (id === "Jhin") {
+                        if (id === "Jhin") {
                             critChance = calc(0.25, calc(critChance, 0.75), 0);
                         }
                         avgDmg.push(calc(calc(critDmg[index], critChance), calc(value, calc(1, critChance, 1)), 0));
@@ -2797,7 +2798,7 @@ const champObj = function (obj, side, uid) {// create champion object
                     let tooltip = theLang.Attack + ": ";
                     switch (id) {
                     case "Ashe":
-                        attackObj = {type: "phys", onHit: 1, basicAttack: true, crit:[Number(crit + "e2") + 10]};
+                        attackObj = {type: "phys", onHit: 1, basicAttack: true, crit:[0]};
                         break;
                     case "Graves":
                         let autoDmg = [0.7, 0.71, 0.72, 0.74, 0.75, 0.76, 0.78, 0.8, 0.81, 0.83, 0.85, 0.87, 0.89, 0.91, 0.95, 0.96, 0.97, 1];
@@ -2826,13 +2827,19 @@ const champObj = function (obj, side, uid) {// create champion object
                     const basicAtk = getDmg(totalAD, attackObj);
                     let avgDmg = basicAtk;
                     tooltip += styleDigits(basicAtk, attackObj.type) + "<br>";
-                    if (crit > 0 || id === "Ashe" || id === "Jhin" || itemCheck(3095, true)) {
+                    if (id === "Ashe") {
+                        let asheCrit = (crit > 1) ? 2.1 : calc(1.1, crit, 0);
+                        totalAD = calc(asheCrit, totalAD);
+                        avgDmg = getDmg(totalAD, attackObj);
+                        tooltip += passive.name + " " + theLang.Damage + ": " + styleDigits(avgDmg, attackObj.type) + "<br>";
+                    }
+                    if (crit > 0 || id === "Jhin" || (itemCheck(3095, true) && id !== "Ashe")) {
                         tooltip += theLang.CriticalStrike + " " + theLang.Damage + ": ";
                         const theCrit = getDmg(totalAD, attackObj, true);
                         tooltip += styleDigits(theCrit, attackObj.type) + "<br>";
                         tooltip += "AVG " + theLang.Damage + ": ";
-                        avgDmg = avgCritDmg(basicAtk, theCrit);
-                        tooltip += styleDigits(avgCritDmg(basicAtk, theCrit) , attackObj.type) + "<br>";
+                        avgDmg = avgCritDmg(avgDmg, theCrit);
+                        tooltip += styleDigits(avgCritDmg(avgDmg, theCrit) , attackObj.type) + "<br>";
                     }
                     let totalAvgDmg = 0;
                     avgDmg.forEach(function (damage) {
@@ -3179,19 +3186,19 @@ const champObj = function (obj, side, uid) {// create champion object
         spells[3].cooldown = [140, 130, 120];
         break;
     case "Nocturne":
-        stats.attackdamage = 62
+        stats.attackdamage = 62;
         break;
     case "Taliyah":
-        spells[0].cooldown = [11, 9, 7, 5, 3]
+        spells[0].cooldown = [11, 9, 7, 5, 3];
         break;
     case "Tristana":
-        spells[0].effect[1] = [50, 65, 80, 95, 110]
+        spells[0].effect[1] = [50, 65, 80, 95, 110];
         break;
     case "Varus":
-        spells[0].vars[0].coeff = 1.1,
-        spells[0].vars[1].coeff = 1.65,
-        spells[1].effect[1] = [7, 10.5, 14, 17.5, 21],
-        spells[1].effect[2] = [3, 3.5, 4, 4.5, 5]
+        spells[0].vars[0].coeff = 1.1;
+        spells[0].vars[1].coeff = 1.65;
+        spells[1].effect[1] = [7, 10.5, 14, 17.5, 21];
+        spells[1].effect[2] = [3, 3.5, 4, 4.5, 5];
         break;
     case "Rengar":
         spells[0].cooldown = [6, 5.5, 5, 4.5, 4];
