@@ -2077,6 +2077,7 @@ const champVars = {
             f3: {
                 effectNo: 5,
                 type: "shield",
+                selfShield: true,
                 percentMax: true
             },
             e1: {

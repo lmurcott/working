@@ -116,6 +116,7 @@ const setLang = function (json) {
     theLang.Regen = theLang.HealthRegen.replace(theLang.Health, "");
     theLang.AttackDamage = theLang.Attack + " " + theLang.Damage;
     theLang.magicDamage = theLang.Magic + " " + theLang.Damage;
+    theLang.Next = theLang.NextRank_.replace(theLang.Rank_, "");//Next
     //theLang.Cost = theLang.Cost_.replace(":", "");
     Array.from(document.getElementsByClassName("enemySelectStr")).forEach(function (element) {
         element.innerText = theLang.PlayingAgainst + ": ";
@@ -1156,6 +1157,9 @@ const champObj = function (obj, side, uid) {// create champion object
                 if (runeCheck(8444, true)) {//Second Wind
                     hpregen[1] = calc(hpregen[1], calc(getPercentHP(0.04, "missHp"), 6, 0), 0);
                 }
+                if (runeCheck(8124, true)) {// Predator
+                    move[2] = calc(move[2], 0.45, 0);
+                }
             };
             const setTraitStats = function () {
                 if (typeof runePaths[0] === "number" && typeof runePaths[1] === "number") {
@@ -1337,7 +1341,7 @@ const champObj = function (obj, side, uid) {// create champion object
                         move[4] = calc(move[4], Number(amount + "e-2"), 0);
                         break;
                     case "percentArmPen":
-                        aPen[0] = calc(aPen[0], Number(amount + "e-2"), 0);
+                        aPen[0] = calc(aPen[0], amount, 0);
                         break;
                     case "percentmoveSpeed":
                         move[2] = calc(move[2], Number(amount + "e-2"), 0);
@@ -1695,7 +1699,7 @@ const champObj = function (obj, side, uid) {// create champion object
                 let numDiv = document.getElementById(uid).getElementsByClassName("skillNum")[index - 1];
                 switch (index) {
                 case 0:
-                    theNode.getElementsByTagName("h3")[0].innerText = theLang.Attack;
+                    //theNode.getElementsByTagName("h3")[0].innerText = theLang.Attack;
                     break;
                 case 1:
                     theNode.getElementsByTagName("h3")[0].innerText = passive.name;
@@ -2315,10 +2319,10 @@ const champObj = function (obj, side, uid) {// create champion object
                         ? 0
                         : spellLvl - 1;
                 }
-                const getCrit = function (dmg, critAmount, isBasicAttack) {
+                const getCrit = function (dmg, critAmount, isBasicAttack, noSR) {
                     let critMulti;
-                    if (itemCheck(3095, true) && isBasicAttack && id !== "Ashe") {//stormrazor
-                        const razorBonusMulti = (crit > 0.3) ? 0.4: round(calc(crit, 1.3333), 3);
+                    if (itemCheck(3095, true) && isBasicAttack && id !== "Ashe" && !noSR) {//stormrazor
+                        const razorBonusMulti = (crit >= 0.3) ? 0.4: round(calc(crit, 1.333333), 3);
                         critMulti = calc(1.6, razorBonusMulti, 0);
                     } else {
                         critMulti = Number(critAmount + "e-2");
@@ -2377,13 +2381,17 @@ const champObj = function (obj, side, uid) {// create champion object
                     }
                     return [physDmg, magDmg, truDmg];
                 };
-                const getDmg = function (rawDmg, spellObj, isCrit = false, isTick = false) {
+                const getDmg = function (rawDmg, spellObj, isCrit = false, isTick = false, noProc = false) {
                     let resistedDmg, truDmg = 0;
                     let myDmg = (spellObj.basicAttack && enemyUID) ? myChamps[enemyUID].takeBasicAtk(rawDmg) : rawDmg;// Ninja Tabi
                     if (isCrit) {
                         const critAmount = (typeof spellObj.crit[0] === "object") ? spellObj.crit[0][spellLvl] : spellObj.crit[0];
                         if (spellObj.basicAttack) {
-                            myDmg = calc(myDmg, getCrit(myDmg, critAmount, true), 0);
+                            if (noProc) {
+                                myDmg = calc(myDmg, getCrit(myDmg, critAmount, true, true), 0);
+                            } else {
+                                myDmg = calc(myDmg, getCrit(myDmg, critAmount, true), 0);
+                            }
                         } else {
                             myDmg = calc(myDmg, getCrit(myDmg, critAmount), 0);
                         }
@@ -2397,58 +2405,85 @@ const champObj = function (obj, side, uid) {// create champion object
                     let magDmg = sortedDmg[1];
                     truDmg = calc(sortedDmg[2], truDmg, 0);
 
-                    if ((itemCheck(3092, true) || itemCheck(3098, true)) && !isTick) {//FQC
-                        magDmg = calc(magDmg, 18, 0);
-                    } else if (itemCheck(3303, true) && !isTick) {
-                        magDmg = calc(magDmg, 13, 0);
+                    if (!isTick && !noProc) {//
+                        if (itemCheck(3092, true) || itemCheck(3098, true)) {//FQC
+                            magDmg = calc(magDmg, 18, 0);
+                        } else if (itemCheck(3303, true)) {
+                            magDmg = calc(magDmg, 13, 0);
+                        }
+                        //Runes added dmg
+                        if (runeCheck(8112, true)) {//electrocute
+                            const theDmg =  calc(40 + (10 * level), calc(calc(ap, 0.3), calc(attackdamage[1], 0.5), 0), 0);
+                            if (adaptTyp === "phys") {
+                                physDmg = calc(theDmg, physDmg, 0);
+                            } else {
+                                magDmg = calc(theDmg, magDmg, 0);
+                            }
+                        }
+                        if (runeCheck(8124, true)) {// Predator
+                            let predBase = [60,67,74,81,88,95,102,109,116,124,131,138,145,152,159,166,173,180];
+                            const theDmg =  calc(predBase[level - 1], calc(calc(ap, 0.25), calc(attackdamage[1], 0.4), 0), 0);
+                            if (adaptTyp === "phys") {
+                                physDmg = calc(theDmg, physDmg, 0);
+                            } else {
+                                magDmg = calc(theDmg, magDmg, 0);
+                            }
+                        }
+                        if (runeCheck(8214, true)) {// Aery
+                            let aeryBase = [15,16,18,19,21,22,24,25,27,28,30,31,33,34,36,37,39,40];
+                            const theDmg =  calc(aeryBase[level - 1], calc(calc(ap, 0.1), calc(attackdamage[1], 0.15), 0), 0);
+                            if (adaptTyp === "phys") {
+                                physDmg = calc(theDmg, physDmg, 0);
+                            } else {
+                                magDmg = calc(theDmg, magDmg, 0);
+                            }
+                        }
+                        if (runeCheck(8126, true)) {// Cheap Shot
+                            let chpShotBase = [15, 16, 18, 19, 21, 22, 24, 25, 27, 28, 30, 31, 33, 34, 36, 37, 39, 40];
+                            truDmg = calc(truDmg, chpShotBase[level - 1], 0);
+                        }
                     }
-
-                    if (itemCheck(2033, true) && !isTick) {// Corrupted potion
+                    
+                    if (itemCheck(2033, true) && !isTick) {// Corrupted potion Burn over 3 secs
                         let corruptDmg = [15,16,17,18,19,19,20,21,22,23,24,25,26,26,27,28,29,30];
                         magDmg = calc(magDmg, corruptDmg[level], 0);
                     }
-
-                    if (document.getElementById(uid).querySelector(".slctElix").value === "2139" && !isTick) {// elixir of sorcery
-                        truDmg = calc(truDmg, 25, 0);
-                    }
-
-                    //Runes added dmg
-                    if (runeCheck(8112, true) && !isTick) {//electrocute
-                        const theDmg =  calc(40 + (10 * level), calc(calc(ap, 0.3), calc(attackdamage[1], 0.5), 0), 0);
-                        if (adaptTyp === "phys") {
-                            physDmg = calc(theDmg, physDmg, 0);
+                    
+                    //Burn no proc calc
+                    let burnRatio;
+                    if (noProc) {
+                        let totalAtkSpd;
+                        if (id === "Jhin") {
+                            totalAtkSpd = round(attackspeed[0], 3);
                         } else {
-                            magDmg = calc(theDmg, magDmg, 0);
+                            totalAtkSpd = round(calc(attackspeed[0], calc(1, attackspeed[1], 0)), 3);
+                            if (totalAtkSpd > attackspeed[2]) {
+                                totalAtkSpd = attackspeed[2];
+                            }
+                        }
+                        burnRatio = calc(1, totalAtkSpd,3);
+                    }
+                    
+                    if (document.getElementById(uid).querySelector(".slctElix").value === "2139" && !isTick) {// elixir of sorcery Burn over 3 secs
+                        if (noProc) {
+                            const burnDmg = calc(8.3333, burnRatio);
+                            truDmg = calc(truDmg, burnDmg, 0);
+                        } else {
+                            truDmg = calc(truDmg, 25, 0);
                         }
                     }
-                    if (runeCheck(8124, true) && !isTick) {// Predator
-                        let predBase = [60,67,74,81,88,95,102,109,116,124,131,138,145,152,159,166,173,180];
-                        const theDmg =  calc(predBase[level - 1], calc(calc(ap, 0.25), calc(attackdamage[1], 0.4), 0), 0);
-                        if (adaptTyp === "phys") {
-                            physDmg = calc(theDmg, physDmg, 0);
-                        } else {
-                            magDmg = calc(theDmg, magDmg, 0);
-                        }
-                    }
-                    if (runeCheck(8214, true) && !isTick) {// Aery
-                        let aeryBase = [15,16,18,19,21,22,24,25,27,28,30,31,33,34,36,37,39,40];
-                        const theDmg =  calc(aeryBase[level - 1], calc(calc(ap, 0.1), calc(attackdamage[1], 0.15), 0), 0);
-                        if (adaptTyp === "phys") {
-                            physDmg = calc(theDmg, physDmg, 0);
-                        } else {
-                            magDmg = calc(theDmg, magDmg, 0);
-                        }
-                    }
-                    if (runeCheck(8126, true) && !isTick) {// Cheap Shot
-                        let chpShotBase = [15, 16, 18, 19, 21, 22, 24, 25, 27, 28, 30, 31, 33, 34, 36, 37, 39, 40];
-                        truDmg = calc(truDmg, chpShotBase[level - 1], 0);
-                    }
-
-                    //red Buff
+                    //red Buff Burn over 3 secs
                     if (spellObj.basicAttack && document.getElementById(uid).querySelector(".redBuff").checked) {
                         const redBuffDmg = [12,18,24,30,36,42,48,54,60,66,72,78,84,90,96,102,108,114];
-                        truDmg = calc(truDmg, redBuffDmg[level - 1], 0);
+                        if (noProc) {
+                            const burnDmg = calc(calc(redBuffDmg[level - 1], 3), burnRatio);
+                            truDmg = calc(truDmg, burnDmg, 0);
+                        } else {
+                            truDmg = calc(truDmg, redBuffDmg[level - 1], 0);
+                        }
                     }
+                    
+                    
                     //spell effects
                     if (spellObj.spell && !isTick) {
                         if (itemCheck(3285, true)) { //Luden's Echo
@@ -2483,103 +2518,110 @@ const champObj = function (obj, side, uid) {// create champion object
                         }
                     }
                     if (spellObj.onHit && !isTick) {
-
-                        let onHitMulti = (spellObj.onHit < 1)
-                            ? spellObj.onHit
-                            : 1;
-                        if (itemCheck(3145, true)) {//Hex Revolver
-                            let boltDmg = [50,54,58,63,67,72,76,81,85,90,94,99,103,107,112,116,121,125];
-                            magDmg = calc(magDmg, calc(boltDmg[level - 1], onHitMulti), 0);
-                        }
-                        if (itemCheck(3147, true)) {//Duskblade
-                            physDmg = calc(physDmg, calc((20 + 10 * level), onHitMulti), 0);
-                        }
-                        if (itemCheck(3100, true)) {//lichbane
-                            magDmg = calc(magDmg, calc(calc(attackdamage[0], 0.75), calc(ap, 0.5), 0), 0);
-                        } else if (
-                            (itemCheck(3078, true)) ||//triforce
-                            (itemCheck(3384, true))
-                        ) {
-                            let triDmg = calc(calc(attackdamage[0], 2), onHitMulti);
-                            if ((itemCheck(3031) || itemCheck(3371))  && isCrit) {//I Edge
-                                triDmg = calc(triDmg, 0.85);
-                                truDmg = calc(truDmg, calc(triDmg, 0.15), 0);
-                            }
-                            if (spellObj.type === "corkiAuto") {
-                                physDmg = calc(physDmg, calc(triDmg, 0.2), 0);
-                                magDmg = calc(magDmg, calc(triDmg, 0.8), 0);
-                            } else {
-                                physDmg = calc(physDmg, triDmg, 0);
-                            }
-                        } else if (
-                            (itemCheck(3025, true)) ||//iceborn/sheen
-                            (itemCheck(3057, true))//sheen
-                        ) {
-                            if (spellObj.type === "corkiAuto") {
-                                physDmg = calc(physDmg, calc(attackdamage[0], 0.2), 0);
-                                magDmg = calc(magDmg, calc(attackdamage[0], 0.8), 0);
-                            } else {
-                                if ((itemCheck(3031) || itemCheck(3371)) && isCrit) {
-                                    truDmg = calc(truDmg, calc(0.15, calc(attackdamage[0], onHitMulti)) ,0);
-                                    physDmg = calc(physDmg, calc(0.85, calc(attackdamage[0], onHitMulti)), 0);
-                                } else {
-                                    physDmg = calc(physDmg, calc(attackdamage[0], onHitMulti), 0);
-                                }
-                            }
-                        }
-                        if (itemCheck(3742, true)) {//dead mans
-                            magDmg = calc(calc(100, onHitMulti), magDmg, 0);
-                        }
-                        if (itemCheck(2015, true)) {//Kircheis Shard
-                            magDmg = calc(calc(50, onHitMulti), magDmg, 0);
-                        }
-                        if (itemCheck(3087, true)) {// Static Shiv
-                            const shivLvlDmg = [60,60,60,60,60,67,73,79,85,91,97,104,110,116,122,128,134,140];
-                            let shivDmg = calc(shivLvlDmg[level - 1], onHitMulti);
-                            if (isCrit) {
-                                shivDmg = calc(getCrit(shivDmg, spellObj.crit), shivDmg, 0);
-                                if (itemCheck(3031) || itemCheck(3371)) {
-                                    truDmg = calc(truDmg, calc(shivDmg, 0.15), 0);
-                                    shivDmg = calc(shivDmg, 0.85);
-                                }
-                            }
-                            magDmg = calc(magDmg, shivDmg, 0);
-                        }
-                        if (itemCheck(3094, true)) {//Rapidfire
-                            let rfLvlDmg = [60,60,60,60,60,67,73,79,85,91,97,104,110,116,122,128,134,140];
-                            magDmg = calc(magDmg, calc(rfLvlDmg[level - 1], onHitMulti), 0);
-                        }
-                        //Runes
-                        if (runeCheck(8128, true)) {//dark harvest
-                            const
-                                dhLvl = [40,42,45,47,49,52,54,56,59,61,64,66,68,71,73,75,78,80],
-                                soulStacks = parseInt(document.getElementById(uid + "RNUM8128").value);
-                            let dhDmg = calc(soulStacks, calc(dhLvl[level - 1], calc(calc(ap, 0.2), calc(attackdamage[1], 0.25), 0), 0), 0);
-                            if (adaptTyp === "phys") {
-                                physDmg = calc(physDmg, dhDmg, 0);
-                            } else {
-                                magDmg = calc(magDmg, dhDmg, 0);
-                            }
-                        }
-                        if (runeCheck(8005, true)) {//press the attack
-                            const ptaPerLvl = [40,48,56,65,73,81,89,98,106,114,122,131,139,147,155,164,172,180];
-                            if (adaptTyp === "phys") {
-                                physDmg = calc(physDmg, ptaPerLvl[level - 1], 0);
-                            } else {
-                                magDmg = calc(magDmg, ptaPerLvl[level - 1], 0);
-                            }
-                        }
-                        if (runeCheck(8437, true)) {//graps of the undying
-                            if (stats.attackrange > 200) {
-                                magDmg = calc(getPercentHP(0.02), magDmg, 0);
-                            } else {
-                                magDmg = calc(getPercentHP(0.04), magDmg, 0);
-                            }
-                        }
-                        if (document.getElementsByClassName("elderActive")[side].checked) {//Elder Drake
+                        let onHitMulti = (spellObj.onHit < 1) ? spellObj.onHit : 1;
+                        if (document.getElementsByClassName("elderActive")[side].checked) {//Elder Drake Burn over 3 secs
                             const elderStacks = document.getElementsByClassName("elderCount")[side].value;
-                            truDmg = calc(truDmg, 45 + (45 * elderStacks), 0);
+                            const elderDmg = 45 + (45 * elderStacks);
+                            if (noProc) {
+                                const burnDmg = calc(calc(elderDmg, 3, 3), burnRatio);
+                                truDmg = calc(truDmg, burnDmg, 0);
+                            } else {
+                                truDmg = calc(truDmg, elderDmg, 0);
+                            }
+                            
                         }
+                        if (!noProc) {
+                            if (itemCheck(3145, true)) {//Hex Revolver
+                                let boltDmg = [50,54,58,63,67,72,76,81,85,90,94,99,103,107,112,116,121,125];
+                                magDmg = calc(magDmg, calc(boltDmg[level - 1], onHitMulti), 0);
+                            }
+                            if (itemCheck(3147, true)) {//Duskblade
+                                physDmg = calc(physDmg, calc((20 + 10 * level), onHitMulti), 0);
+                            }
+                            if (itemCheck(3100, true)) {//lichbane
+                                magDmg = calc(magDmg, calc(calc(attackdamage[0], 0.75), calc(ap, 0.5), 0), 0);
+                            } else if (
+                                (itemCheck(3078, true)) ||//triforce
+                                (itemCheck(3384, true))
+                            ) {
+                                let triDmg = calc(calc(attackdamage[0], 2), onHitMulti);
+                                if ((itemCheck(3031) || itemCheck(3371))  && isCrit) {//I Edge
+                                    triDmg = calc(triDmg, 0.85);
+                                    truDmg = calc(truDmg, calc(triDmg, 0.15), 0);
+                                }
+                                if (spellObj.type === "corkiAuto") {
+                                    physDmg = calc(physDmg, calc(triDmg, 0.2), 0);
+                                    magDmg = calc(magDmg, calc(triDmg, 0.8), 0);
+                                } else {
+                                    physDmg = calc(physDmg, triDmg, 0);
+                                }
+                            } else if (
+                                (itemCheck(3025, true)) ||//iceborn/sheen
+                                (itemCheck(3057, true))//sheen
+                            ) {
+                                if (spellObj.type === "corkiAuto") {
+                                    physDmg = calc(physDmg, calc(attackdamage[0], 0.2), 0);
+                                    magDmg = calc(magDmg, calc(attackdamage[0], 0.8), 0);
+                                } else {
+                                    if ((itemCheck(3031) || itemCheck(3371)) && isCrit) {
+                                        truDmg = calc(truDmg, calc(0.15, calc(attackdamage[0], onHitMulti)) ,0);
+                                        physDmg = calc(physDmg, calc(0.85, calc(attackdamage[0], onHitMulti)), 0);
+                                    } else {
+                                        physDmg = calc(physDmg, calc(attackdamage[0], onHitMulti), 0);
+                                    }
+                                }
+                            }
+                            if (itemCheck(3742, true)) {//dead mans
+                                magDmg = calc(calc(100, onHitMulti), magDmg, 0);
+                            }
+                            if (itemCheck(2015, true)) {//Kircheis Shard
+                                magDmg = calc(calc(50, onHitMulti), magDmg, 0);
+                            }
+                            if (itemCheck(3087, true)) {// Static Shiv
+                                const shivLvlDmg = [60,60,60,60,60,67,73,79,85,91,97,104,110,116,122,128,134,140];
+                                let shivDmg = calc(shivLvlDmg[level - 1], onHitMulti);
+                                if (isCrit) {
+                                    shivDmg = calc(getCrit(shivDmg, spellObj.crit), shivDmg, 0);
+                                    if (itemCheck(3031) || itemCheck(3371)) {
+                                        truDmg = calc(truDmg, calc(shivDmg, 0.15), 0);
+                                        shivDmg = calc(shivDmg, 0.85);
+                                    }
+                                }
+                                magDmg = calc(magDmg, shivDmg, 0);
+                            }
+                            if (itemCheck(3094, true)) {//Rapidfire
+                                let rfLvlDmg = [60,60,60,60,60,67,73,79,85,91,97,104,110,116,122,128,134,140];
+                                magDmg = calc(magDmg, calc(rfLvlDmg[level - 1], onHitMulti), 0);
+                            }
+                            //Runes
+                            if (runeCheck(8128, true)) {//dark harvest
+                                const
+                                    dhLvl = [40,42,45,47,49,52,54,56,59,61,64,66,68,71,73,75,78,80],
+                                    soulStacks = parseInt(document.getElementById(uid + "RNUM8128").value);
+                                let dhDmg = calc(soulStacks, calc(dhLvl[level - 1], calc(calc(ap, 0.2), calc(attackdamage[1], 0.25), 0), 0), 0);
+                                if (adaptTyp === "phys") {
+                                    physDmg = calc(physDmg, dhDmg, 0);
+                                } else {
+                                    magDmg = calc(magDmg, dhDmg, 0);
+                                }
+                            }
+                            if (runeCheck(8005, true)) {//press the attack
+                                const ptaPerLvl = [40,48,56,65,73,81,89,98,106,114,122,131,139,147,155,164,172,180];
+                                if (adaptTyp === "phys") {
+                                    physDmg = calc(physDmg, ptaPerLvl[level - 1], 0);
+                                } else {
+                                    magDmg = calc(magDmg, ptaPerLvl[level - 1], 0);
+                                }
+                            }
+                            if (runeCheck(8437, true)) {//graps of the undying
+                                if (stats.attackrange > 200) {
+                                    magDmg = calc(getPercentHP(0.02), magDmg, 0);
+                                } else {
+                                    magDmg = calc(getPercentHP(0.04), magDmg, 0);
+                                }
+                            }
+                        }
+
                         onHitMulti = spellObj.onHit;
                         if (items.includes(1043)) {//Recurve Bow
                             physDmg = calc(calc(15, onHitMulti), physDmg, 0);
@@ -2790,12 +2832,21 @@ const champObj = function (obj, side, uid) {// create champion object
                     }
                     return theStr;
                 };
-
+                const getTotal = function (dmgArr) {
+                    if (dmgArr[1] > 0 || dmgArr[2] > 0) {
+                        let totalDmg = 0;
+                        dmgArr.forEach(function (damage) {
+                            totalDmg = round(calc(damage, totalDmg, 0), 1);
+                        });
+                        return " <span class='totalDmg'> - (" + totalDmg + ")</span>";
+                    }
+                    return "";
+                };
+                // Attack Tooltip
                 if (spellNo === "Attack") {
                     let
                         totalAD = calc(attackdamage[0], attackdamage[1], 0),
                         attackObj = {type: "phys", onHit: 1, basicAttack: true, crit:[100]};
-                    let tooltip = theLang.Attack + ": ";
                     switch (id) {
                     case "Ashe":
                         attackObj = {type: "phys", onHit: 1, basicAttack: true, crit:[0]};
@@ -2824,37 +2875,54 @@ const champObj = function (obj, side, uid) {// create champion object
                         break;
                     default:
                     }
-                    const basicAtk = getDmg(totalAD, attackObj);
-                    let avgDmg = basicAtk;
-                    tooltip += styleDigits(basicAtk, attackObj.type) + "<br>";
+                    let nonCritDmg = getDmg(totalAD, attackObj);
+                    let tooltip = "<h4>" + theLang.Next + theLang.Attack + "</h4>";
+                    if (!itemCheck(3095, true) && crit < 1) {
+                        tooltip += theLang.Damage + ": " + styleDigits(nonCritDmg, attackObj.type);
+                        tooltip += getTotal(nonCritDmg) + "<br>";
+                    }
+                    if (crit > 0 || id === "Jhin" || itemCheck(3095, true)) {
+                        let critDmg = getDmg(totalAD, attackObj, true);
+                        tooltip += theLang.CriticalStrike + " " + theLang.Damage + ": " + styleDigits(critDmg, attackObj.type);
+                        tooltip += getTotal(critDmg);
+                        if (!itemCheck(3095, true) && crit < 1) {
+                            let avgDmg = avgCritDmg(nonCritDmg, critDmg);
+                            tooltip += "<br>AVG " + theLang.Damage + ": " + styleDigits(avgDmg, attackObj.type);
+                            tooltip += getTotal(avgDmg);
+                        }
+                    }
+                    //Non procced attack
+                    tooltip += "<hr><h4>" + theLang.Attack + "</h4>";
                     if (id === "Ashe") {
-                        let asheCrit = (crit > 1) ? 2.1 : calc(1.1, crit, 0);
+                        let asheCrit = (crit >= 1) ? 2.1 : calc(1.1, crit, 0);
                         totalAD = calc(asheCrit, totalAD);
-                        avgDmg = getDmg(totalAD, attackObj);
-                        tooltip += passive.name + " " + theLang.Damage + ": " + styleDigits(avgDmg, attackObj.type) + "<br>";
                     }
-                    if (crit > 0 || id === "Jhin" || (itemCheck(3095, true) && id !== "Ashe")) {
-                        tooltip += theLang.CriticalStrike + " " + theLang.Damage + ": ";
-                        const theCrit = getDmg(totalAD, attackObj, true);
-                        tooltip += styleDigits(theCrit, attackObj.type) + "<br>";
-                        tooltip += "AVG " + theLang.Damage + ": ";
-                        avgDmg = avgCritDmg(avgDmg, theCrit);
-                        tooltip += styleDigits(avgCritDmg(avgDmg, theCrit) , attackObj.type) + "<br>";
+                    if (crit < 1) {
+                        nonCritDmg = getDmg(totalAD, attackObj, false, false, true);
+                        tooltip += theLang.Damage + ": " + styleDigits(nonCritDmg, attackObj.type);
+                        tooltip += getTotal(nonCritDmg) + "<br>";
                     }
-                    let totalAvgDmg = 0;
-                    avgDmg.forEach(function (damage) {
-                        totalAvgDmg = calc(damage, totalAvgDmg, 0);
-                    });
-                    tooltip += "Total AVG " + theLang.Damage + ": " + totalAvgDmg + "<br>";
-                    const theDps = getDPS(avgDmg);
-                    tooltip += "DPS: " + styleDigits(theDps, attackObj.type) + "<br>";
-                    let totalDps = 0;
-                    theDps.forEach(function (damage) {
-                        totalDps = calc(damage, totalDps, 0);
-                    });
-                    tooltip += "Total DPS: " + round(totalDps, 1)  + "<br>";
+                    let avgDmg = nonCritDmg;
+                    if (crit > 0 || id === "Jhin") {
+                        let critDmg = getDmg(totalAD, attackObj, true, false, true);
+                        tooltip += theLang.CriticalStrike + " " + theLang.Damage + ": " + styleDigits(critDmg, attackObj.type);
+                        tooltip += getTotal(critDmg);
+                        tooltip +=  "<br>";
+                        if (crit < 1) {
+                            avgDmg = avgCritDmg(nonCritDmg, critDmg);
+                            tooltip += "AVG " + theLang.Damage + ": " + styleDigits(avgDmg, attackObj.type);
+                            tooltip += getTotal(avgDmg) + "<br>";
+                        } else {
+                            avgDmg = critDmg;
+                        }
+                    }
+                    const thedps = getDPS(avgDmg);
+                    tooltip += "DPS: " + styleDigits(thedps, attackObj.type);
+                    tooltip += getTotal(thedps);
                     return tooltip;
                 }
+                
+                //Start Rest of Tooltips
                 const myObj = myChamps[uid]["sInfo" + spellNo];
                 let tooltip = (spellNo === "P")
                     ? passive.description
@@ -2883,6 +2951,10 @@ const champObj = function (obj, side, uid) {// create champion object
                 tooltip = tooltip.replace(/<a.href=\'.*\'>/g, "");
                 tooltip = tooltip.replace(/<\/a\>/g, "");
                 tooltip = tooltip.replace(/[*][\d.]*/g, "");
+                tooltip = tooltip.replace(/<scaleAP>.*<\/scaleAP>[\%]/g, "");
+                tooltip = tooltip.replace(/<span.class="(size.\S.)?\S*>/g, "");
+                tooltip = tooltip.replace(/<\/span>/g, "");
+                
                 const keys = tooltip.match(/\{\{[^}]*\}\}/g);
                 if (keys !== null) {//add values
                     let altKey = [];
@@ -2897,10 +2969,6 @@ const champObj = function (obj, side, uid) {// create champion object
                         let placeHoldStr = keyValue;
                         if (myChamps[uid]["sInfo" + spellNo] && myChamps[uid]["sInfo" + spellNo][rawKey]) {
                             let keyObj = myChamps[uid]["sInfo" + spellNo][rawKey];
-                            if ((keyObj.apply || keyObj.missHp || keyObj.maxHp || keyObj.percentMax) && spellNo !== "P") {// Remove Percent Sign from hp scaling variables
-                                let percentLoc = tooltip.indexOf("%",tooltip.indexOf(rawKey));
-                                tooltip = tooltip.slice(0, percentLoc) + tooltip.slice(percentLoc + 1);
-                            }
                             if (keyObj.type === "heal" || keyObj.type === "shield") {
                                 keyValue = getHealShield(keyValue, keyObj);
                                 placeHoldStr = styleDigits(keyValue, keyObj.type);
@@ -2966,8 +3034,6 @@ const champObj = function (obj, side, uid) {// create champion object
                                 if (keyObj.dps) {
                                     placeHoldStr += "[DPS:" + styleDigits(getDPS(theDmg, keyObj.dps), keyObj.type) + "]";
                                 }
-
-
                                 if (keyObj.crit && (crit > 0 || keyObj.crit[1] || (itemCheck(3095, true) && keyObj.basicAttack))) {
                                     const theCritDmg = getDmg(keyValue, keyObj, true);
                                     if (keyObj.ticks) {
@@ -2978,7 +3044,7 @@ const champObj = function (obj, side, uid) {// create champion object
                                     }
                                 }
                             } else {
-                                placeHoldStr = "<span class='statValue'>" + keyValue + "</span>";
+                                placeHoldStr = keyValue;
                             }
                         }
                         tooltip = tooltip.replace(replaceRegEx, placeHoldStr);
@@ -2989,7 +3055,10 @@ const champObj = function (obj, side, uid) {// create champion object
                     });
                 }
                 tooltip = tooltip.replace(/<font.color\='#......'.?size\='..'>/g, "");
-                tooltip = tooltip.replace(/\(\+.?\D*\)\%?/g, "");
+                tooltip = tooltip.replace(/\(\+.?\D*\)/g, "");
+                tooltip = tooltip.replace(/<\/span>\%/g, "</span>");
+                tooltip = tooltip.replace(/<\/span>]\%([\s]\%)?/g, "</span>]");
+                tooltip = tooltip.replace(/\s\%/g, "%");
                 return tooltip;
             };
             let skillDivs = document.getElementById(uid).getElementsByClassName("skillTxt");

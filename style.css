@@ -345,10 +345,6 @@ button:active {
     width: 100%;
 }
 
-h3 {
-    color: white;
-}
-
 .champBox{
     width: 100%;
     font-size: 0.85em;
@@ -493,6 +489,16 @@ h2 {
     float: left;
 }
 
+h4 {
+    font-size: 1.35em;
+    margin: 0;
+    color: white;
+}
+
+.totalDmg {
+    font-style: italic;
+}
+
 hr {
     border: solid 1px #464e4c;
     border-top-color: #333b3a;
@@ -598,6 +604,7 @@ hr {
 h3 {
     text-align: left;
     padding-bottom: 0.1em;
+    color: white;
 }
 
 .skillDesc {
@@ -608,6 +615,11 @@ h3 {
     overflow: auto;
     clear: both;
     display: none;
+}
+
+spellPassive {
+    font-weight: bold;
+    color: white;
 }
 
 .phys {
@@ -642,10 +654,6 @@ h3 {
 
 .mr {
     color: #fd00fd;
-    font-weight: bold;
-}
-
-.statValue {
     font-weight: bold;
 }
 
