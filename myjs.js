@@ -2,7 +2,7 @@
 // Created by Logan Murcott
 // github.com/lmurcott
 
-const patch = "8.13.1";
+const patch = "8.14.1";
 var lang = "en_US", theLang, myChamps = {}, theRunes, theItems, sortedItems, allChamps;
 
 const loadJSON = function (file, callback, args = "") {// Load riot JSON files
@@ -178,9 +178,6 @@ const setItems = function (json) {//atmas and shojin added to remove list
     theItems[3200].tags = theItems[3198].tags;
     delete theItems[2003].consumed;//health potion
 
-    //8.13 Hotfix
-    theItems[1051].gold.total = 400;
-    
     sortedItems = Object.keys(theItems).sort(function (a, b) {
         return theItems[a].gold.total - theItems[b].gold.total;
     });
@@ -1091,11 +1088,8 @@ const champObj = function (obj, side, uid) {// create champion object
                     move[2] = calc(move[2], 0.2, 0);
                 }
                 if (runeCheck(8143, true)) {//sudden impact
-                    if (adaptTyp === "phys") {
-                        aPen[2] += 10;
-                    } else {
-                        mPen[1] += 8;
-                    }
+                    aPen[2] += 10;
+                    mPen[1] += 8;
                 }
                 if (runeCheck(8439, true)) {//aftershock
                     const afterShockPLvl = [70,73,76,79,82,85,88,91,64,96,99,102,105,108,111,114,117,120];
@@ -1103,7 +1097,7 @@ const champObj = function (obj, side, uid) {// create champion object
                     spellblock[1] += afterShockPLvl[level - 1];
                 }
                 if (runeCheck(8010, true)) {//conqueror
-                    const conquerorPLvl = [10,11,13,14,16,17,19,20,22,23,25,26,28,29,31,32,34,35];
+                    const conquerorPLvl = [6,8,9,11,31,15,16,18,20,21,23,25,26,28,30,32,33,35];
                     attackdamage[1] += conquerorPLvl[level - 1];
                 }
                 if (runeCheck(8429, true)) {//conditioning
@@ -1325,6 +1319,9 @@ const champObj = function (obj, side, uid) {// create champion object
                     case "hpregen":
                         hpregen[1] = calc(hpregen[1], round(amount, 2), 0);
                         break;
+                    case "lifesteal":
+                        lifeSteal = calc(Number(amount + "e-2"), lifeSteal, 0);
+                        break;
                     case "magDmgReduction":
                         dmgReduct[0] += calc(dmgReduct[0], amount, 0);
                         break;
@@ -1480,7 +1477,8 @@ const champObj = function (obj, side, uid) {// create champion object
                 if (id === "Aatrox" &&
                     document.getElementById(uid + "Input3").checked &&
                     parseInt(document.getElementById(uid).getElementsByClassName("spellLvl")[3].value) > 0){
-                        adMulti = calc(adMulti, 0.2, 0);
+                        let ultAd = [0.2, 0.225, 0.25];
+                        adMulti = calc(adMulti, ultAd[document.getElementById(uid).getElementsByClassName("spellLvl")[3].value - 1], 0);
                 }
                 if (id === "Nunu") {// nunu blood boil ap multiplier
                     if (document.getElementById(uid + "Input1").checked) {
@@ -1979,7 +1977,6 @@ const champObj = function (obj, side, uid) {// create champion object
             document.getElementById("enemy" + (1 - side)).appendChild(champOpt);
         },
         importRunes = function (runeHash0, runeHash1) {
-
             runePaths[0] = parseInt(runeHash0.charAt(0));
             runes[0].push(theRunes[runeHash0.charAt(0)].slots[0].runes[runeHash0.charAt(1)].id);
             runes[0].push(theRunes[runeHash0.charAt(0)].slots[1].runes[runeHash0.charAt(2)].id);
@@ -2066,7 +2063,7 @@ const champObj = function (obj, side, uid) {// create champion object
                 runeSelectDOM.style.display = "block";
             };
             const drawRune = function (rank, slotNo) {
-                const checkBox = [8112,8124,8128,8126,8143,8005,8008,8010,8437,8242,8429,8214,8472,8229,8210,8014,8439,8237,8232,8021,8230,8465,8410,8473,9923,8275,8444];
+                const checkBox = [8112,8124,8128,8126,8143,8005,8008,8010,8437,8242,8429,8214,8472,8229,8210,8014,8439,8237,8232,8021,8230,8465,8410,8473,9923,8275,8444,8136];
                 const number = {
                     9103: 10,
                     9104: 10,
@@ -2441,6 +2438,10 @@ const champObj = function (obj, side, uid) {// create champion object
                         if (runeCheck(8126, true)) {// Cheap Shot
                             let chpShotBase = [15, 16, 18, 19, 21, 22, 24, 25, 27, 28, 30, 31, 33, 34, 36, 37, 39, 40];
                             truDmg = calc(truDmg, chpShotBase[level - 1], 0);
+                        }
+                        if (runeCheck(8136, true)) {// Zombie Ward
+                            let zWardBase = [30,34,37,41,44,48,51,55,58,62,65,69,72,76,79,83,86,90];
+                            magDmg = calc(magDmg, zWardBase[level - 1], 0);
                         }
                     }
                     
@@ -3250,25 +3251,6 @@ const champObj = function (obj, side, uid) {// create champion object
 
     //script to fix riots disappearing data
     switch (id) {
-    case "Aatrox":
-        stats.hp = 600;
-        spells[3].cooldown = [140, 130, 120];
-        break;
-    case "Nocturne":
-        stats.attackdamage = 62;
-        break;
-    case "Taliyah":
-        spells[0].cooldown = [11, 9, 7, 5, 3];
-        break;
-    case "Tristana":
-        spells[0].effect[1] = [50, 65, 80, 95, 110];
-        break;
-    case "Varus":
-        spells[0].vars[0].coeff = 1.1;
-        spells[0].vars[1].coeff = 1.65;
-        spells[1].effect[1] = [7, 10.5, 14, 17.5, 21];
-        spells[1].effect[2] = [3, 3.5, 4, 4.5, 5];
-        break;
     case "Rengar":
         spells[0].cooldown = [6, 5.5, 5, 4.5, 4];
         spells[1].cooldown = [16, 14.5, 13, 11.5, 10];

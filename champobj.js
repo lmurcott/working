@@ -24,7 +24,7 @@ const champVars = {
         },
         sInfo0: {
             qbasedamage: {
-                value: [20, 35, 50, 65, 80],
+                value: [10, 25, 40, 55, 70],
                 spell: true,
                 type: "phys",
                 child: ["f1Var"]
@@ -70,7 +70,10 @@ const champVars = {
             moveBuff: {
                 value: [120, 180, 240]
             },
-            txt: "<br>AD: 20%<br>Movement Speed: {{ moveBuff }}"
+            adBuff: {
+                value: [20, 22.5, 25]
+            },
+            txt: "<br>AD: {{ adBuff }}%<br>Movement Speed: {{ moveBuff }}"
         }
     },
     Ahri: { //e damage amp
@@ -1129,11 +1132,11 @@ const champVars = {
         }
     },
     Corki: {
-        debuff: [{
+        /*debuff: [{
             name: "FlatArmorMagPen",
-            value: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6, 7, 7.5, 8, 9, 10, 10.5, 12, 12.5, 14, 15, 16, 17.5, 20],
+            value: [0, 0.5, 1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 6, 7, 7.5, 8, 9, 10, 10.5, 12, 12.5, 14, 15, 16, 17.5, 20],//this has been buffed
             img: "spell/GGun.png"
-        }],
+        }],*/
         sInfo0: {
             e1: {
                 type: "mag",
@@ -1443,13 +1446,12 @@ const champVars = {
                 spell: true
             },
             f1: {
-                effectNo: 3,
+                value: [20, 24, 28, 32, 36],
                 type: "heal",
                 selfHeal: true,
-                multiplier: 50
             },
             f2: {
-                effectNo: 3,
+                value: [40, 48, 56, 64, 72],
                 selfHeal: true,
                 type: "heal"
             }
@@ -1974,20 +1976,45 @@ const champVars = {
             }
         },
         sInfo1: {
-            e1: {
+            dotdamage: {
+                effectNo: 1,
                 type: "mag",
-                child: ["a2"]
+                child: ["f1Var"]
             },
-            e3: {
-                value: [-40, -60, -80, -100, -120],
+            f1Var: {
+                link: "spelldamage",
+                coeff: 0.4
+            },
+            bleedduration: {
+                effectNo: 4
+            },
+            activedamage: {
+                value: [40, 50, 60, 70, 80],
                 type: "mag",
-                child: ["a2"],
-                basicAttack: true
-            }, //effect key is wrong, needs to be 1/3 strength or switched to e1
-            e3a: {
+                child: ["f2Var"]
+            },
+            f2Var: {
+                link: "spelldamage",
+                coeff: 0.4
+            },
+            onhitbuffduration: {
+                value: 5
+            },
+            onhitbuffdamage: {
+                effectNo: 10,
                 type: "mag",
-                child: ["a1"]
-            }
+                child: ["f3Var"]
+            },
+            f3Var: {
+                link: "spelldamage",
+                coeff: 0.3
+            },
+            onkillmanarefund: {
+                effectNo: 2,
+            },
+            onkillnewcooldown: {
+                value: 1
+            },
         },
         sInfo2: {
             e1: {
@@ -3845,6 +3872,9 @@ const champVars = {
                 type: "mag",
                 spell: true,
                 child: ["a1"]
+            },
+            f3: {
+                value: 50
             }
         },
         sInfo1: {
@@ -3897,7 +3927,7 @@ const champVars = {
                 value: [25, 25, 75, 125, 175]
             },
             f2Q: {
-                value: [50, 50, 150, 250, 350]
+                value: [35, 35, 140, 245, 350]
             },
             f2W: {
                 value: [0.5, 0.5, 0.75, 1, 1.25]
@@ -5592,7 +5622,13 @@ const champVars = {
         }
     },
     Nasus: {
-        buffs: [{
+        buffs: [
+            {
+                spell: "P",
+                key: "p1",
+                type: "lifesteal",
+            },
+            {
                 spell: 3,
                 key: "e4",
                 type: "armor",
@@ -5625,7 +5661,7 @@ const champVars = {
         sInfoP: {
             p1: {
                 info: "PercentLifeStealMod",
-                valuePerLvl: [10, 10, 10, 10, 10, 10, 15, 15, 15, 15, 15, 15, 20, 20, 20, 20, 20, 20]
+                valuePerLvl: [12, 12, 12, 12, 12, 12, 18, 18, 18, 18, 18, 18, 24, 24, 24, 24, 24, 24]
             }
         },
         sInfo0: {
@@ -6229,6 +6265,7 @@ const champVars = {
         }
     },
     Pantheon: {
+        aSpdBonus: 0.08,
         sInfo0: {
             e2: {
                 type: "phys",
@@ -7562,7 +7599,7 @@ const champVars = {
             },
             f1Var: {
                 link: "attackdamage",
-                coeff: [0.45, 0.5, 0.55, 0.6, 0.65]
+                coeff: [0.45, 0.525, 0.6, 0.675, 0.75]
             },
             e4: {
                 type: "phys",
