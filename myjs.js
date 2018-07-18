@@ -142,7 +142,7 @@ const setChampList = function (json) {// Create options for selecting new champ
 const setItems = function (json) {//atmas and shojin added to remove list
     "use strict";
     const
-        delItem = [3029],
+        delItem = [3029, 3073, 3008, 3007],
         delhideFromAll = [1400, 1401, 1402, 1412, 1413, 1414, 1416, 1419];
 
     theItems = json.data;
@@ -762,7 +762,31 @@ const champObj = function (obj, side, uid) {// create champion object
                         const roaStacks = itemCount(3027);
                         ap += roaStacks * 4;
                         hp[1] += roaStacks * 20;
-                        mp[1] += roaStacks * 10;
+                        if (partype === theLang.Mana) {
+                            mp[1] += roaStacks * 10;
+                        }
+                    }
+                    if (partype === theLang.Mana) {//tear items
+                        if (itemCheck(3070)) {//tear
+                            const tearStacks = itemCount(3070);
+                            mp[1] += tearStacks;
+                        }
+                        if (itemCheck(3003)) {//archangels
+                            const archStacks = itemCount(3003);
+                            mp[1] += archStacks;
+                        }
+                        if (itemCheck(3004)) {//manamune
+                            const muneStacks = itemCount(3004);
+                            mp[1] += muneStacks;
+                        }
+                        if (itemCheck(3042) || itemCheck(3004)) {//manamune
+                            attackdamage[1] += round(calc(mp[0] + mp[1], 0.02));
+                        }
+                        if (itemCheck(3003)) {//archangels
+                            ap += round(calc(mp[0] + mp[1], 0.01));
+                        } else if (itemCheck(3040)) {//archangels
+                            ap += round(calc(mp[0] + mp[1], 0.03));
+                        }
                     }
                     if (itemCheck(3907)) {//spellbinder
                         const sbStacks = itemCount(3907);
@@ -772,14 +796,6 @@ const champObj = function (obj, side, uid) {// create champion object
                     if (itemCheck(3091)) {//wits end
                         const witsEndsStacks = itemCount(3091);
                         spellblock[1] += witsEndsStacks * 6;
-                    }
-                    if (itemCheck(3042) || itemCheck(3004)) {//manamune
-                        attackdamage[1] += round(calc(mp[0] + mp[1], 0.02));
-                    }
-                    if (itemCheck(3003)) {//archangels
-                        ap += round(calc(mp[0] + mp[1], 0.01));
-                    } else if (itemCheck(3040)) {//archangels
-                        ap += round(calc(mp[0] + mp[1], 0.03));
                     }
                     if (itemCheck(3009)) {//swift boots
                         move[3] += 25;
@@ -1154,6 +1170,15 @@ const champObj = function (obj, side, uid) {// create champion object
                 if (runeCheck(8124, true)) {// Predator
                     move[2] = calc(move[2], 0.45, 0);
                 }
+                if (runeCheck(8120, true)) {//ghost poro
+                    if (adaptTyp === "phys") {
+                        let adPerLvl = [3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12];
+                        attackdamage[1] += adPerLvl[level - 1];
+                    } else {
+                        let apPerLvl = [5,6,7,8,9,9,10,11,12,13,14,15,16,16,17,18,19,20];
+                        ap += apPerLvl[level - 1];
+                    }
+                }
             };
             const setTraitStats = function () {
                 if (typeof runePaths[0] === "number" && typeof runePaths[1] === "number") {
@@ -1301,7 +1326,7 @@ const champObj = function (obj, side, uid) {// create champion object
                         hp[0] = round(calc(hp[0], round(amount), 0));
                         break;
                     case "critChance":
-                        crit = calc(crit, amount, 0);
+                        crit = calc(crit, Number(amount + "e-2"), 0);
                         break;
                     case "dmgReduction":
                         dmgReduct[0] = calc(dmgReduct[0], amount, 0);
@@ -1598,14 +1623,17 @@ const champObj = function (obj, side, uid) {// create champion object
                     3109
                 ];
                 const maxValue = {//items that require number inputs
-                    1082 : 10,
-                    3041 : 25,
-                    3091 : 5,
-                    3124 : 6,
-                    3027 : 10,
-                    3151 : 5,
-                    3136 : 5,
-                    3907 : 100
+                    1082: 10,
+                    3041: 25,
+                    3091: 5,
+                    3124: 6,
+                    3027: 10,
+                    3151: 5,
+                    3136: 5,
+                    3907: 100,
+                    3004: 749,
+                    3070: 749,
+                    3003: 749
                 };
                 let theDiv = document.createElement("div"),
                     theImg = document.createElement("img");
@@ -2063,7 +2091,7 @@ const champObj = function (obj, side, uid) {// create champion object
                 runeSelectDOM.style.display = "block";
             };
             const drawRune = function (rank, slotNo) {
-                const checkBox = [8112,8124,8128,8126,8143,8005,8008,8010,8437,8242,8429,8214,8472,8229,8210,8014,8439,8237,8232,8021,8230,8465,8410,8473,9923,8275,8444,8136];
+                const checkBox = [8112,8124,8128,8126,8143,8005,8008,8010,8437,8242,8429,8214,8472,8229,8210,8014,8439,8237,8232,8021,8230,8465,8410,8473,9923,8275,8444,8136,8120];
                 const number = {
                     9103: 10,
                     9104: 10,
