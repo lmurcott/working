@@ -464,7 +464,7 @@ const champObj = function (obj, side, uid) {// create champion object
                     stat = ap;
                     break;
                 case "swainFragments":
-                    const perFragDmg = calc(calc(ap, 0.27), spells[3].effect[10][spellLvl], 0);
+                    const perFragDmg = calc(calc(ap, sInfo3.f1Var.coeff), spells[3].effect[10][spellLvl], 0);
                     stat = calc(perFragDmg, document.getElementById(uid + "SpellNumP").value);
                 break;
                 default:
@@ -1075,7 +1075,7 @@ const champObj = function (obj, side, uid) {// create champion object
                         }
                     }
                     if (adaptTyp === "phys") {
-                        attackdamage[1] += calc(totalStacks, 4.8);
+                        attackdamage[1] += round(calc(totalStacks, 4.8));
                     } else {
                         ap += totalStacks * 8;
                     }
@@ -2412,7 +2412,7 @@ const champObj = function (obj, side, uid) {// create champion object
                     if (isCrit) {
                         const critAmount = (typeof spellObj.crit[0] === "object") ? spellObj.crit[0][spellLvl] : spellObj.crit[0];
                         if (spellObj.basicAttack) {
-                            if (noProc) {
+                            if (noProc || spellObj.crit[2]) {
                                 myDmg = calc(myDmg, getCrit(myDmg, critAmount, true, true), 0);
                             } else {
                                 myDmg = calc(myDmg, getCrit(myDmg, critAmount, true), 0);
@@ -2473,11 +2473,6 @@ const champObj = function (obj, side, uid) {// create champion object
                         }
                     }
                     
-                    if (itemCheck(2033, true) && !isTick) {// Corrupted potion Burn over 3 secs
-                        let corruptDmg = [15,16,17,18,19,19,20,21,22,23,24,25,26,26,27,28,29,30];
-                        magDmg = calc(magDmg, corruptDmg[level], 0);
-                    }
-                    
                     //Burn no proc calc
                     let burnRatio;
                     if (noProc) {
@@ -2493,6 +2488,16 @@ const champObj = function (obj, side, uid) {// create champion object
                         burnRatio = calc(1, totalAtkSpd,3);
                     }
                     
+                    if (itemCheck(2033, true) && !isTick) {// Corrupted potion Burn over 3 secs
+                        let corruptDmg = [15,16,17,18,19,19,20,21,22,23,24,25,26,26,27,28,29,30];
+                        if (noProc) {
+                            const burnDmg = calc(calc(corruptDmg[level - 1], 3, 3), burnRatio);
+                            magDmg = calc(magDmg, burnDmg, 0);
+                        } else {
+                            magDmg = calc(magDmg, corruptDmg[level - 1], 0);
+                        }
+                        
+                    }
                     if (document.getElementById(uid).querySelector(".slctElix").value === "2139" && !isTick) {// elixir of sorcery Burn over 3 secs
                         if (noProc) {
                             const burnDmg = calc(8.3333, burnRatio);
@@ -2501,17 +2506,16 @@ const champObj = function (obj, side, uid) {// create champion object
                             truDmg = calc(truDmg, 25, 0);
                         }
                     }
-                    //red Buff Burn over 3 secs
+                    //red Buff Burn
                     if (spellObj.basicAttack && document.getElementById(uid).querySelector(".redBuff").checked) {
                         const redBuffDmg = [12,18,24,30,36,42,48,54,60,66,72,78,84,90,96,102,108,114];
                         if (noProc) {
-                            const burnDmg = calc(calc(redBuffDmg[level - 1], 3), burnRatio);
+                            const burnDmg = calc(calc(redBuffDmg[level - 1], 3, 3), burnRatio);
                             truDmg = calc(truDmg, burnDmg, 0);
                         } else {
                             truDmg = calc(truDmg, redBuffDmg[level - 1], 0);
                         }
                     }
-                    
                     
                     //spell effects
                     if (spellObj.spell && !isTick) {
@@ -3068,6 +3072,8 @@ const champObj = function (obj, side, uid) {// create champion object
                                     if (keyObj.ticks) {
                                         const critTickDmg = addDmg(theCritDmg, getTickDmg(getDmg(keyValue, keyObj , true, true)));
                                         placeHoldStr += " [AVG " + theLang.Damage + ": " + styleDigits(avgCritDmg(theDmg, critTickDmg), keyObj.type) + "]";
+                                    } else if (keyObj.crit[2]) {// always crits
+                                        placeHoldStr = styleDigits(theCritDmg, keyObj.type);
                                     } else {
                                         placeHoldStr += " [" + theLang.FlatCritDamageMod + ": " + styleDigits(theCritDmg, keyObj.type) + "]";
                                     }

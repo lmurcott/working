@@ -463,7 +463,7 @@ const champVars = {
                 type: "phys",
                 spell: true,
                 child: ["a1"],
-                crit: [0, true]
+                crit: [0, true, true]
             }
         },
         sInfo3: {
@@ -7236,13 +7236,11 @@ const champVars = {
         }
     },
     Shaco: { //add passive damage
-        /*
         sInfoP: {
-            p1: {info: "Damage", type: "phys", basicAttack: true, child: ["p1Var","p1Var2"]},
-            p1Var1: {link: "attackdamage", coeff: 1},
+            p1: {info: "FlatCritDamageMod", type: "phys", basicAttack: true, child: ["p1Var1","p1Var2"], crit: [0, true, true]},
+            p1Var1: {link: "attackdamage", coeff: 1.3},
             p1Var2: {link: "spelldamage", coeff: 0.4}
         },
-        */
         sInfo0: {
             e1: {
                 type: "phys",
@@ -7662,13 +7660,34 @@ const champVars = {
             }
         }
     },
-    Sivir: { //attack speed when w active and ult leveled
-        buffs: [{
-            spell: 3,
-            key: "e4",
-            type: "percentmoveSpeed",
-            active: true
-        }],
+    Sivir: {
+        buffs: [
+            {
+                spell: 3,
+                key: "e4",
+                type: "percentmoveSpeed",
+                active: true
+            },
+            {
+                spell: 1,
+                key: "buff",
+                type: "attackSpeed",
+                active: true
+            },
+            {
+                spell: "P",
+                key: "p1",
+                type: "flatmoveSpeed",
+                active: true
+            }
+        ],
+        sInfoP: {
+            active: true,
+            p1: {
+                valuePerLvl: [30, 30, 30, 30, 30, 35, 35, 35, 35, 35, 40, 40, 40, 40, 40, 45, 45, 50],
+                info: "Movement"
+            },
+        },
         sInfo0: {
             e1: {
                 type: "phys",
@@ -7681,6 +7700,10 @@ const champVars = {
             }
         },
         sInfo1: {
+            active: true,
+            buff: {
+                valuePair: [3, "f1"]
+            },
             f1: {
                 type: "phys",
                 child: ["f1Var"],
@@ -7693,7 +7716,10 @@ const champVars = {
             }
         },
         sInfo3: {
-            active: true
+            active: true,
+            f1: {
+                value: [0, 30, 45, 60]
+            }
         }
     },
     Skarner: {
@@ -8042,7 +8068,7 @@ const champVars = {
             },
             f1Var: {
                 link: "spelldamage",
-                coeff: 0.27
+                coeff: 0.21
             },
             f3: {
                 type: "mag",
