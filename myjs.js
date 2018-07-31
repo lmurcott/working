@@ -2,7 +2,7 @@
 // Created by Logan Murcott
 // github.com/lmurcott
 
-const patch = "8.14.1";
+const patch = "8.15.1";
 var lang = "en_US", theLang, myChamps = {}, theRunes, theItems, sortedItems, allChamps;
 
 const loadJSON = function (file, callback, args = "") {// Load riot JSON files
@@ -135,7 +135,9 @@ const setChampList = function (json) {// Create options for selecting new champ
         allOptions.appendChild(opt);
     });
     document.getElementById("chmpSlct0").appendChild(allOptions.cloneNode(true));
+    document.getElementById("chmpSlct0").selectedIndex = 2;
     document.getElementById("chmpSlct1").appendChild(allOptions.cloneNode(true));
+    document.getElementById("chmpSlct1").selectedIndex = 2;
     loadCheck();
 };
 
@@ -1943,7 +1945,7 @@ const champObj = function (obj, side, uid) {// create champion object
                                 update();
                             });
                             theImg.addEventListener("mouseover", function (e) {
-                                let description = theItems[itemNo].name + "<hr>";
+                                let description = theItems[itemNo].name + " - " + theItems[itemNo].gold.total + " " + theLang.Gold + "<hr>";
                                 description += theItems[itemNo].description.replace(/size='\d*'/g, "");
                                 if (theItems[itemNo].from) {
                                     description += "<hr><h4>" + theLang.Require_ + "</h4>";
@@ -2421,8 +2423,8 @@ const champObj = function (obj, side, uid) {// create champion object
                             myDmg = calc(myDmg, getCrit(myDmg, critAmount), 0);
                         }
                         if (itemCheck(3031) || itemCheck(3371)) {
-                            truDmg = calc(truDmg, calc(myDmg, 0.15), 0);
-                            myDmg = calc(myDmg, 0.85);
+                            truDmg = calc(truDmg, calc(myDmg, 0.1), 0);
+                            myDmg = calc(myDmg, 0.9);
                         }
                     }
                     const sortedDmg = sortDmg(myDmg, spellObj.type);
@@ -2579,8 +2581,8 @@ const champObj = function (obj, side, uid) {// create champion object
                             ) {
                                 let triDmg = calc(calc(attackdamage[0], 2), onHitMulti);
                                 if ((itemCheck(3031) || itemCheck(3371))  && isCrit) {//I Edge
-                                    triDmg = calc(triDmg, 0.85);
-                                    truDmg = calc(truDmg, calc(triDmg, 0.15), 0);
+                                    triDmg = calc(triDmg, 0.9);
+                                    truDmg = calc(truDmg, calc(triDmg, 0.1), 0);
                                 }
                                 if (spellObj.type === "corkiAuto") {
                                     physDmg = calc(physDmg, calc(triDmg, 0.2), 0);
@@ -2597,8 +2599,8 @@ const champObj = function (obj, side, uid) {// create champion object
                                     magDmg = calc(magDmg, calc(attackdamage[0], 0.8), 0);
                                 } else {
                                     if ((itemCheck(3031) || itemCheck(3371)) && isCrit) {
-                                        truDmg = calc(truDmg, calc(0.15, calc(attackdamage[0], onHitMulti)) ,0);
-                                        physDmg = calc(physDmg, calc(0.85, calc(attackdamage[0], onHitMulti)), 0);
+                                        truDmg = calc(truDmg, calc(0.1, calc(attackdamage[0], onHitMulti)) ,0);
+                                        physDmg = calc(physDmg, calc(0.9, calc(attackdamage[0], onHitMulti)), 0);
                                     } else {
                                         physDmg = calc(physDmg, calc(attackdamage[0], onHitMulti), 0);
                                     }
@@ -2616,8 +2618,8 @@ const champObj = function (obj, side, uid) {// create champion object
                                 if (isCrit) {
                                     shivDmg = calc(getCrit(shivDmg, spellObj.crit), shivDmg, 0);
                                     if (itemCheck(3031) || itemCheck(3371)) {
-                                        truDmg = calc(truDmg, calc(shivDmg, 0.15), 0);
-                                        shivDmg = calc(shivDmg, 0.85);
+                                        truDmg = calc(truDmg, calc(shivDmg, 0.1), 0);
+                                        shivDmg = calc(shivDmg, 0.9);
                                     }
                                 }
                                 magDmg = calc(magDmg, shivDmg, 0);
@@ -2985,9 +2987,8 @@ const champObj = function (obj, side, uid) {// create champion object
                 tooltip = tooltip.replace(/<\/a\>/g, "");
                 tooltip = tooltip.replace(/[*][\d.]*/g, "");
                 tooltip = tooltip.replace(/<scaleAP>.*<\/scaleAP>[\%]/g, "");
-                tooltip = tooltip.replace(/<span.class="(size.\S.)?\S*>/g, "");
+                tooltip = tooltip.replace(/<span.class="\w*">/g, "");
                 tooltip = tooltip.replace(/<\/span>/g, "");
-                
                 const keys = tooltip.match(/\{\{[^}]*\}\}/g);
                 if (keys !== null) {//add values
                     let altKey = [];

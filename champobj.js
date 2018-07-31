@@ -147,76 +147,124 @@ const champVars = {
         }
     },
     Akali: {
-        buffs: [{
+        buffs: [
+        {
             spell: 1,
             key: "e6",
             type: "percentmoveSpeed",
             active: true
-        }],
+        },
+        {
+            spell: "P",
+            key: "p2",
+            type: "percentmoveSpeed",
+            active: true
+        }
+        ],
         sInfoP: {
+            active: true,
             p1: {
-                info: "Regen",
-                type: "heal",
-                selfHeal: true,
-                valuePerLvl: [5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 30, 35, 40, 45, 50, 55, 60],
-                child: ["p1Var", "p1Var2"]
-            },
-            p1Var: {
-                link: "spelldamage",
-                coeff: 0.45
-            },
-            p1Var2: {
-                link: "bonusattackdamage",
-                coeff: 0.6
-            },
-            p2: {
                 info: "Damage",
                 type: "mag",
-                valuePerLvl: [10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 40, 50, 60, 70, 80, 90, 100],
+                valuePerLvl: [39,42,45,48,51,54,57,60,69,78,87,96,105,120,135,150,165,180],
                 child: ["p2Var", "p2Var2"],
-                basicAttack: true
+                spell: true
             },
             p2Var: {
                 link: "spelldamage",
-                coeff: 0.75
+                coeff: 0.7
             },
             p2Var2: {
                 link: "bonusattackdamage",
-                coeff: 0.5
+                coeff: 0.9
+            },
+            p2: {
+                info: "PercentMovementSpeedMod",
+                valuePerLvl: [35, 35, 35, 35, 35, 40, 40, 40, 40, 40, 45, 45, 45, 45, 45, 50, 50, 50]
             }
         },
         sInfo0: {
-            e1: {
+            basedamagenamed: {
+                value: [25, 50, 75, 100, 125],
                 type: "mag",
-                spell: true,
-                child: ["a1"]
+                child: ["v1", "v2"],
+                spell: true
             },
-            e2: {
-                type: "mag",
-                child: ["a2"],
-                spell: true,
-                basicAttack: true
+            v1: {
+                link: "spelldamage",
+                coeff: 0.5
+            },
+            v2: {
+                link: "bonusattackdamage",
+                coeff: 0.65
+            },
+            healthrestore: {
+                value: [5, 12.5, 22.5, 26.25, 50 ],
+                type: "heal",
+                selfHeal: true,
+                child: ["v3", "v4"],
+            },
+            v3: {
+                link: "spelldamage",
+                coeff: [0.1, 0.125, 0.15, 0.175, 0.2]
+            },
+            v4: {
+                link: "bonusattackdamage",
+                coeff: [0.13, 0.1625, 0.195, 0.2275, 0.26]
+            },
+            bonusdamagetominions: {
+                value: 133
             }
         },
         sInfo1: {
-            active: true
+            active: true,
+            baseduration: {
+                value: 5
+            }
         },
         sInfo2: {
-            e1: {
-                type: "phys",
+            basedamage1: {
+                value: [60, 90, 120, 150, 180],
                 spell: true,
-                child: ["a1", "a2"]
+                type: "phys",
+                child: ["v1"]
+            },
+            v1: {
+                link: "bonusattackdamage",
+                coeff: 0.7
             }
         },
         sInfo3: {
-            e1: {
-                type: "mag",
+            basedamage: {
+                value: [120, 180, 240],
                 spell: true,
-                child: ["a1"]
+                type: "phys",
+                child: ["v1"]
             },
-            f1: {
-                child: ["f1"]
-            }
+            v1: {
+                link: "bonusattackdamage",
+                coeff: 0.5
+            },
+            basedamagea: {
+                value: [120, 180, 240],
+                spell: true,
+                type: "mag",
+                child: ["v2"]
+            },
+            v2: {
+                link: "spelldamage",
+                coeff: 0.3
+            },
+            basedamagemax: {
+                value: [300, 450, 600],
+                spell: true,
+                type: "mag",
+                child: ["v3"]
+            },
+            v3: {
+                link: "spelldamage",
+                coeff: 0.9
+            },
         }
     },
     Alistar: {
@@ -1989,13 +2037,13 @@ const champVars = {
                 effectNo: 4
             },
             activedamage: {
-                value: [40, 50, 60, 70, 80],
+                value: [50, 70, 90, 110, 130],
                 type: "mag",
                 child: ["f2Var"]
             },
             f2Var: {
                 link: "spelldamage",
-                coeff: 0.4
+                coeff: 0.6
             },
             onhitbuffduration: {
                 value: 5
@@ -2007,7 +2055,7 @@ const champVars = {
             },
             f3Var: {
                 link: "spelldamage",
-                coeff: 0.3
+                coeff: 0.4
             },
             onkillmanarefund: {
                 effectNo: 2,
@@ -2017,23 +2065,38 @@ const champVars = {
             },
         },
         sInfo2: {
-            e1: {
+            edamage: {
+                effectNo: 1,
                 type: "mag",
                 spell: true,
-                child: ["a1"]
-            }
+                child: ["f1Var"]
+            },
+            f1Var: {
+                link: "spelldamage",
+                coeff: 0.75
+            },
         },
         sInfo3: {
-            e1: {
+            smallsharkdamage: {
+                effectNo: 1,
                 type: "mag",
                 spell: true,
-                child: ["a1"]
+                child: ["f1Var"]
             },
-            e3: {
+            f1Var: {
+                link: "spelldamage",
+                coeff: 0.9
+            },
+            bigsharkdamage : {
+                effectNo: 3,
                 type: "mag",
                 spell: true,
-                child: ["a2"]
-            }
+                child: ["f2Var"]
+            },
+            f2Var: {
+                link: "spelldamage",
+                coeff: 1.3
+            },
         }
     },
     Galio: {
@@ -2960,7 +3023,7 @@ const champVars = {
                 info: "magicDamage",
                 myInfo: "[X1]",
                 type: "mag",
-                valuePerLvl: [1,1.65,2.29,2.94,3.59,4.24,4.88,5.53,6.18,6.82,7.47,8.12,8.76,9.41,10.06,10.71,11.35,12],
+                valuePerLvl: [4,4.8,5.5,6.3,7.1,7.8,8.6,9.4,10.1,10.9,11.6,12.4,13.2,13.9,14.7,15.5,16.2,17],
                 child: ["p0Var"]
             },
             p0Var: {
@@ -2971,17 +3034,23 @@ const champVars = {
                 info: "magicDamage",
                 myInfo: "[X4]",
                 type: "mag",
-                valuePerLvl: [1,1.65,2.29,2.94,3.59,4.24,4.88,5.53,6.18,6.82,7.47,8.12,8.76,9.41,10.06,10.71,11.35,12],
+                valuePerLvl: [16,19.1,22.1,25.2,28.2,31.3,34.4,37.4,40.5,43.5,46.6,49.6,52.7,55.8,588,61.9,64.9,68],
                 child: ["p0Var"],
-                multiplier: 400
+            },
+            p1Var: {
+                link: "bonusattackdamage",
+                coeff: 0.16
             },
             p3: {
                 info: "magicDamage",
                 myInfo: "[X4] Shields",
                 type: "mag",
-                valuePerLvl: [1,1.65,2.29,2.94,3.59,4.24,4.88,5.53,6.18,6.82,7.47,8.12,8.76,9.41,10.06,10.71,11.35,12],
-                child: ["p0Var"],
-                multiplier: 800
+                valuePerLvl: [32,38.1,44.2,50.4,56.5,62.6,68.7,74.8,80.9,87.1,93.2,99.3,105.4,111.5,117.6,123.8,129.9,136],
+                child: ["p3Var"]
+            },
+            p3Var: {
+                link: "bonusattackdamage",
+                coeff: 0.32
             },
             p4: {
                 info: "PercentAttackSpeedMod",
@@ -2989,13 +3058,18 @@ const champVars = {
             }
         },
         sInfo0: {
-            e1: {
+            championdamage: {
+                value: [5, 25, 45, 65, 85],
                 type: "phys",
                 spell: true,
                 onHit: 1,
-                child: ["a1"]
+                child: ["f2Var"]
             },
-            f1: {
+            f2Var: {
+                link: "attackdamage",
+                coeff: 0.6
+            },
+            healamount: {
                 type: "heal",
                 child: ["f1Var"]
             },
@@ -3006,43 +3080,85 @@ const champVars = {
         },
         sInfo1: {
             active: true,
-            e1: {
+            finaldr: {
+                value: 50,
                 child: ["f1Var"]
             },
             f1Var: {
                 link: "spelldamage",
-                coeff: 0.1
+                coeff: 0.07
             },
-            e3: {
+            mindamagecalc: {
+                value: [10, 25, 40, 55, 70],
                 type: "phys",
                 spell: true,
-                child: ["a1", "a2"]
+                child: ["f2Var", "f3Var"]
             },
-            f4: {
-                effectNo: 3,
+            f2Var: {
+                link: "attackdamage",
+                coeff: 0.05
+            },
+            f3Var: {
+                link: "spelldamage",
+                coeff: 0.04
+            },
+            maxdamagecalc: {
+                value: [10, 25, 40, 55, 70],
                 type: "phys",
                 spell: true,
-                child: ["a1", "a2"],
+                child: ["f2Var", "f3Var"],
                 multiplier: 200
+            },
+            chargetimeformax: {
+                value: 1.5
             }
         },
         sInfo2: {
-            e1: {
+            stunduration: {
+                value: 0.75
+            },
+            markduration: {
+                value: 5
+            },
+            totaldamage: {
+                value: [70, 110, 150, 190, 230],
                 type: "mag",
                 spell: true,
-                child: ["a1"]
-            }
+                child: ["f1Var"]
+            },
+            f1Var: {
+                link: "spelldamage",
+                coeff: 0.08
+            },
         },
         sInfo3: {
-            e1: {
+            missiledamage: {
+                value: [125, 225, 325],
                 type: "mag",
                 spell: true,
-                child: ["a1"]
+                child: ["f1Var"]
             },
-            e3: {
+            f1Var: {
+                link: "spelldamage",
+                coeff: 0.7
+            },
+            zonedamage: {
+                value: [75, 125, 175],
                 type: "mag",
                 spell: true,
-                child: ["a2"]
+                child: ["f1Var"]
+            },
+            markduration: {
+                value: 5
+            },
+            zoneduration: {
+                value: [2.5, 3, 3.5]
+            },
+            slowamount: {
+                value: 60
+            },
+            ccduration: {
+                value: 1.5
             }
         }
     },
@@ -4420,11 +4536,13 @@ const champVars = {
             },
             e5: {
                 type: "mag",
+                dps: 4,
                 spell: true,
                 child: ["a1"]
             },
             f3: {
                 value: 1.5,
+                dps: 4,
                 type: "mag",
                 apply: "currHp",
                 child: ["f3Var"]
@@ -4720,7 +4838,8 @@ const champVars = {
             },
             e3: {
                 type: "phys",
-                apply: "missHp"
+                spell: true,
+                child: ["a2"]
             }
         },
         sInfo1: {
@@ -6445,7 +6564,7 @@ const champVars = {
             }
         }
     },
-    Quinn: { //passive on w after attacking vulnerable, (ult dmg missing, english added)
+    Quinn: {
         buffs: [{
                 spell: 1,
                 key: "e2",
@@ -6463,7 +6582,7 @@ const champVars = {
             p1: {
                 info: "Damage",
                 type: "phys",
-                value: 10,
+                value: 5,
                 child: ["p1Var", "p1Var2"]
             },
             p1Var: {
@@ -6497,7 +6616,6 @@ const champVars = {
             }
         },
         sInfo3: {
-            txt: "<hr>Ultimate Active: Quinn and Valor deal {{ f1 }} physical damage to nearby enemies as Valor returns to the skies.",
             f1: {
                 type: "phys",
                 spell: true,
@@ -8530,7 +8648,8 @@ const champVars = {
             f3: {
                 type: "mag",
                 value: 0,
-                basicAttack: true
+                basicAttack: true,
+                child: ["f2Var"]
             },
             f3a: {
                 type: "mag",
@@ -8539,13 +8658,13 @@ const champVars = {
             },
             f3Var: {
                 link: "attackdamage",
-                coeff: 0.8
+                coeff: [1, 1.25, 1.5, 1.75, 2]
             },
             f2Var: {
                 inputId: "P",
                 link: "input",
                 coeff: 1
-            }
+            },
         },
         sInfo3: {
             e1: {
