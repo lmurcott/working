@@ -4536,7 +4536,6 @@ const champVars = {
             },
             e5: {
                 type: "mag",
-                dps: 4,
                 spell: true,
                 child: ["a1"]
             },
