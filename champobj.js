@@ -4541,7 +4541,6 @@ const champVars = {
             },
             f3: {
                 value: 1.5,
-                dps: 4,
                 type: "mag",
                 apply: "currHp",
                 child: ["f3Var"]
