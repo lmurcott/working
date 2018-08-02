@@ -1123,7 +1123,7 @@ const champObj = function (obj, side, uid) {// create champion object
                     spellblock[1] += 8;
                 }
                 if (runeCheck(8234)) {//celerity
-                    move[2] = calc(move[2], 0.015, 0);
+                    move[2] = calc(move[2], 0.02, 0);
                 }
                 if (runeCheck(8437)) {//Grasp
                     const graspStacks = document.getElementById(uid + "RNUM8437").value;
