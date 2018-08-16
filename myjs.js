@@ -2,7 +2,7 @@
 // Created by Logan Murcott
 // github.com/lmurcott
 
-const patch = "8.15.1";
+const patch = "8.16.1";
 var lang = "en_US", theLang, myChamps = {}, theRunes, theItems, sortedItems, allChamps;
 
 const loadJSON = function (file, callback, args = "") {// Load riot JSON files
@@ -1106,8 +1106,8 @@ const champObj = function (obj, side, uid) {// create champion object
                     move[2] = calc(move[2], 0.2, 0);
                 }
                 if (runeCheck(8143, true)) {//sudden impact
-                    aPen[2] += 10;
-                    mPen[1] += 8;
+                    aPen[2] += 7;
+                    mPen[1] += 6;
                 }
                 if (runeCheck(8439, true)) {//aftershock
                     const afterShockPLvl = [70,73,76,79,82,85,88,91,64,96,99,102,105,108,111,114,117,120];
@@ -1482,9 +1482,9 @@ const champObj = function (obj, side, uid) {// create champion object
                 if (runeCheck(8234)) {//celerity
                     const bonusMoveSpd = move[1];
                     if (adaptTyp === "phys") {
-                        attackdamage[1] += round(calc(bonusMoveSpd, 0.096));
+                        attackdamage[1] += round(calc(bonusMoveSpd, 0.06));
                     } else {
-                        ap += round(calc(bonusMoveSpd, 0.16));
+                        ap += round(calc(bonusMoveSpd, 0.1));
                     }
                 }
                 let vladbonusAP;
@@ -2440,7 +2440,7 @@ const champObj = function (obj, side, uid) {// create champion object
                         }
                         //Runes added dmg
                         if (runeCheck(8112, true)) {//electrocute
-                            const theDmg =  calc(40 + (10 * level), calc(calc(ap, 0.3), calc(attackdamage[1], 0.5), 0), 0);
+                            const theDmg =  calc(21.18 + (8.82 * level), calc(calc(ap, 0.25), calc(attackdamage[1], 0.4), 0), 0);
                             if (adaptTyp === "phys") {
                                 physDmg = calc(theDmg, physDmg, 0);
                             } else {
@@ -2457,8 +2457,8 @@ const champObj = function (obj, side, uid) {// create champion object
                             }
                         }
                         if (runeCheck(8214, true)) {// Aery
-                            let aeryBase = [15,16,18,19,21,22,24,25,27,28,30,31,33,34,36,37,39,40];
-                            const theDmg =  calc(aeryBase[level - 1], calc(calc(ap, 0.1), calc(attackdamage[1], 0.15), 0), 0);
+                            const aeryBase = calc(calc(level - 1, 1.76), 10, 0);
+                            const theDmg =  calc(aeryBase, calc(calc(ap, 0.1), calc(attackdamage[1], 0.15), 0), 0);
                             if (adaptTyp === "phys") {
                                 physDmg = calc(theDmg, physDmg, 0);
                             } else {
@@ -2466,8 +2466,8 @@ const champObj = function (obj, side, uid) {// create champion object
                             }
                         }
                         if (runeCheck(8126, true)) {// Cheap Shot
-                            let chpShotBase = [15, 16, 18, 19, 21, 22, 24, 25, 27, 28, 30, 31, 33, 34, 36, 37, 39, 40];
-                            truDmg = calc(truDmg, chpShotBase[level - 1], 0);
+                            let chpShotBase = calc(6.12, calc(level, 1.88), 0);
+                            truDmg = calc(truDmg, chpShotBase, 0);
                         }
                         if (runeCheck(8136, true)) {// Zombie Ward
                             let zWardBase = [30,34,37,41,44,48,51,55,58,62,65,69,72,76,79,83,86,90];
@@ -2548,8 +2548,8 @@ const champObj = function (obj, side, uid) {// create champion object
                             }
                         }
                         if (runeCheck(8237, true)) {// Scorch
-                            let scorchBase = [20, 22, 25, 27, 29, 32, 34, 36, 39, 41, 44, 46, 48, 51, 53, 55, 58, 60];
-                            magDmg = calc(magDmg, scorchBase[level - 1], 0);
+                            let scorchBase = calc(8.82, calc(1.18, level), 0);
+                            magDmg = calc(magDmg, scorchBase, 0);
                         }
                     }
                     if (spellObj.onHit && !isTick) {
@@ -2793,8 +2793,8 @@ const champObj = function (obj, side, uid) {// create champion object
                         myShield = calc(calc(myShield, guardianLvl[level -1], 0), calc(calc(ap, 0.25), calc(hp[1], 0.12), 0), 0);
                     }
                     if (runeCheck(8214, true) && !spellObj.selfHeal && !spellObj.selfShield) {// Aery
-                        let aeryBase = [30,33,36,39,42,45,48,51,54,56,59,62,65,68,71,74,77,80];
-                        myShield = calc(calc(myShield, aeryBase[level -1], 0), calc(calc(ap, 0.25), calc(attackdamage[1], 0.4), 0), 0);
+                        const aeryBase = calc(35, calc(2.65, level - 1), 0);
+                        myShield = calc(calc(myShield, aeryBase, 0), calc(calc(ap, 0.25), calc(attackdamage[1], 0.4), 0), 0);
                     }
                     if (runeCheck(8453)) {// revitalize
                         healShieldBonus = calc(0.05, healShieldBonus, 0);

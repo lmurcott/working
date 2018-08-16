@@ -342,7 +342,18 @@ const champVars = {
             spell: 2,
             key: "e1",
             type: "flatPhysReduction"
-        }],
+        },
+        {
+            spell: 2,
+            key: "p1",
+            type: "armor",
+        },
+        {
+            spell: 2,
+            key: "p2",
+            type: "mr",
+        }
+        ],
         debuff: [{
             name: "cursedTouch",
             img: "passive/Amumu_Passive.png",
@@ -371,7 +382,23 @@ const champVars = {
                 type: "mag",
                 spell: true,
                 child: ["a1"]
-            }
+            },
+            p1: {
+                type: "armor",
+                child: ["p1Var"]
+            },
+            p2: {
+                type: "mr",
+                child: ["p2Var"]
+            },
+            p1Var: {
+                link: "bonusarmor",
+                coeff: 0.03
+            },
+            p2Var: {
+                link: "bonusmr",
+                coeff: 0.03
+            },
         },
         sInfo3: {
             e1: {
@@ -2043,7 +2070,7 @@ const champVars = {
             },
             f2Var: {
                 link: "spelldamage",
-                coeff: 0.6
+                coeff: 0.5
             },
             onhitbuffduration: {
                 value: 5
@@ -2055,7 +2082,7 @@ const champVars = {
             },
             f3Var: {
                 link: "spelldamage",
-                coeff: 0.4
+                coeff: 0.35
             },
             onkillmanarefund: {
                 effectNo: 2,
@@ -2085,7 +2112,7 @@ const champVars = {
             },
             f1Var: {
                 link: "spelldamage",
-                coeff: 0.9
+                coeff: 0.8
             },
             bigsharkdamage : {
                 effectNo: 3,
@@ -2095,7 +2122,7 @@ const champVars = {
             },
             f2Var: {
                 link: "spelldamage",
-                coeff: 1.3
+                coeff: 1.2
             },
         }
     },
@@ -2783,7 +2810,11 @@ const champVars = {
             e1: {
                 type: "phys",
                 spell: true,
-                child: ["f1"]
+                child: ["f1Var"]
+            },
+            f1Var: {
+                link: "bonusattackdamage",
+                coeff: 0.7
             }
         },
         sInfo1: {
@@ -5524,7 +5555,7 @@ const champVars = {
             },
             f1Var: {
                 link: "attackdamage",
-                coeff: [0.1, 0.2, 0.3, 0.4, 0.5]
+                coeff: [1, 1.1, 1.2, 1.3, 1.4]
             }
         },
         sInfo1: {
@@ -5853,7 +5884,7 @@ const champVars = {
             },
             f1Var: {
                 link: "maxHp",
-                coeff: [0.09, 0.11, 0.13, 0.15, 0.17]
+                coeff: [0.09, 0.1, 0.11, 0.12, 0.13]
             },
             e4: {
                 type: "mag",
@@ -6757,7 +6788,7 @@ const champVars = {
             },
             f1Var: {
                 link: "armor",
-                coeff: [0.5, 0.6, 0.7, 0.8, 0.9]
+                coeff: [0.6, 0.7, 0.8, 0.9, 1]
             },
             e8: {
                 type: "mr"
@@ -6768,7 +6799,7 @@ const champVars = {
             },
             f2Var: {
                 link: "mr",
-                coeff: [0.25, 0.3, 0.35, 0.4, 0.45]
+                coeff: [0.3, 0.35, 0.4, 0.45, 0.5]
             }
         },
         sInfo2: {
@@ -8779,7 +8810,7 @@ const champVars = {
             },
             f1Var: {
                 link: "attackdamage",
-                coeff: [0, 0.05, 0.1, 0.15, 0.2]
+                coeff: [1, 1.1, 1.2, 1.3, 1.4]
             }
         },
         sInfo1: {
@@ -10217,12 +10248,12 @@ const champVars = {
             p1: {
                 info: "magicDamage",
                 type: "mag",
-                valuePerLvl: [12, 15, 20, 25, 30, 35, 48, 53, 67, 73, 79, 86, 93, 100, 109, 117, 126, 135],
+                valuePerLvl: [10,12,16,20,24,28,34,40,46,52,60,68,76,84,94,104,114,124],
                 child: ["p1Var"]
             },
             p1Var: {
                 link: "spelldamage",
-                coeff: 0.325
+                coeff: 0.2
             }
         },
         sInfo0: {
