@@ -25,16 +25,16 @@ const calc = function (num1, num2, o = 2) {// Calculate decimal equations
             ? 0
             : numStr.length - numStr.indexOf(".") - 1;
     };
-    const num1DP = getDP(num1), num2DP = getDP(num2);
-    const num1Int = (o === 2)
-        ? Number(num1 + "e" + num1DP)
-        : Number(num1 + "e" + Math.max(num1DP, num2DP));
-    const num2Int = (o === 2)
-        ? Number(num2 + "e" + num2DP)
-        : Number(num2 + "e" + Math.max(num1DP, num2DP));
+    let num1Int = round(num1, 10), num2Int = round(num2, 10);//Make sure numbers are not too long for JS otherwise can NAN
+    const num1DP = getDP(num1Int), num2DP = getDP(num2Int);
+    num1Int = (o === 2)
+        ? Number(num1Int + "e" + num1DP)
+        : Number(num1Int + "e" + Math.max(num1DP, num2DP));
+    num2Int = (o === 2)
+        ? Number(num2Int + "e" + num2DP)
+        : Number(num2Int + "e" + Math.max(num1DP, num2DP));
     switch (o) {
     case 0:// Addition
-        //return Number(`${num1Int + num2Int}e-${Math.max(num1DP, num2DP)}`);
         return Number(num1Int + num2Int + "e-" + Math.max(num1DP, num2DP));
     case 1:// Subtraction
         return Number(`${num1Int - num2Int}e-${Math.max(num1DP, num2DP)}`);
@@ -2563,7 +2563,6 @@ const champObj = function (obj, side, uid) {// create champion object
                             } else {
                                 truDmg = calc(truDmg, elderDmg, 0);
                             }
-                            
                         }
                         if (!noProc) {
                             if (itemCheck(3145, true)) {//Hex Revolver
