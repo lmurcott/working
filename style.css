@@ -467,10 +467,9 @@ h2 {
 .elixir {
     padding-top: 0.2em;
     float: left;
-    height: 100%;
     width: 8em;
     text-align: center;
-    margin: 0 0.5em;
+    margin: 0 0.4em;
 }
 
 .elixir img {
