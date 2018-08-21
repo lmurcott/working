@@ -3087,12 +3087,11 @@ const champObj = function (obj, side, uid) {// create champion object
                         if (myChamps[uid]["sInfo" + spellNo] && myChamps[uid]["sInfo" + spellNo][rawKey + "a"]) {// alternate spell vars
                             altKey.push(rawKey);
                         }
-
                     });
                 }
                 tooltip = tooltip.replace(/<font.color\='#......'.?size\='..'>/g, "");
                 tooltip = tooltip.replace(/\(\+.?\D*\)/g, "");
-                tooltip = tooltip.replace(/<\/span>\%/g, "</span>");
+                tooltip = tooltip.replace(/<\/span>\s?\%/g, "</span>");
                 tooltip = tooltip.replace(/<\/span>]\%([\s]\%)?/g, "</span>]");
                 tooltip = tooltip.replace(/\s\%/g, "%");
                 return tooltip;
@@ -3175,9 +3174,18 @@ const champObj = function (obj, side, uid) {// create champion object
                 totalArmor = calcPenResist(armor[0], armor[1], eAPen);
             }
             const totalSBlock = calcPenResist(spellblock[0], spellblock[1], eMPen);
-            let physDmg = round(calc(dmg[0], calcResist(totalArmor)), 1);
-            let magDmg = round(calc(dmg[1], calcResist(totalSBlock)), 1);
+            let physDmg = dmg[0];
+            let magDmg = dmg[1];
             const truDmg = dmg[2];
+            const ptaLvl = document.getElementById(uid).querySelector(".pta").value;
+            if (ptaLvl > 0) {//press the attack
+                const ptaMulti = calc(1.08, calc(ptaLvl - 1, 0.0024), 0);
+                physDmg = calc(physDmg, ptaMulti);
+                magDmg = calc(magDmg, ptaMulti);
+            }
+            physDmg = round(calc(physDmg, calcResist(totalArmor)), 1);
+            magDmg = round(calc(magDmg, calcResist(totalSBlock)), 1);
+            
             if (dmgReduct[0]) {
                 magDmg = calc(magDmg, calc(1, Number(dmgReduct[0] + "e-2"), 1));
             }
@@ -3186,13 +3194,15 @@ const champObj = function (obj, side, uid) {// create champion object
             }
             if (runeCheck(8473, true)) {// Bone Plating
                 const bPlat = [15, 16, 18, 19, 21, 22, 24, 25, 27, 28, 30, 31, 33, 34, 36, 37, 39, 40];
-                dmgReduct[2] = calc(dmgReduct[2], bPlat[level - 1], 0);
                 magDmg = calc(magDmg, bPlat[level - 1], 1);
+                physDmg = calc(physDmg, calc(dmgReduct[2], bPlat[level - 1], 0), 1);
                 if (magDmg < 0) {
                     magDmg = 0;
                 }
-            }
-            if (dmgReduct[2]) {
+                if (physDmg < 0) {
+                    physDmg = 0;
+                }
+            } else if (dmgReduct[2]) {
                 physDmg = calc(physDmg, dmgReduct[2], 1);
                 if (physDmg < 0) {
                     physDmg = 0;
