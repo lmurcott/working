@@ -2670,8 +2670,15 @@ const champObj = function (obj, side, uid) {// create champion object
                         if (items.includes(3115)) {//Nashor
                             magDmg = calc(magDmg, calc(calc(15, calc(0.15, ap), 0), onHitMulti), 0);
                         }
-                        if (items.includes(3153) && enemyUID) {//Botrk
-                            physDmg = calc(calc(myChamps[enemyUID].getPercentHP(0.08, "currHp"), onHitMulti), physDmg, 0);
+                        if (items.includes(3153)) {//Botrk
+                            let botrkTick = 15;
+                            if (enemyUID) {
+                                const enemyBotrk = myChamps[enemyUID].getPercentHP(0.08, "currHp");
+                                if (botrkTick < enemyBotrk) {
+                                    botrkTick = enemyBotrk;
+                                }
+                            }
+                            physDmg = calc(calc(botrkTick, onHitMulti), physDmg, 0);
                         }
                         if ((items.includes(1416) || items.includes(1419)) && enemyUID) {//Bloodrazer
                             physDmg = calc(calc(myChamps[enemyUID].getPercentHP(0.04), onHitMulti, 0), physDmg, 0);
