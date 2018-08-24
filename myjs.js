@@ -587,7 +587,9 @@ const champObj = function (obj, side, uid) {// create champion object
                     attackspeed[1] = calc(attackspeed[1], aSpdBonus, 0);
                 }
                 if (id === "Jhin") {
-                    attackspeed[0] = round(calc(attackspeed[0], calc(attackspeed[1], 1, 0)), 3);
+                    attackspeed[0] = round(calc(calcBaseStats(1, 0.03, level), attackspeed[0]), 3);
+                    //**Swap with line above if attackspeedperlevel is added back in for jhin**
+                    //attackspeed[0] = round(calc(attackspeed[0], calc(attackspeed[1], 1, 0)), 3);
                     attackspeed[1] = 0;
                 }
                 attackspeed[2] = 2.5;
@@ -823,6 +825,9 @@ const champObj = function (obj, side, uid) {// create champion object
                     }
                     if (itemCheck(3504)) {// Ardent Censor
                         move[2] = calc(move[2], 0.08, 0);
+                    }
+                    if (itemCheck(3046, true)) {// Phantom Dancer
+                        move[2] = calc(move[2], 0.07, 0);
                     }
                     if (itemCheck(3086)) {// Zeal
                         move[2] = calc(move[2], 0.05, 0);
@@ -1169,7 +1174,12 @@ const champObj = function (obj, side, uid) {// create champion object
                 if (runeCheck(8444, true)) {//Second Wind
                     hpregen[1] = calc(hpregen[1], calc(getPercentHP(0.04, "missHp"), 6, 0), 0);
                 }
-                if (runeCheck(8124, true)) {// Predator
+                if (runeCheck(8352)) {//Time Warp Tonic
+                    if (itemCheck(2003, true) || itemCheck(2031, true) || itemCheck(2032, true) || itemCheck(2033, true)    ) {
+                        move[2] = calc(move[2], 0.05, 0);
+                    }
+                }
+                if (runeCheck(8124, true)) {//Predator
                     move[2] = calc(move[2], 0.45, 0);
                 }
                 if (runeCheck(8120, true)) {//ghost poro
@@ -1622,7 +1632,8 @@ const champObj = function (obj, side, uid) {// create champion object
                     3193,
                     3095,
                     3508,
-                    3109
+                    3109,
+                    3046
                 ];
                 const maxValue = {//items that require number inputs
                     1082: 10,
@@ -3189,6 +3200,11 @@ const champObj = function (obj, side, uid) {// create champion object
                 physDmg = calc(physDmg, ptaMulti);
                 magDmg = calc(magDmg, ptaMulti);
             }
+            if (itemCheck(3046, true)) {// Phantom Dancer
+                physDmg = calc(physDmg, 0.88);
+                magDmg = calc(magDmg, 0.88);
+            }
+
             physDmg = round(calc(physDmg, calcResist(totalArmor)), 1);
             magDmg = round(calc(magDmg, calcResist(totalSBlock)), 1);
             
