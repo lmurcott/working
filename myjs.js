@@ -1559,18 +1559,12 @@ const champObj = function (obj, side, uid) {// create champion object
                 }
 
                 //Attack Speed Reductions
-                let aSpdReduction = 1;
                 if (document.getElementById(uid).querySelector(".frozenHeart").checked) {// frozen heart
-                    aSpdReduction = calc(aSpdReduction, 0.85);
+                    attackspeed[0] = round(calc(attackspeed[0], 0.85), 3);
                 }
                 if (document.getElementById(uid).querySelector(".coldSteel").checked) {// cold steel passive
-                    aSpdReduction = calc(aSpdReduction, 0.85);
+                    attackspeed[0] = round(calc(attackspeed[0], 0.85), 3);
                 }
-                if (aSpdReduction < 1) {
-                    attackspeed[0] = calc(attackspeed[0], aSpdReduction);
-                    attackspeed[1] = calc(attackspeed[1], aSpdReduction);
-                }
-
                 // Flat Reductions
                 if (flatMRReduct > 0) {
                     spellblock[0] = round(calc(spellblock[0], calc(flatMRReduct, calc(spellblock[0], spellblock[0] + spellblock[1], 3)), 1));
